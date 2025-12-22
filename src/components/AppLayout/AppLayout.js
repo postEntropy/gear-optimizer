@@ -22,7 +22,7 @@ import {
     Paper,
     CircularProgress
 } from '@mui/material';
-import { Brightness4, Brightness7, ColorLens } from '@mui/icons-material';
+import { Brightness4, Brightness7, ColorLens, GitHub } from '@mui/icons-material';
 import { Menu, MenuItem, ListItemIcon } from '@mui/material';
 
 
@@ -275,7 +275,22 @@ const AppLayout = (props) => {
                             }}
                         >
                             <IconButton onClick={handleColorMenuOpen} color="inherit" size="small">
-                                <ColorLens fontSize="medium" sx={{ color: theme.palette.primary.main }} />
+                                <ColorLens fontSize="small" style={{ color: theme.palette.primary.main }} />
+                            </IconButton>
+
+                            <IconButton
+                                component={Link}
+                                href="https://github.com/postEntropy/gear-optimizer"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                color="inherit"
+                                size="small"
+                            >
+                                <GitHub fontSize="small" />
+                            </IconButton>
+
+                            <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
+                                {darkMode ? <Brightness7 fontSize="small" /> : <Brightness4 fontSize="small" />}
                             </IconButton>
 
                             <Menu
