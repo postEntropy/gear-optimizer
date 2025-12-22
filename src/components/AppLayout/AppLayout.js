@@ -275,7 +275,7 @@ const AppLayout = (props) => {
                             }}
                         >
                             <IconButton onClick={handleColorMenuOpen} color="inherit" size="small">
-                                <ColorLens fontSize="small" style={{ color: theme.palette.primary.main }} />
+                                <ColorLens fontSize="medium" sx={{ color: theme.palette.primary.main }} />
                             </IconButton>
 
                             <IconButton
@@ -285,12 +285,16 @@ const AppLayout = (props) => {
                                 rel="noopener noreferrer"
                                 color="inherit"
                                 size="small"
+                                sx={{ ml: 0.5 }}
                             >
-                                <GitHub fontSize="small" />
+                                <GitHub fontSize="small" sx={{ color: theme.palette.primary.main }} />
                             </IconButton>
 
                             <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
-                                {darkMode ? <Brightness7 fontSize="small" /> : <Brightness4 fontSize="small" />}
+                                {darkMode ?
+                                    <Brightness7 fontSize="small" sx={{ color: theme.palette.primary.main }} /> :
+                                    <Brightness4 fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                                }
                             </IconButton>
 
                             <Menu
@@ -318,10 +322,6 @@ const AppLayout = (props) => {
                                     </MenuItem>
                                 ))}
                             </Menu>
-
-                            <IconButton onClick={toggleDarkMode} color="primary" size="small" sx={{ ml: 0.5 }}>
-                                {darkMode ? <Brightness7 fontSize="medium" /> : <Brightness4 fontSize="medium" />}
-                            </IconButton>
                         </Paper>
                     </Box>
                 </Box>
