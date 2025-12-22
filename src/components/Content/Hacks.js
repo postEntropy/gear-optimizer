@@ -11,16 +11,23 @@ import { Hacks } from '../../assets/ItemAux';
 import { shorten, toTime } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
 
+import Loading from '../Loading/Loading';
+
 class HackComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             hackoption: this.props.hackstats.hackoption,
-            sortConfig: { key: 'change', direction: 'descending' }
+            sortConfig: { key: 'change', direction: 'descending' },
+            isReady: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.requestSort = this.requestSort.bind(this);
+    }
+
+    componentDidMount() {
+        setTimeout(() => this.setState({ isReady: true }), 300);
     }
 
     requestSort(key) {
@@ -201,6 +208,7 @@ class HackComponent extends Component {
     }
 
     render() {
+        if (!this.state.isReady) return <Loading />;
         ReactGA.pageview('/hacks/');
         let hackOptimizer = new Hack(this.props);
         const hacktime = this.props.hackstats.hacktime;

@@ -25,14 +25,24 @@ import DarkModeContext from '../AppLayout/DarkModeContext';
 
 
 
+import Loading from '../Loading/Loading';
+
 class Optimizer extends Component {
     static contextType = DarkModeContext;
 
     constructor(props) {
         super(props);
+        this.state = { isReady: false };
         this.fresh = true;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        // Defer rendering to allow browser paint (Loading state)
+        setTimeout(() => {
+            this.setState({ isReady: true });
+        }, 300);
     }
 
     handleFocus(event) {
@@ -80,6 +90,9 @@ class Optimizer extends Component {
     }));
 
     render() {
+        if (!this.state.isReady) {
+            return <Loading />;
+        }
         //HACK: no idea how to do this properly
         if (!this.props.loaded) {
             return <div />;

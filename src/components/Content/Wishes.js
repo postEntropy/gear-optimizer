@@ -12,14 +12,21 @@ import { default as Crement } from '../Crement/Crement';
 import { shortenExponential, toTime } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
 
+import Loading from '../Loading/Loading';
+
 class WishComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            timeUnit: 'minutes'
+            timeUnit: 'minutes',
+            isReady: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        setTimeout(() => this.setState({ isReady: true }), 300);
     }
 
     handleFocus(event) {
@@ -103,9 +110,10 @@ class WishComponent extends Component {
     };
 
     render() {
+        if (!this.state.isReady) return <Loading />;
         ReactGA.pageview('/wishes/');
-        let wish = new Wish(this.props);
-        const results = wish.optimize();
+        let wishOptimizer = new Wish(this.props);
+        const results = wishOptimizer.optimize();
         const score = toTime(Math.max(...results[0]));
         const scores = results[0];
         const assignments = results[1];

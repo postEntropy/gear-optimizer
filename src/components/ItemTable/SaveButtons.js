@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Checkbox, FormControlLabel, TextField, Dialog, DialogContent, Box, Stack } from '@mui/material';
+import { Button, Checkbox, FormControlLabel, TextField, Dialog, DialogContent, Box, Stack, Paper } from '@mui/material';
 
 import { default as OptimizeButton } from '../OptimizeButton/OptimizeButton';
 import SaveForm from '../SaveForm/SaveForm';
@@ -45,7 +45,7 @@ class SaveButtons extends Component {
             : this.props.savedequip[this.props.savedidx].name;
 
         return (
-            <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, m: 0.5 }}>
+            <Paper variant="outlined" sx={{ p: 1, m: 0.5 }}>
                 <Stack direction="row" spacing={1} sx={{ mb: 1 }} alignItems="center" flexWrap="wrap">
                     <OptimizeButton text={'All Saves'} running={this.props.running} abort={this.props.handleTerminate}
                         optimize={this.props.handleOptimizeSaves} size="small" startIcon={null} />
@@ -102,7 +102,7 @@ class SaveButtons extends Component {
                         label="Ignore used"
                     />
                 </Stack>
-            </Box>
+            </Paper>
         );
     };
 }

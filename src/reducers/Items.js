@@ -126,12 +126,7 @@ export function cleanState(state, skipSaving = false) {
         state.maxsavedidx = state.savedequip.length - 1;
     }
     // save and return cleaned state
-    if (!skipSaving && document.cookie.includes('accepts-cookies=true')) {
-        window.localStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
-            ...state,
-            loaded: false
-        }));
-    }
+    // REMOVED synchronous localStorage.setItem. State saving is handled by App.js via debounce.
     return state;
 }
 

@@ -9,16 +9,23 @@ import { NGUs } from '../../assets/ItemAux';
 import { shorten } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
 
+import Loading from '../Loading/Loading';
+
 class NGUComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             sortConfig: { key: 'reachable_level', direction: 'descending' },
-            timeUnit: 'minutes'
+            timeUnit: 'minutes',
+            isReady: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.requestSort = this.requestSort.bind(this);
+    }
+
+    componentDidMount() {
+        setTimeout(() => this.setState({ isReady: true }), 300);
     }
 
     requestSort(key) {
@@ -102,6 +109,7 @@ class NGUComponent extends Component {
     }
 
     render() {
+        if (!this.state.isReady) return <Loading />;
         ReactGA.pageview('/ngus/');
         let nguOptimizer = new NGU(this.props);
         const energy = this.props.ngustats.energy;

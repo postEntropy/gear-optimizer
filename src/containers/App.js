@@ -1,47 +1,75 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import ReactGA from 'react-ga';
 
-import {default as AppLayout} from '../components/AppLayout/AppLayout';
+import { default as AppLayout } from '../components/AppLayout/AppLayout';
 
-import {AugmentAsync, AugmentSettings} from '../actions/Augment'
-import {HackAsync} from '../actions/Hack'
-import {WishAsync} from '../actions/Wish'
-import {Go2Titan, Settings} from '../actions/Settings'
-import {Crement} from '../actions/Crement'
-import {DisableItem, DisableZone} from '../actions/DisableItem';
-import {ToggleModal} from '../actions/ToggleModal';
-import {EditItem} from '../actions/EditItem';
-import {EditFactor} from '../actions/EditFactor';
-import {EquipItem, EquipItems} from '../actions/EquipItem';
-import {HideZone} from '../actions/HideZone'
-import {LockItem} from '../actions/LockItem'
-import {OptimizeGearAsync} from '../actions/OptimizeGear';
-import {OptimizeSavesAsync} from '../actions/OptimizeSaves';
-import {Terminate} from '../actions/Terminate'
-import {Undo} from '../actions/Undo'
-import {UnequipItem} from '../actions/UnequipItem';
-import {DeleteSlot} from '../actions/DeleteSlot'
-import {LoadFactors, LoadSlot} from '../actions/LoadSlot'
-import {SaveName, SaveSlot} from '../actions/SaveSlot'
-import {ToggleSaved, ToggleUnused} from '../actions/ToggleSaved'
-import {LoadStateLocalStorage} from '../actions/LoadStateLocalStorage';
-import {SaveStateLocalStorage} from '../actions/SaveStateLocalStorage';
+import { AugmentAsync, AugmentSettings } from '../actions/Augment'
+import { HackAsync } from '../actions/Hack'
+import { WishAsync } from '../actions/Wish'
+import { Go2Titan, Settings } from '../actions/Settings'
+import { Crement } from '../actions/Crement'
+import { DisableItem, DisableZone } from '../actions/DisableItem';
+import { ToggleModal } from '../actions/ToggleModal';
+import { EditItem } from '../actions/EditItem';
+import { EditFactor } from '../actions/EditFactor';
+import { EquipItem, EquipItems } from '../actions/EquipItem';
+import { HideZone } from '../actions/HideZone'
+import { LockItem } from '../actions/LockItem'
+import { OptimizeGearAsync } from '../actions/OptimizeGear';
+import { OptimizeSavesAsync } from '../actions/OptimizeSaves';
+import { Terminate } from '../actions/Terminate'
+import { Undo } from '../actions/Undo'
+import { UnequipItem } from '../actions/UnequipItem';
+import { DeleteSlot } from '../actions/DeleteSlot'
+import { LoadFactors, LoadSlot } from '../actions/LoadSlot'
+import { SaveName, SaveSlot } from '../actions/SaveSlot'
+import { ToggleSaved, ToggleUnused } from '../actions/ToggleSaved'
+import { LoadStateLocalStorage } from '../actions/LoadStateLocalStorage';
+import { SaveStateLocalStorage } from '../actions/SaveStateLocalStorage';
 
 import '../stylesheets/App.css';
-import {DropEquipItem} from '../actions/DropEquipItem';
+import { DropEquipItem } from '../actions/DropEquipItem';
 
 ReactGA.initialize('UA-141463995-1');
+
+import { HashRouter } from 'react-router-dom';
+import { LOCALSTORAGE_NAME } from '../constants';
+
+// Helper to debounce save operations
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
 
 class App extends Component {
     componentDidMount = () => {
         this.props.handleLoadStateLocalStorage();
         window.appHandlers = this.props;
     }
-    componentDidUpdate = () => this.props.handleSaveStateLocalStorage(this.props);
+    componentDidUpdate = () => this.saveStateDebounced(this.props);
+
+    saveStateDebounced = debounce((state) => this.saveState(state), 1000);
+
+    saveState = (state) => {
+        if (state && document.cookie.includes('accepts-cookies=true')) {
+            window.localStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
+                ...state,
+                loaded: false
+            }));
+        }
+    }
 
     render() {
-        return <AppLayout {...this.props}/>;
+        return (
+            <HashRouter>
+                <AppLayout {...this.props} />
+            </HashRouter>
+        );
     }
 }
 

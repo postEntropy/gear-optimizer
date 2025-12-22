@@ -32,14 +32,21 @@ const AUGS = [
     }
 ]
 
+import Loading from '../Loading/Loading';
+
 class AugmentComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            timeUnit: 'minutes'
+            timeUnit: 'minutes',
+            isReady: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        setTimeout(() => this.setState({ isReady: true }), 300);
     }
 
     handleFocus(event) {
