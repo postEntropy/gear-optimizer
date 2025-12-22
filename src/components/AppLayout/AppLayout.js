@@ -231,7 +231,6 @@ const AppLayout = (props) => {
                                 alignItems: 'center',
                                 gap: 0.5,
                                 overflowX: 'auto',
-                                overflowX: 'auto',
                                 backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7), // Semi-transparent for glass effect
                                 backdropFilter: 'blur(16px)', // The "Glassmorphism"
                                 border: '1px solid',
@@ -266,8 +265,6 @@ const AppLayout = (props) => {
                             sx={{
                                 borderRadius: 50,
                                 px: 2, // Slightly more padding for the smaller separate pill
-                                display: 'flex',
-                                alignItems: 'center',
                                 display: 'flex',
                                 alignItems: 'center',
                                 backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7),
