@@ -22,7 +22,7 @@ import {
     Paper,
     CircularProgress
 } from '@mui/material';
-import { Brightness4, Brightness7, ColorLens, GitHub } from '@mui/icons-material';
+import { Brightness4, Brightness7, Palette, GitHub } from '@mui/icons-material';
 import { Menu, MenuItem, ListItemIcon } from '@mui/material';
 
 
@@ -275,7 +275,14 @@ const AppLayout = (props) => {
                             }}
                         >
                             <IconButton onClick={handleColorMenuOpen} color="inherit" size="small">
-                                <ColorLens fontSize="medium" sx={{ color: theme.palette.primary.main }} />
+                                <Palette fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                            </IconButton>
+
+                            <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
+                                {darkMode ?
+                                    <Brightness7 fontSize="small" sx={{ color: theme.palette.primary.main }} /> :
+                                    <Brightness4 fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                                }
                             </IconButton>
 
                             <IconButton
@@ -288,13 +295,6 @@ const AppLayout = (props) => {
                                 sx={{ ml: 0.5 }}
                             >
                                 <GitHub fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                            </IconButton>
-
-                            <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
-                                {darkMode ?
-                                    <Brightness7 fontSize="small" sx={{ color: theme.palette.primary.main }} /> :
-                                    <Brightness4 fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                                }
                             </IconButton>
 
                             <Menu
