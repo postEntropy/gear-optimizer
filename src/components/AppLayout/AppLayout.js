@@ -20,7 +20,8 @@ import {
     ListItem,
     ListItemText,
     Paper,
-    CircularProgress
+    CircularProgress,
+    Tooltip
 } from '@mui/material';
 import { Brightness4, Brightness7, Palette, GitHub } from '@mui/icons-material';
 import { Menu, MenuItem, ListItemIcon } from '@mui/material';
@@ -274,28 +275,34 @@ const AppLayout = (props) => {
                                 height: 48 // Match nav pill height
                             }}
                         >
-                            <IconButton onClick={handleColorMenuOpen} color="inherit" size="small">
-                                <Palette fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                            </IconButton>
+                            <Tooltip title="Change Theme Color">
+                                <IconButton onClick={handleColorMenuOpen} color="inherit" size="small">
+                                    <Palette fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                                </IconButton>
+                            </Tooltip>
 
-                            <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
-                                {darkMode ?
-                                    <Brightness7 fontSize="small" sx={{ color: theme.palette.primary.main }} /> :
-                                    <Brightness4 fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                                }
-                            </IconButton>
+                            <Tooltip title="Toggle Dark Mode">
+                                <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
+                                    {darkMode ?
+                                        <Brightness7 fontSize="small" sx={{ color: theme.palette.primary.main }} /> :
+                                        <Brightness4 fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                                    }
+                                </IconButton>
+                            </Tooltip>
 
-                            <IconButton
-                                component={Link}
-                                href="https://github.com/postEntropy/gear-optimizer"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                color="inherit"
-                                size="small"
-                                sx={{ ml: 0.5 }}
-                            >
-                                <GitHub fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                            </IconButton>
+                            <Tooltip title="View Source on GitHub">
+                                <IconButton
+                                    component={Link}
+                                    href="https://github.com/postEntropy/gear-optimizer"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    color="inherit"
+                                    size="small"
+                                    sx={{ ml: 0.5 }}
+                                >
+                                    <GitHub fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                                </IconButton>
+                            </Tooltip>
 
                             <Menu
                                 anchorEl={anchorEl}
