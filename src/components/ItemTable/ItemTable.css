@@ -1,0 +1,49 @@
+.item-table {
+    width: 48vw;
+    height: 72vh;
+    margin: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 2px solid black;
+    border-radius: 5px;
+    margin: 0vh 1vw;
+}
+
+.stats-section {
+    margin: 5px;
+}
+
+.item-section {
+    display: inline-block;
+    overflow: hidden;
+    min-width: 50px;
+    max-width: 45vw;
+    display: block;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.increase-stat {
+    color: green;
+}
+
+.dark-mode .increase-stat {
+    color: #1fb52e;
+}
+
+.same-stat {
+    color: black;
+}
+
+.dark-mode .same-stat {
+    color: white;
+}
+
+.decrease-stat {
+    color: red;
+}
+
+.priority-stat {
+    font-weight: bold;
+}

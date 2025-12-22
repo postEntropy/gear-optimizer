@@ -1,0 +1,16 @@
+{
+  "short_name": "Gear Optimizer",
+  "name": "Gear Optimizer for NGU Idle",
+  "icons": [
+    {
+      "src": "favicon-720.png",
+      "sizes": "720x720",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#333",
+  "background_color": "#fff"
+}

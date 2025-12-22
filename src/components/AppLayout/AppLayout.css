@@ -1,0 +1,87 @@
+.nav-bar-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 5vh;
+    background-color: #333;
+    display: flex;
+}
+
+.nav-bar-item {
+    display: inline;
+    float: left;
+    border-right: 1px solid #fff;
+}
+
+.nav-bar-item-separator {
+    margin-left: auto;
+}
+
+.nav-bar-item:last-child {
+    border-right: none;
+    padding-right: 10px;
+}
+
+.nav-link {
+    display: block;
+    color: white;
+    text-align: center;
+    height: 3vh;
+    padding: 1vh 1vw;
+    text-decoration: none;
+}
+
+.active {
+    background-color: #33b;
+}
+
+/* Dark mode styling */
+
+.app_container.dark-mode {
+    min-height: 100%;
+    background-color: #222;
+    color: white;
+}
+
+div.ReactModal__Content.dark-mode {
+    background-color: #222;
+    color: white;
+}
+
+.dark-mode .howto {
+    padding-bottom: 1px;
+}
+
+.dark-mode input, .dark-mode button, .dark-mode select {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-color: white;
+}
+
+.dark-mode select option {
+    color: white;
+    background-color: #333;
+}
+
+.dark-mode div.basic-single *, .dark-mode div.select__menu * {
+    color: white;
+    background-color: #222;
+}
+
+.dark-mode div.select__input-container {
+    color: white;
+    background: transparent;
+}
+
+.dark-mode div.select__option--is-selected {
+    background-color: #555; /* Your chosen background color for the selected item */
+    color: white; /* Ensures text color is white for readability */
+}
+
+/* Styling for the focused item in the dropdown */
+.dark-mode div.select__option--is-focused {
+    background-color: #333; /* Custom background color for focused item */
+    color: white; /* Ensure text color is white */
+}
