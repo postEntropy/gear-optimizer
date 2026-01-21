@@ -1,83 +1,100 @@
 import React, { useMemo } from 'react';
 import CookieBanner from 'react-cookie-banner';
-import { HashRouter, NavLink, Route, Routes, useParams, useLocation, useMatch } from 'react-router-dom';
-import ReactGA from 'react-ga';
+import { NavLink, useLocation, useMatch, useParams } from 'react-router-dom';
 
 import {
     alpha,
-    AppBar,
-    Toolbar,
-    Button,
-    Container,
+    Box,
     CssBaseline,
     ThemeProvider,
-    Box,
     Typography,
     IconButton,
     useMediaQuery,
     Link,
     List,
     ListItem,
+    ListItemButton,
+    ListItemIcon,
     ListItemText,
-    Paper,
-    CircularProgress,
-    Tooltip
+    Drawer,
+    Tooltip,
+    Divider,
+    Avatar
 } from '@mui/material';
-import { Brightness4, Brightness7, Palette, GitHub } from '@mui/icons-material';
-import { Menu, MenuItem, ListItemIcon } from '@mui/material';
-
-
+import {
+    Brightness4,
+    Brightness7,
+    Palette,
+    GitHub,
+    SettingsSuggest, // Gear/Optimizer
+    TrendingUp, // Augments (Growth)
+    FlashOn, // Energy/Magic (NGUs)
+    Code, // Hacks
+    Star // Wishes
+} from '@mui/icons-material';
+import { Menu, MenuItem } from '@mui/material';
 
 import DarkModeContext from './DarkModeContext';
 import getTheme from '../../theme';
 import { THEME_COLORS } from '../../themeColors';
+import Loading from '../Loading/Loading';
 
+// Static Imports for Instant Navigation
+import Optimizer from '../Content/Optimizer';
+import Augment from '../Content/Augment';
+import NGUComponent from '../Content/NGUs';
+import HackComponent from '../Content/Hacks';
+import WishComponent from '../Content/Wishes';
+// import AboutComponent from '../About/About';
 
+const DRAWER_WIDTH = 260;
 
-const Loadout = (props) => {
-    let { itemlist } = useParams();
-    const items = itemlist ? itemlist.split('&') : [];
-    // We need to pass route props manually if Optimizer expects them, 
-    // but v6 uses hooks. We'll pass the list as a prop.
-    return <Optimizer {...props} loadLoadout={items} className='app_body' />;
-}
-
-const NavButton = ({ to, label, buttonRef, isActive }) => {
-    return (
-        <Button
-            ref={buttonRef}
-            component={NavLink}
-            to={to}
-            color={isActive ? "primary" : "inherit"}
-            variant="text" // Always text variant, pill handles background
-            disableRipple
-            sx={{
-                mx: 0,
-                borderRadius: 24,
-                minWidth: 'auto',
-                px: 2,
-                whiteSpace: 'nowrap',
-                zIndex: 1, // Above pill
-                transition: 'color 0.2s',
-                color: isActive ? 'primary.contrastText' : 'text.primary',
-                '&:hover': {
-                    bgcolor: 'transparent' // Let pill handle hover visuals or keep simple
-                }
-            }}
-        >
-            {label}
-        </Button>
-    );
+// Simple Fade Animation
+const fadeAnimation = {
+    animation: 'fadeIn 0.3s ease-in-out',
+    '@keyframes fadeIn': {
+        '0%': { opacity: 0, transform: 'translateY(10px)' },
+        '100%': { opacity: 1, transform: 'translateY(0)' },
+    }
 };
 
-const Optimizer = React.lazy(() => import('../Content/Optimizer'));
-const Augment = React.lazy(() => import('../Content/Augment'));
-const NGUComponent = React.lazy(() => import('../Content/NGUs'));
-const HackComponent = React.lazy(() => import('../Content/Hacks'));
-const WishComponent = React.lazy(() => import('../Content/Wishes'));
-const AboutComponent = React.lazy(() => import('../About/About')); // Also lazy load About
-
-import Loading from '../Loading/Loading';
+const NavItem = ({ to, label, icon, isActive }) => {
+    return (
+        <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItemButton
+                component={NavLink}
+                to={to}
+                selected={isActive}
+                sx={{
+                    borderRadius: '0 24px 24px 0', // Rounded right side
+                    mr: 2,
+                    pl: 3,
+                    height: 48,
+                    transition: 'all 0.2s',
+                    '&.active': {
+                        bgcolor: 'primary.main',
+                        color: 'primary.contrastText',
+                        boxShadow: (theme) => `0 4px 20px 0 ${alpha(theme.palette.primary.main, 0.4)}`,
+                        '& .MuiListItemIcon-root': {
+                            color: 'primary.contrastText',
+                        }
+                    },
+                    '&:hover:not(.active)': {
+                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    }
+                }}
+            >
+                <ListItemIcon sx={{ minWidth: 40, color: isActive ? 'inherit' : 'text.secondary' }}>
+                    {icon}
+                </ListItemIcon>
+                <ListItemText
+                    primary={label}
+                    primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '1rem' }}
+                />
+            </ListItemButton>
+        </ListItem>
+    );
+};
 
 const AppLayout = (props) => {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -117,11 +134,10 @@ const AppLayout = (props) => {
 
     const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light', THEME_COLORS[selectedColorKey]), [darkMode, selectedColorKey]);
 
-    // KeepAlive & Animation Logic
     const location = useLocation();
     const path = location.pathname;
 
-    // Tab Visibility Flags
+    // Route Matching Logic
     const isOptimizer = path === '/' || path === '/loadout' || path.startsWith('/loadout/');
     const loadoutMatch = useMatch('/loadout/:itemlist');
     const loadoutParams = loadoutMatch ? loadoutMatch.params.itemlist?.split('&') : undefined;
@@ -131,9 +147,8 @@ const AppLayout = (props) => {
     const isHacks = path.startsWith('/hacks');
     const isWishes = path.startsWith('/wishes');
 
-    // Track visited tabs for Lazy KeepAlive
     const [visited, setVisited] = React.useState({
-        optimizer: true, // Always load home
+        optimizer: true,
         augment: false,
         ngus: false,
         hacks: false,
@@ -147,28 +162,11 @@ const AppLayout = (props) => {
         if (isWishes && !visited.wishes) setVisited(v => ({ ...v, wishes: true }));
     }, [isAugment, isNGUs, isHacks, isWishes, visited]);
 
-    // Animation Logic for Nav Pill
-    const [pillStyle, setPillStyle] = React.useState({ left: 0, width: 0, opacity: 0 });
-    const navRefs = React.useRef({});
-
-    React.useLayoutEffect(() => {
-        const activePath = ['/augment', '/ngus', '/hacks', '/wishes'].find(path => location.pathname.startsWith(path)) || '/';
-        const activeEl = navRefs.current[activePath];
-
-        if (activeEl) {
-            setPillStyle({
-                left: activeEl.offsetLeft,
-                width: activeEl.clientWidth,
-                opacity: 1
-            });
-        }
-    }, [location.pathname]);
-
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <DarkModeContext.Provider value={darkMode}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                <Box sx={{ display: 'flex', minHeight: '100vh' }}>
                     <CookieBanner
                         styles={{
                             banner: { height: 'auto', zIndex: 9999 },
@@ -177,160 +175,131 @@ const AppLayout = (props) => {
                         message='This page wants to use local storage and a cookie to respectively keep track of your configuration and consent.'
                     />
 
-                    <Box component="main" sx={{ flexGrow: 1, p: 1, pb: 10, display: 'flex', flexDirection: 'column' }}>
-                        {React.useMemo(() => (
-                            <React.Suspense fallback={<Loading />}>
-                                {/* Optimizer / Loadout Tab - Persistent */}
-                                <Box sx={{ display: isOptimizer ? 'block' : 'none', height: '100%' }}>
-                                    <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />
-                                </Box>
-
-                                {/* Augment Tab - Persistent */}
-                                <Box sx={{ display: isAugment ? 'block' : 'none', height: '100%' }}>
-                                    {(visited.augment || isAugment) && <Augment {...props} className='app_body' />}
-                                </Box>
-
-                                {/* NGUs Tab - Persistent */}
-                                <Box sx={{ display: isNGUs ? 'block' : 'none', height: '100%' }}>
-                                    {(visited.ngus || isNGUs) && <NGUComponent {...props} className='app_body' />}
-                                </Box>
-
-                                {/* Hacks Tab - Persistent */}
-                                <Box sx={{ display: isHacks ? 'block' : 'none', height: '100%' }}>
-                                    {(visited.hacks || isHacks) && <HackComponent {...props} className='app_body' />}
-                                </Box>
-
-                                {/* Wishes Tab - Persistent */}
-                                <Box sx={{ display: isWishes ? 'block' : 'none', height: '100%' }}>
-                                    {(visited.wishes || isWishes) && <WishComponent {...props} className='app_body' />}
-                                </Box>
-                            </React.Suspense>
-                        ), [props, isOptimizer, isAugment, isNGUs, isHacks, isWishes, loadoutParams, visited])}
-                    </Box>
-
-                    <Box
+                    {/* SIDEBAR */}
+                    <Drawer
+                        variant="permanent"
                         sx={{
-                            position: 'fixed',
-                            bottom: 24,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            zIndex: 1200,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 2,
-                            width: 'fit-content',
-                            maxWidth: '95vw',
+                            width: DRAWER_WIDTH,
+                            flexShrink: 0,
+                            '& .MuiDrawer-paper': {
+                                width: DRAWER_WIDTH,
+                                boxSizing: 'border-box',
+                                borderRight: 'none',
+                                background: (theme) => theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.5) : alpha('#fff', 0.8), // Custom glass for sidebar
+                            },
                         }}
                     >
-                        {/* Navigation Pill */}
-                        <Paper
-                            elevation={12}
-                            sx={{
-                                borderRadius: 50,
-                                px: 1,
+                        {/* HEADER / LOGO */}
+                        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Avatar variant="rounded" sx={{ bgcolor: 'primary.main', boxShadow: 3 }}>
+                                <SettingsSuggest />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h6" fontWeight={700} lineHeight={1}>
+                                    Gear
+                                </Typography>
+                                <Typography variant="caption" sx={{ letterSpacing: 1, opacity: 0.7 }}>
+                                    OPTIMIZER
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Divider sx={{ mb: 2, mx: 3, opacity: 0.1 }} />
+
+                        {/* NAV ITEMS */}
+                        <List component="nav">
+                            <NavItem to="/" label="Gear Loadout" icon={<SettingsSuggest />} isActive={location.pathname === '/' || location.pathname.startsWith('/loadout')} />
+                            <NavItem to="/augment" label="Augments" icon={<TrendingUp />} isActive={location.pathname.startsWith('/augment')} />
+                            <NavItem to="/ngus" label="NGUs" icon={<FlashOn />} isActive={location.pathname.startsWith('/ngus')} />
+                            <NavItem to="/hacks" label="Hacks" icon={<Code />} isActive={location.pathname.startsWith('/hacks')} />
+                            <NavItem to="/wishes" label="Wishes" icon={<Star />} isActive={location.pathname.startsWith('/wishes')} />
+                        </List>
+
+                        <Box sx={{ flexGrow: 1 }} />
+
+                        {/* FOOTER ACTIONS */}
+                        <Box sx={{ p: 2 }}>
+                            <Box sx={{
+                                p: 2,
+                                borderRadius: 4,
+                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.5), // Safely use paper color
                                 display: 'flex',
-                                alignItems: 'center',
-                                gap: 0.5,
-                                overflowX: 'auto',
-                                backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7), // Semi-transparent for glass effect
-                                backdropFilter: 'blur(16px)', // The "Glassmorphism"
+                                justifyContent: 'space-around',
+                                backdropFilter: 'blur(10px)',
                                 border: '1px solid',
-                                borderColor: 'divider',
-                                height: 48,
-                                position: 'relative' // Needed for absolute positioning of the ghost pill
-                            }}
-                        >
-                            {/* Ghost Pill Indicator */}
-                            <Box
-                                sx={{
-                                    position: 'absolute',
-                                    height: 36,
-                                    borderRadius: 24,
-                                    bgcolor: 'primary.main',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    zIndex: 0,
-                                    ...pillStyle
-                                }}
-                            />
+                                borderColor: 'divider'
+                            }}>
+                                <Tooltip title="Change Color">
+                                    <IconButton onClick={handleColorMenuOpen} size="small">
+                                        <Palette fontSize="small" color="primary" />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Toggle Theme">
+                                    <IconButton onClick={toggleDarkMode} size="small">
+                                        {darkMode ? <Brightness7 fontSize="small" color="primary" /> : <Brightness4 fontSize="small" color="primary" />}
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="GitHub">
+                                    <IconButton component={Link} href="https://github.com/postEntropy/gear-optimizer" target="_blank" size="small">
+                                        <GitHub fontSize="small" color="primary" />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                        </Box>
+                    </Drawer>
 
-                            <NavButton to="/" label="Gear" buttonRef={el => navRefs.current['/'] = el} isActive={location.pathname === '/'} />
-                            <NavButton to="/augment" label="Augments" buttonRef={el => navRefs.current['/augment'] = el} isActive={location.pathname.startsWith('/augment')} />
-                            <NavButton to="/ngus" label="NGUs" buttonRef={el => navRefs.current['/ngus'] = el} isActive={location.pathname.startsWith('/ngus')} />
-                            <NavButton to="/hacks" label="Hacks" buttonRef={el => navRefs.current['/hacks'] = el} isActive={location.pathname.startsWith('/hacks')} />
-                            <NavButton to="/wishes" label="Wishes" buttonRef={el => navRefs.current['/wishes'] = el} isActive={location.pathname.startsWith('/wishes')} />
-                        </Paper>
-
-                        {/* Theme/Settings Pill */}
-                        <Paper
-                            elevation={12}
-                            sx={{
-                                borderRadius: 50,
-                                px: 2, // Slightly more padding for the smaller separate pill
-                                display: 'flex',
-                                alignItems: 'center',
-                                backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.7),
-                                backdropFilter: 'blur(16px)',
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                height: 48 // Match nav pill height
-                            }}
-                        >
-                            <Tooltip title="Change Theme Color">
-                                <IconButton onClick={handleColorMenuOpen} color="inherit" size="small">
-                                    <Palette fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                                </IconButton>
-                            </Tooltip>
-
-                            <Tooltip title="Toggle Dark Mode">
-                                <IconButton onClick={toggleDarkMode} color="inherit" size="small" sx={{ ml: 0.5 }}>
-                                    {darkMode ?
-                                        <Brightness7 fontSize="small" sx={{ color: theme.palette.primary.main }} /> :
-                                        <Brightness4 fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                                    }
-                                </IconButton>
-                            </Tooltip>
-
-                            <Tooltip title="View Source on GitHub">
-                                <IconButton
-                                    component={Link}
-                                    href="https://github.com/postEntropy/gear-optimizer"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    color="inherit"
-                                    size="small"
-                                    sx={{ ml: 0.5 }}
-                                >
-                                    <GitHub fontSize="small" sx={{ color: theme.palette.primary.main }} />
-                                </IconButton>
-                            </Tooltip>
-
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={colorMenuOpen}
-                                onClose={handleColorMenuClose}
-                                PaperProps={{
-                                    sx: { borderRadius: 3, mb: 1 }
-                                }}
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'center',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'center',
-                                }}
-                            >
-                                {Object.values(THEME_COLORS).map((color) => (
-                                    <MenuItem key={color.key} onClick={() => changeColor(color.key)} selected={selectedColorKey === color.key}>
-                                        <ListItemIcon>
-                                            <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: color.main, border: '1px solid', borderColor: 'divider' }} />
-                                        </ListItemIcon>
-                                        <ListItemText>{color.name}</ListItemText>
-                                    </MenuItem>
-                                ))}
-                            </Menu>
-                        </Paper>
+                    {/* MAIN CONTENT */}
+                    <Box component="main" sx={{
+                        flexGrow: 1,
+                        p: 3,
+                        pb: 10,
+                        width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        // Optional: Separate scroll for content if fixed sidebar
+                        height: '100vh',
+                        overflowY: 'auto'
+                    }}>
+                        <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto' }}>
+                            {React.useMemo(() => (
+                                <>
+                                    <Box sx={{ display: isOptimizer ? 'block' : 'none', ...fadeAnimation }}>
+                                        <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />
+                                    </Box>
+                                    <Box sx={{ display: isAugment ? 'block' : 'none', ...fadeAnimation }}>
+                                        {(visited.augment || isAugment) && <Augment {...props} className='app_body' />}
+                                    </Box>
+                                    <Box sx={{ display: isNGUs ? 'block' : 'none', ...fadeAnimation }}>
+                                        {(visited.ngus || isNGUs) && <NGUComponent {...props} className='app_body' />}
+                                    </Box>
+                                    <Box sx={{ display: isHacks ? 'block' : 'none', ...fadeAnimation }}>
+                                        {(visited.hacks || isHacks) && <HackComponent {...props} className='app_body' />}
+                                    </Box>
+                                    <Box sx={{ display: isWishes ? 'block' : 'none', ...fadeAnimation }}>
+                                        {(visited.wishes || isWishes) && <WishComponent {...props} className='app_body' />}
+                                    </Box>
+                                </>
+                            ), [props, isOptimizer, isAugment, isNGUs, isHacks, isWishes, loadoutParams, visited])}
+                        </Box>
                     </Box>
+
+                    {/* Color Menu (Kept same logic) */}
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={colorMenuOpen}
+                        onClose={handleColorMenuClose}
+                        PaperProps={{ sx: { borderRadius: 3, mt: 1 } }}
+                    >
+                        {Object.values(THEME_COLORS).map((color) => (
+                            <MenuItem key={color.key} onClick={() => changeColor(color.key)} selected={selectedColorKey === color.key}>
+                                <ListItemIcon>
+                                    <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: color.main, border: '1px solid', borderColor: 'divider' }} />
+                                </ListItemIcon>
+                                <ListItemText>{color.name}</ListItemText>
+                            </MenuItem>
+                        ))}
+                    </Menu>
+
                 </Box>
             </DarkModeContext.Provider>
         </ThemeProvider >

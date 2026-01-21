@@ -9,7 +9,32 @@ import { NGUs } from '../../assets/ItemAux';
 import { shorten } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
 
+
 import Loading from '../Loading/Loading';
+
+const formatSpeed = (val) => {
+    if (val === '' || val === undefined || val === null || isNaN(val)) return '';
+    let num = Number(val) * 100;
+
+    if (num < 1000000) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '%';
+
+    const units = [
+        "Million", "Billion", "Trillion", "Quadrillion", "Quintillion",
+        "Sextillion", "Septillion", "Octillion", "Nonillion", "Decillion"
+    ];
+
+    let order = Math.floor(Math.log10(num) / 3);
+    let unitIndex = order - 2;
+
+    if (unitIndex < 0) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '%';
+
+    if (unitIndex >= units.length) return num.toExponential(3) + '%';
+
+    let suffix = units[unitIndex];
+    let scaled = num / Math.pow(10, order * 3);
+
+    return `${scaled.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${suffix}%`;
+};
 
 class NGUComponent extends Component {
     constructor(props) {
@@ -132,7 +157,8 @@ class NGUComponent extends Component {
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Energy NGU speed" value={energy.nguspeed}
                                             onChange={(e) => this.handleChange(e, 'nguspeed', -1, 0)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                            type="number" fullWidth inputProps={{ step: "any" }}
+                                            helperText={formatSpeed(energy.nguspeed)} />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Magic cap" value={magic.cap}
@@ -142,7 +168,8 @@ class NGUComponent extends Component {
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Magic NGU speed" value={magic.nguspeed}
                                             onChange={(e) => this.handleChange(e, 'nguspeed', -1, 1)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                            type="number" fullWidth inputProps={{ step: "any" }}
+                                            helperText={formatSpeed(magic.nguspeed)} />
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
