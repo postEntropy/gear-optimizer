@@ -1,5 +1,5 @@
-import {Item, ItemNameContainer, SetName, Slot, Stat} from './assets/ItemAux'
-import {LOOTIES, PENDANTS} from './assets/Items'
+import { Item, ItemNameContainer, SetName, Slot, Stat } from './assets/ItemAux'
+import { LOOTIES, PENDANTS } from './assets/Items'
 
 export function getSlot(name, data) {
     return data[name].slot;
@@ -198,7 +198,7 @@ export function score_equip(data, equip, factors, offhand, capstats) {
 
 export const shorten = (val, mfd = 2) => {
     if (val < 10000) {
-        return val.toLocaleString(undefined, {maximumFractionDigits: mfd});
+        return val.toLocaleString(undefined, { maximumFractionDigits: mfd });
     }
     let units = [
         'k',
@@ -216,12 +216,12 @@ export const shorten = (val, mfd = 2) => {
     let order = Math.floor(Math.log(val / 10) / Math.log(1000));
     let unitname = units[(order - 1)];
     let num = val / 1000 ** order;
-    return num.toLocaleString(undefined, {maximumFractionDigits: mfd}) + unitname;
+    return num.toLocaleString(undefined, { maximumFractionDigits: mfd }) + unitname;
 }
 
 export const shortenExponential = (val, mfd = 3) => {
     if (val < 10000) {
-        return val.toLocaleString(undefined, {maximumFractionDigits: mfd});
+        return val.toLocaleString(undefined, { maximumFractionDigits: mfd });
     }
     return (val - 10 ** Math.floor(Math.log10(val) - mfd)).toExponential(mfd);
 }
@@ -268,31 +268,31 @@ export const cubeBaseItemData = (itemdata, cubestats, basestats) => {
         ],
         [
             Stat.DROP_CHANCE, tier <= 0
-            ? 0
-            : tier === 1
-                ? 50
-                : 50 + (tier - 1) * 20
+                ? 0
+                : tier === 1
+                    ? 50
+                    : 50 + (tier - 1) * 20
         ],
         [
             Stat.GOLD_DROP, tier <= 1
-            ? 0
-            : tier === 2
-                ? 50
-                : Math.pow(tier - 1, 1.3) * 50
+                ? 0
+                : tier === 2
+                    ? 50
+                    : Math.pow(tier - 1, 1.3) * 50
         ],
         [
             Stat.HACK_SPEED, tier <= 7
-            ? 0
-            : tier < 10
-                ? (tier - 8) * 5 + 10
-                : 20
+                ? 0
+                : tier < 10
+                    ? (tier - 8) * 5 + 10
+                    : 20
         ],
         [
             Stat.WISH_SPEED, tier <= 8
-            ? 0
-            : tier === 9
-                ? 10
-                : 20
+                ? 0
+                : tier === 9
+                    ? 10
+                    : 20
         ]
     ]);
     // make base stats item

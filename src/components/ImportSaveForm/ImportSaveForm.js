@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Button, Tooltip, Switch, FormControlLabel } from '@mui/material';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Crement } from '../../actions/Crement';
 import { MassUpdate } from '../../actions/MassUpdateItems';
 import { Settings } from '../../actions/Settings';
@@ -290,7 +291,7 @@ const ImportSaveForm = (props) => {
                     (2) NGUSav.es JSON files.
                 </React.Fragment>
             } placement="bottom">
-                <Button variant="contained" onClick={() => inputElem.current.click()}>
+                <Button variant="contained" onClick={() => inputElem.current.click()} startIcon={<UploadFileIcon />}>
                     Import save from file
                 </Button>
             </Tooltip>
