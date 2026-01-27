@@ -30,7 +30,9 @@ import {
     TrendingUp, // Augments (Growth)
     FlashOn, // Energy/Magic (NGUs)
     Code, // Hacks
-    Star // Wishes
+    Star, // Wishes
+    ChevronLeft,
+    ChevronRight
 } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
 
@@ -48,6 +50,7 @@ import WishComponent from '../Content/Wishes';
 // import AboutComponent from '../About/About';
 
 const DRAWER_WIDTH = 260;
+const COLLAPSED_DRAWER_WIDTH = 80;
 
 // Simple Fade Animation
 const fadeAnimation = {
@@ -58,40 +61,51 @@ const fadeAnimation = {
     }
 };
 
-const NavItem = ({ to, label, icon, isActive }) => {
+const NavItem = ({ to, label, icon, isActive, open }) => {
     return (
-        <ListItem disablePadding sx={{ mb: 1 }}>
-            <ListItemButton
-                component={NavLink}
-                to={to}
-                selected={isActive}
-                sx={{
-                    borderRadius: '0 24px 24px 0', // Rounded right side
-                    mr: 2,
-                    pl: 3,
-                    height: 48,
-                    transition: 'all 0.2s',
-                    '&.active': {
-                        bgcolor: 'primary.main',
-                        color: 'primary.contrastText',
-                        boxShadow: (theme) => `0 4px 20px 0 ${alpha(theme.palette.primary.main, 0.4)}`,
-                        '& .MuiListItemIcon-root': {
+        <ListItem disablePadding sx={{ mb: 1, display: 'block' }}>
+            <Tooltip title={!open ? label : ""} placement="right">
+                <ListItemButton
+                    component={NavLink}
+                    to={to}
+                    selected={isActive}
+                    sx={{
+                        minHeight: 48,
+                        justifyContent: open ? 'initial' : 'center',
+                        borderRadius: open ? '0 24px 24px 0' : '12px',
+                        mx: open ? 0 : 1,
+                        px: 2.5,
+                        transition: 'all 0.2s',
+                        '&.active': {
+                            bgcolor: 'primary.main',
                             color: 'primary.contrastText',
+                            boxShadow: (theme) => `0 4px 20px 0 ${alpha(theme.palette.primary.main, 0.4)}`,
+                            '& .MuiListItemIcon-root': {
+                                color: 'primary.contrastText',
+                            }
+                        },
+                        '&:hover:not(.active)': {
+                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
                         }
-                    },
-                    '&:hover:not(.active)': {
-                        bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                    }
-                }}
-            >
-                <ListItemIcon sx={{ minWidth: 40, color: isActive ? 'inherit' : 'text.secondary' }}>
-                    {icon}
-                </ListItemIcon>
-                <ListItemText
-                    primary={label}
-                    primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '1rem' }}
-                />
-            </ListItemButton>
+                    }}
+                >
+                    <ListItemIcon
+                        sx={{
+                            minWidth: 0,
+                            mr: open ? 2 : 'auto',
+                            justifyContent: 'center',
+                            color: isActive ? 'inherit' : 'text.secondary'
+                        }}
+                    >
+                        {icon}
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={label}
+                        primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '1rem' }}
+                        sx={{ opacity: open ? 1 : 0, display: open ? 'block' : 'none' }}
+                    />
+                </ListItemButton>
+            </Tooltip>
         </ListItem>
     );
 };
@@ -106,6 +120,12 @@ const AppLayout = (props) => {
         const saved = localStorage.getItem('theme-color-key');
         return saved && THEME_COLORS[saved] ? saved : 'GREEN';
     });
+
+    const [open, setOpen] = React.useState(true);
+
+    const toggleDrawer = () => {
+        setOpen(!open);
+    };
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const colorMenuOpen = Boolean(anchorEl);
@@ -162,6 +182,8 @@ const AppLayout = (props) => {
         if (isWishes && !visited.wishes) setVisited(v => ({ ...v, wishes: true }));
     }, [isAugment, isNGUs, isHacks, isWishes, visited]);
 
+    const currentDrawerWidth = open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH;
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -179,67 +201,92 @@ const AppLayout = (props) => {
                     <Drawer
                         variant="permanent"
                         sx={{
-                            width: DRAWER_WIDTH,
+                            width: currentDrawerWidth,
                             flexShrink: 0,
+                            whiteSpace: 'nowrap',
+                            boxSizing: 'border-box',
+                            transition: theme.transitions.create('width', {
+                                easing: theme.transitions.easing.sharp,
+                                duration: theme.transitions.duration.enteringScreen,
+                            }),
                             '& .MuiDrawer-paper': {
-                                width: DRAWER_WIDTH,
-                                boxSizing: 'border-box',
+                                width: currentDrawerWidth,
+                                transition: theme.transitions.create('width', {
+                                    easing: theme.transitions.easing.sharp,
+                                    duration: theme.transitions.duration.enteringScreen,
+                                }),
+                                overflowX: 'hidden',
                                 borderRight: 'none',
                                 background: (theme) => theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.5) : alpha('#fff', 0.8), // Custom glass for sidebar
                             },
                         }}
                     >
                         {/* HEADER / LOGO */}
-                        <Box sx={{ p: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Avatar variant="rounded" sx={{ bgcolor: 'primary.main', boxShadow: 3 }}>
-                                <SettingsSuggest />
-                            </Avatar>
-                            <Box>
-                                <Typography variant="h6" fontWeight={700} lineHeight={1}>
-                                    Gear
-                                </Typography>
-                                <Typography variant="caption" sx={{ letterSpacing: 1, opacity: 0.7 }}>
-                                    OPTIMIZER
-                                </Typography>
+                        <Box sx={{
+                            minHeight: 80,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: open ? 'space-between' : 'center',
+                            px: 2.5,
+                            py: 2
+                        }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, opacity: open ? 1 : 0, transition: 'opacity 0.2s', width: open ? 'auto' : 0, overflow: 'hidden' }}>
+                                <Avatar variant="rounded" sx={{ bgcolor: 'primary.main', boxShadow: 3 }}>
+                                    <SettingsSuggest />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h6" fontWeight={700} lineHeight={1}>
+                                        Gear
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ letterSpacing: 1, opacity: 0.7 }}>
+                                        OPTIMIZER
+                                    </Typography>
+                                </Box>
                             </Box>
+                            <IconButton onClick={toggleDrawer}>
+                                {open ? <ChevronLeft /> : <ChevronRight />}
+                            </IconButton>
                         </Box>
 
                         <Divider sx={{ mb: 2, mx: 3, opacity: 0.1 }} />
 
                         {/* NAV ITEMS */}
                         <List component="nav">
-                            <NavItem to="/" label="Gear Loadout" icon={<SettingsSuggest />} isActive={location.pathname === '/' || location.pathname.startsWith('/loadout')} />
-                            <NavItem to="/augment" label="Augments" icon={<TrendingUp />} isActive={location.pathname.startsWith('/augment')} />
-                            <NavItem to="/ngus" label="NGUs" icon={<FlashOn />} isActive={location.pathname.startsWith('/ngus')} />
-                            <NavItem to="/hacks" label="Hacks" icon={<Code />} isActive={location.pathname.startsWith('/hacks')} />
-                            <NavItem to="/wishes" label="Wishes" icon={<Star />} isActive={location.pathname.startsWith('/wishes')} />
+                            <NavItem open={open} to="/" label="Gear Loadout" icon={<SettingsSuggest />} isActive={location.pathname === '/' || location.pathname.startsWith('/loadout')} />
+                            <NavItem open={open} to="/augment" label="Augments" icon={<TrendingUp />} isActive={location.pathname.startsWith('/augment')} />
+                            <NavItem open={open} to="/ngus" label="NGUs" icon={<FlashOn />} isActive={location.pathname.startsWith('/ngus')} />
+                            <NavItem open={open} to="/hacks" label="Hacks" icon={<Code />} isActive={location.pathname.startsWith('/hacks')} />
+                            <NavItem open={open} to="/wishes" label="Wishes" icon={<Star />} isActive={location.pathname.startsWith('/wishes')} />
                         </List>
 
                         <Box sx={{ flexGrow: 1 }} />
 
                         {/* FOOTER ACTIONS */}
-                        <Box sx={{ p: 2 }}>
+                        <Box sx={{ p: 2, display: 'flex', flexDirection: open ? 'row' : 'column', gap: 1, alignItems: 'center' }}>
                             <Box sx={{
-                                p: 2,
+                                p: open ? 2 : 1,
                                 borderRadius: 4,
                                 bgcolor: (theme) => alpha(theme.palette.background.paper, 0.5), // Safely use paper color
                                 display: 'flex',
+                                flexDirection: open ? 'row' : 'column',
                                 justifyContent: 'space-around',
                                 backdropFilter: 'blur(10px)',
                                 border: '1px solid',
-                                borderColor: 'divider'
+                                borderColor: 'divider',
+                                width: '100%',
+                                gap: open ? 0 : 1
                             }}>
-                                <Tooltip title="Change Color">
+                                <Tooltip title="Change Color" placement="right">
                                     <IconButton onClick={handleColorMenuOpen} size="small">
                                         <Palette fontSize="small" color="primary" />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Toggle Theme">
+                                <Tooltip title="Toggle Theme" placement="right">
                                     <IconButton onClick={toggleDarkMode} size="small">
                                         {darkMode ? <Brightness7 fontSize="small" color="primary" /> : <Brightness4 fontSize="small" color="primary" />}
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title="GitHub">
+                                <Tooltip title="GitHub" placement="right">
                                     <IconButton component={Link} href="https://github.com/postEntropy/gear-optimizer" target="_blank" size="small">
                                         <GitHub fontSize="small" color="primary" />
                                     </IconButton>
@@ -253,12 +300,16 @@ const AppLayout = (props) => {
                         flexGrow: 1,
                         p: 3,
                         pb: 10,
-                        width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
+                        width: { sm: `calc(100% - ${currentDrawerWidth}px)` },
                         display: 'flex',
                         flexDirection: 'column',
                         // Optional: Separate scroll for content if fixed sidebar
                         height: '100vh',
-                        overflowY: 'auto'
+                        overflowY: 'auto',
+                        transition: theme.transitions.create('width', {
+                            easing: theme.transitions.easing.sharp,
+                            duration: theme.transitions.duration.enteringScreen,
+                        }),
                     }}>
                         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto' }}>
                             {React.useMemo(() => (

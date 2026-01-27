@@ -1582,7 +1582,7 @@ export const resource_priorities = [
 ];
 
 const vngu = (cost, bonus, softcap, scbonus, scexponent) => {
-    return {cost: cost, bonus: bonus, softcap: softcap, scbonus: scbonus, scexponent: scexponent};
+    return { cost: cost, bonus: bonus, softcap: softcap, scbonus: scbonus, scexponent: scexponent };
 };
 const ngu = (name, nc, nb, nsc, nscb, nsce, ec, eb, esc, escb, esce, sc, sb, ssc, sscb, ssce) => {
     return {
@@ -1615,3 +1615,76 @@ export const NGUs = {
         ngu('Adventure β', 5.00E+17, 3.00E-04, 1.00E+03, 63.13, 4.00E-01, 1.01E+28, 1.50E-04, 1.00E+03, 177.83, 2.50E-01, 1.00E+38, 1.50E-04, 1.00E+03, 436.53, 1.20E-01)
     ]
 };
+
+export const FactorGroups = [
+    {
+        label: 'General',
+        keys: ['NONE', 'DELETE', 'INSERT']
+    },
+    {
+        label: 'Energy',
+        keys: ['ENERGY_CAP', 'ENERGY_POWER', 'ENERGY_BARS', 'ENERGY_SPEED', 'ECAPSPEED']
+    },
+    {
+        label: 'Magic',
+        keys: ['MAGIC_CAP', 'MAGIC_POWER', 'MAGIC_BARS', 'MAGIC_SPEED', 'MCAPSPEED']
+    },
+    {
+        label: 'NGU',
+        keys: ['NGUS', 'ENGU', 'MNGU', 'NGU_SPEED']
+    },
+    {
+        label: 'Wandoos',
+        keys: ['EWANDOOS', 'MWANDOOS', 'WANDOOS', 'WANDOOS_SPEED']
+    },
+    {
+        label: 'Beards',
+        keys: ['EBEARD', 'MBEARD', 'BEARD', 'BEARD_SPEED']
+    },
+    {
+        label: 'Resource 3',
+        keys: ['RES3_CAP', 'RES3_POWER', 'RES3_BARS', 'XCAPSPEED']
+    },
+    {
+        label: 'Drops',
+        keys: ['GOLD_DROP', 'DROP_CHANCE', 'QUEST_DROP', 'SEED_DROP', 'YGGDRASIL_YIELD']
+    },
+    {
+        label: 'Hacks',
+        keys: ['HACK', 'HACK_SPEED']
+    },
+    {
+        label: 'Wishes',
+        keys: ['WISHES', 'WISH_SPEED']
+    },
+    {
+        label: 'Advanced Training',
+        keys: ['AT', 'AT_SPEED']
+    },
+    {
+        label: 'Augments',
+        keys: ['AUGMENTATION', 'AUGMENT_SPEED']
+    },
+    {
+        label: 'Time Machine',
+        keys: ['ETIMEMACHINE', 'MTIMEMACHINE', 'TIMEMACHINE']
+    },
+    {
+        label: 'Hybrids',
+        keys: ['NGUSHACK', 'NGUWISH', 'WISHHACK']
+    },
+    {
+        label: 'Blood Magic',
+        keys: ['BLOOD']
+    },
+    {
+        label: 'Base Stats',
+        keys: ['POWER', 'TOUGHNESS', 'MOVE_COOLDOWN', 'RESPAWN', 'DAYCARE_SPEED']
+    },
+    {
+        label: 'Misc',
+        keys: [
+            'AP', 'EXPERIENCE', 'COOKING', 'EMPC'
+        ]
+    }
+];
