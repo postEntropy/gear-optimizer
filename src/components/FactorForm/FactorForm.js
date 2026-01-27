@@ -51,7 +51,7 @@ const FactorForm = (props) => {
                     displayEmpty
                     renderValue={(selected) => Factors[selected] ? Factors[selected][0] : 'Select Factor'}
                     MenuProps={{
-                        autoFocus: false, // Prevent autofocusing the first item so search field works better
+                        autoFocus: false,
                         transitionDuration: 0,
                         anchorOrigin: {
                             vertical: 'bottom',
@@ -68,12 +68,29 @@ const FactorForm = (props) => {
                                 maxHeight: 600,
                             },
                         },
+                        MenuListProps: {
+                            style: {
+                                columnCount: 3,
+                                columnGap: '20px',
+                                padding: '10px',
+                            },
+                        },
                     }}
                 >
-                    {/* Search Field Item */}
+                    {/* Search Field Item - Spans all columns */}
                     <Box
-                        onKeyDown={(e) => e.stopPropagation()} // Prevent Select component from handling key events
-                        sx={{ p: 1, position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 1, borderBottom: '1px solid', borderColor: 'divider' }}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        sx={{
+                            p: 1,
+                            position: 'sticky',
+                            top: -8, // Adjust for MenuList padding
+                            bgcolor: 'background.paper',
+                            zIndex: 2,
+                            borderBottom: '1px solid',
+                            borderColor: 'divider',
+                            columnSpan: 'all', // Ensure it spans across columns
+                            mb: 1
+                        }}
                     >
                         <TextField
                             fullWidth
@@ -83,7 +100,7 @@ const FactorForm = (props) => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key !== 'Escape') {
-                                    e.stopPropagation(); // Allow typing spaces etc.
+                                    e.stopPropagation();
                                 }
                             }}
                             autoFocus
@@ -97,37 +114,31 @@ const FactorForm = (props) => {
                         />
                     </Box>
 
-                    {/* Filtered Items */}
-                    <Box sx={{ columnCount: 3, columnGap: '20px', p: 1, pt: 0 }}>
-                        {filteredGroups.map((group) => {
-                            const groupItems = group.keys.map(key => (
-                                <MenuItem key={key} value={key} style={{ breakInside: 'avoid' }}>
-                                    {Factors[key][0]}
-                                </MenuItem>
-                            ));
-
-                            return [
-                                <ListSubheader
-                                    key={group.label}
-                                    disableSticky
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        color: 'primary.main',
-                                        backgroundColor: 'transparent',
-                                        breakInside: 'avoid',
-                                        breakAfter: 'avoid',
-                                        fontSize: '0.9rem',
-                                        lineHeight: '2rem',
-                                        borderBottom: 'none',
-                                        textDecoration: 'none'
-                                    }}
-                                >
-                                    {group.label}
-                                </ListSubheader>,
-                                ...groupItems
-                            ];
-                        })}
-                    </Box>
+                    {/* Flat list of items - direct children of Select for logic */}
+                    {filteredGroups.flatMap((group) => [
+                        <ListSubheader
+                            key={group.label}
+                            disableSticky
+                            sx={{
+                                fontWeight: 'bold',
+                                color: 'primary.main',
+                                backgroundColor: 'transparent',
+                                breakInside: 'avoid',
+                                breakAfter: 'avoid',
+                                fontSize: '0.9rem',
+                                lineHeight: '2rem',
+                                borderBottom: 'none',
+                                textDecoration: 'none'
+                            }}
+                        >
+                            {group.label}
+                        </ListSubheader>,
+                        ...group.keys.map(key => (
+                            <MenuItem key={key} value={key} sx={{ breakInside: 'avoid' }}>
+                                {Factors[key][0]}
+                            </MenuItem>
+                        ))
+                    ])}
                 </Select>
             </FormControl>
             <Box>
