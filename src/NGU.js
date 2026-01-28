@@ -141,63 +141,41 @@ export class NGU {
         const speed = this.speed(resource);
         if (isNaN(cap) || cap <= 0 || isNaN(speed) || speed <= 0) return level;
 
-        let ticks = mins * 60 * 50;
-        const bbtill = cap * speed / factor / base;
+        let ticks = Math.floor(mins * 60 * 50);
+        if (ticks <= 0) return level;
 
-        if (500 * bbtill > level) {
-            // handle bar fills up to 0.1s
-            for (let i = 1; i < 501; i++) {
-                if (i * bbtill >= level + Math.floor(ticks / i)) {
-                    return Math.min(1e9, level + Math.floor(ticks / i));
-                } else if (Math.floor(i * bbtill) > level) {
-                    ticks -= i * (Math.floor(i * bbtill) - level);
-                    level = Math.floor(i * bbtill);
-                }
-            }
+        const unitCostFactor = factor / cap / speed * base;
+
+        // Fast skip for levels with cost 1
+        const maxLevelAtCost1 = Math.floor(1 / unitCostFactor);
+        if (level < maxLevelAtCost1) {
+            const canGain = Math.min(ticks, maxLevelAtCost1 - level);
+            level += canGain;
+            ticks -= canGain;
         }
 
-        // Optimized handle slow bar fills
-        const unitCostFactor = (base * factor) / (cap * speed);
-
-        while (ticks > 0 && level < 1e9) {
+        while (ticks > 0) {
             const cost = Math.ceil((level + 1) * unitCostFactor);
-
-            // If cost is 1, we can skip many levels
-            if (cost === 1) {
-                // How many levels until cost becomes 2?
-                // (level + k + 1) * unitCostFactor > 1.000001
-                // level + k + 1 > 1 / unitCostFactor
-                // k > 1 / unitCostFactor - level - 1
-                const nextLevelAtCost2 = Math.ceil(1 / unitCostFactor);
-                const levelsPossible = Math.min(ticks, nextLevelAtCost2 - level - 1);
-
-                if (levelsPossible > 1) {
-                    level += levelsPossible;
-                    ticks -= levelsPossible;
-                    continue;
-                }
-            }
-
-            // If cost is large, or we are near the end, just do one by one
             if (ticks < cost) break;
 
-            ticks -= cost;
-            level++;
-
-            // If we have a lot of ticks, try a larger jump based on average cost
-            if (ticks > 1000 && level < 1e8) {
-                const jump = Math.min(1000, Math.floor(ticks / (cost * 2)));
+            // Safe jump for higher costs when ticks is large
+            if (ticks > 100 * cost && level < 1e9) {
+                const jump = Math.min(1000, Math.floor(ticks / (cost * 1.5)));
                 if (jump > 10) {
-                    const avgCost = Math.ceil((level + jump / 2) * unitCostFactor);
-                    const totalJumpCost = avgCost * jump;
-                    if (ticks >= totalJumpCost) {
-                        ticks -= totalJumpCost;
+                    // Safe upper bound for jump cost: U * sum(L+1...L+jump) + jump
+                    const jumpCost = Math.ceil(unitCostFactor * (jump * level + (jump * (jump + 1)) / 2) + jump);
+                    if (ticks >= jumpCost) {
+                        ticks -= jumpCost;
                         level += jump;
+                        continue;
                     }
                 }
             }
-        }
 
+            ticks -= cost;
+            level++;
+            if (level >= 1e9) break;
+        }
         return Math.min(1e9, level);
     }
 }

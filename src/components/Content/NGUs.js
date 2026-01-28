@@ -11,6 +11,13 @@ import ModifierForm from '../ModifierForm/ModifierForm';
 
 
 import Loading from '../Loading/Loading';
+import NGUGraph from '../NGUGraph/NGUGraph';
+import NGUComparisonGraph from '../NGUGraph/NGUComparisonGraph';
+import IconButton from '@mui/material/IconButton';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import Collapse from '@mui/material/Collapse';
 
 const formatValue = (val, isPercent = true) => {
     if (val === '' || val === undefined || val === null || isNaN(val)) return '';
@@ -44,11 +51,13 @@ class NGUComponent extends Component {
         this.state = {
             sortConfig: { key: 'reachable_level', direction: 'descending' },
             timeUnit: 'minutes',
-            isReady: false
+            isReady: false,
+            expandedRows: {} // Store expanded state like { 'energy-0': true }
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.requestSort = this.requestSort.bind(this);
+        this.toggleRow = this.toggleRow.bind(this);
     }
 
     componentDidMount() {
@@ -69,6 +78,15 @@ class NGUComponent extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
+    }
+
+    toggleRow(rowId) {
+        this.setState(prevState => ({
+            expandedRows: {
+                ...prevState.expandedRows,
+                [rowId]: !prevState.expandedRows[rowId]
+            }
+        }));
     }
 
     handleChange(event, name, idx = -1, isMagic = -1) {
@@ -217,6 +235,7 @@ class NGUComponent extends Component {
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell padding="checkbox" />
                                     <TableCell>
                                         <TableSortLabel active={key === 'name'} direction={key === 'name' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('name')}>
                                             Name
@@ -305,45 +324,80 @@ class NGUComponent extends Component {
 
                                         const rows = data.map((item) => {
                                             const { pos, ngu, bonus, reachable } = item;
-                                            return <TableRow key={resource + pos}>
-                                                <TableCell component="th" scope="row">{ngu.name}</TableCell>
-                                                <TableCell>
-                                                    <TextField type="number" value={stats[pos].normal}
-                                                        onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'normal', pos, isMagic)}
-                                                        inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <TextField type="number" value={stats[pos].evil}
-                                                        onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'evil', pos, isMagic)}
-                                                        inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <TextField type="number" value={stats[pos].sadistic}
-                                                        onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'sadistic', pos, isMagic)}
-                                                        inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
-                                                </TableCell>
-                                                <TableCell>{'×' + shorten(bonus * 100) + '%'}</TableCell>
-                                                <TableCell>
-                                                    {shorten(reachable.level.normal)} (×{shorten(reachable.bonus.normal / bonus, 4)}) {Math.round((reachable.bonus.normal / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.normal / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.normal / bonus - 1) * 100)}%)</span>}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {shorten(reachable.level.evil)} (×{shorten(reachable.bonus.evil / bonus, 4)}) {Math.round((reachable.bonus.evil / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.evil / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.evil / bonus - 1) * 100)}%)</span>}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {shorten(reachable.level.sadistic)} (×{shorten(reachable.bonus.sadistic / bonus, 4)}) {Math.round((reachable.bonus.sadistic / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.sadistic / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.sadistic / bonus - 1) * 100)}%)</span>}
-                                                </TableCell>
-                                            </TableRow>;
+                                            const rowId = `${resource}-${pos}`;
+                                            const isExpanded = !!this.state.expandedRows[rowId];
+
+                                            return [
+                                                <TableRow key={rowId}>
+                                                    <TableCell padding="checkbox">
+                                                        <IconButton size="small" onClick={() => this.toggleRow(rowId)}>
+                                                            {isExpanded ? <ExpandLessIcon fontSize="small" /> : <TimelineIcon fontSize="small" />}
+                                                        </IconButton>
+                                                    </TableCell>
+                                                    <TableCell component="th" scope="row">{ngu.name}</TableCell>
+                                                    <TableCell>
+                                                        <TextField type="number" value={stats[pos].normal}
+                                                            onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'normal', pos, isMagic)}
+                                                            inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <TextField type="number" value={stats[pos].evil}
+                                                            onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'evil', pos, isMagic)}
+                                                            inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <TextField type="number" value={stats[pos].sadistic}
+                                                            onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'sadistic', pos, isMagic)}
+                                                            inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
+                                                    </TableCell>
+                                                    <TableCell>{'×' + shorten(bonus * 100) + '%'}</TableCell>
+                                                    <TableCell>
+                                                        {shorten(reachable.level.normal)} (×{shorten(reachable.bonus.normal / bonus, 4)}) {Math.round((reachable.bonus.normal / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.normal / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.normal / bonus - 1) * 100)}%)</span>}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {shorten(reachable.level.evil)} (×{shorten(reachable.bonus.evil / bonus, 4)}) {Math.round((reachable.bonus.evil / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.evil / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.evil / bonus - 1) * 100)}%)</span>}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {shorten(reachable.level.sadistic)} (×{shorten(reachable.bonus.sadistic / bonus, 4)}) {Math.round((reachable.bonus.sadistic / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.sadistic / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.sadistic / bonus - 1) * 100)}%)</span>}
+                                                    </TableCell>
+                                                </TableRow>,
+                                                <TableRow key={rowId + '-chart'}>
+                                                    <TableCell colSpan={9} sx={{ py: 0, borderBottom: isExpanded ? undefined : 'none' }}>
+                                                        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                                            <Box sx={{ p: 2 }}>
+                                                                <NGUGraph
+                                                                    {...this.props}
+                                                                    ngu={{ ...ngu, levels: stats[pos], pos }}
+                                                                    isMagic={isMagic}
+                                                                />
+                                                            </Box>
+                                                        </Collapse>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ];
                                         });
 
                                         return [
                                             <TableRow key={resource + '_header'}
                                                 sx={{ backgroundColor: 'action.hover' }}>
-                                                <TableCell colSpan={8}
+                                                <TableCell colSpan={9}
                                                     sx={{ backgroundColor: 'action.hover', typography: 'subtitle1', fontWeight: 700 }}>
                                                     {resource.charAt(0).toUpperCase() + resource.slice(1) + ' NGUs'}
                                                 </TableCell>
                                             </TableRow>,
-                                            ...rows
+                                            ...rows.flat(),
+                                            <TableRow key={resource + '_summary_chart'}>
+                                                <TableCell colSpan={9} sx={{ p: 0 }}>
+                                                    <Box sx={{ p: 3 }}>
+                                                        <NGUComparisonGraph
+                                                            {...this.props}
+                                                            ngusData={data}
+                                                            isMagic={isMagic}
+                                                            title={`${resource.charAt(0).toUpperCase() + resource.slice(1)} NGUs Comparison`}
+                                                        />
+                                                    </Box>
+                                                </TableCell>
+                                            </TableRow>
                                         ];
                                     })
                                 }

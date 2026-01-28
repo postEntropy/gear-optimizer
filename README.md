@@ -33,11 +33,14 @@ Optimization isn't just about gear—it's about the app too.
 - Supports all factors: Power, Toughness, NGU Speed, Gold Drops, etc.
 
 ### 📈 Progression Tools
-- **NGUs & Hacks**:
+- **NGUs**:
+  - **✨ NGU Efficiency Charts**: Interactive Line charts showing bonus progression over a 24-hour simulation.
+  - **Section-Wide Comparison**: Toggleable charts at the end of Energy/Magic sections to compare RoI between all NGUs.
   - **Sorting by Efficiency**: See exactly which upgrade gives the best ROI.
   - **Percentage Change**: Visual indicators for marginal gains.
   - **Reachable Levels**: Predicts where you'll land after a rebirth.
-- **Augments & Wishes**: integrated calculators for optimal spending.
+- **Hacks**: Advanced prediction and ROI tracking.
+- **Augments & Wishes**: Integrated calculators for optimal spending.
 
 ### 🛠 UX Improvements
 - **Advanced Modifiers**: Integrated seamlessly into the main dashboard (no more popups!).
