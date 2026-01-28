@@ -12,6 +12,10 @@ A modernized, high-performance fork of the original **Gear Optimizer** for NGU I
 
 ## 🎨 Material 3 Revamp
 We've completely overhauled the UI to align with Google's **Material 3 Expressive** design system.
+
+![Home Page](src/assets/readme/home.png)
+*Modernized Home Page - featuring dynamic colors and glassmorphism elements.*
+
 - **Dynamic Color Engine**: Choose your vibe with themes like **Forest (Default)**, Lime, Slate, Purple, and more.
 - **Dark & Light Modes**: Fully supported with smooth transitions and optimized contrast.
 - **Expressive Aesthetics**:
@@ -32,8 +36,8 @@ Optimization isn't just about gear—it's about the app too.
 - Calculate the mathematically perfect loadout for your current stats.
 - Supports all factors: Power, Toughness, NGU Speed, Gold Drops, etc.
 
-### 💹 Advanced Visualization
-A major feature of this fork is the integration of interactive **ROI Efficiency Charts** for end-game progression.
+### 💹 Growth Efficiency Charts
+A major feature of this fork is the integration of interactive **Growth Efficiency Charts** for end-game progression.
 
 ![NGU Charts](src/assets/readme/ngus_chart.png)
 *NGU Efficiency Comparison - Visualizing 24-hour bonus growth across all active NGUs.*
