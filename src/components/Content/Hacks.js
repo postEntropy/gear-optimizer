@@ -335,6 +335,7 @@ class HackComponent extends Component {
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
+                                    <TableCell padding="checkbox" />
                                     <TableCell>
                                         <TableSortLabel active={key === 'name'} direction={key === 'name' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('name')}>
                                             Hack
@@ -351,23 +352,40 @@ class HackComponent extends Component {
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell>
-                                        <TableSortLabel active={key === 'bonus'} direction={key === 'bonus' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('bonus')}>
+                                        <TableSortLabel active={key === 'currBonus'} direction={key === 'currBonus' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('currBonus')}>
                                             Bonus
                                         </TableSortLabel>
                                     </TableCell>
-                                    {option === '0' && <TableCell>
+                                    <TableCell>
                                         <TableSortLabel active={key === 'target'} direction={key === 'target' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('target')}>
-                                            Target
+                                            {option === '0' || option === 0 ? 'Target' : (option === '1' || option === 1 ? 'Max Level' : 'Max MS')}
                                         </TableSortLabel>
-                                    </TableCell>}
-                                    {option === '1' && <TableCell>Max Level<br />in {hacktime}min</TableCell>}
-                                    {option === '2' && <TableCell>Max MS<br />in {hacktime}min</TableCell>}
-
+                                    </TableCell>
                                     <TableCell />
+                                    <TableCell>
+                                        <TableSortLabel active={key === 'mschange'} direction={key === 'mschange' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('mschange')}>
+                                            MS
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel active={key === 'time'} direction={key === 'time' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('time')}>
+                                            Time
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel active={key === 'projected_bonus'} direction={key === 'projected_bonus' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('projected_bonus')}>
+                                            Bonus
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableSortLabel active={key === 'change'} direction={key === 'change' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('change')}>
+                                            Change
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell>Next Level</TableCell>
-                                    {option === '0' && <TableCell>Next Level<br />After Target</TableCell>}
-                                    {option === '1' && <TableCell>Next Level<br />After Max Level</TableCell>}
-                                    {option === '2' && <TableCell>Next Level<br />After Max MS</TableCell>}
+                                    {(option === '0' || option === 0) && <TableCell sx={{ fontSize: '0.75rem', lineHeight: 1.1 }}>Next Lvl<br />After Target</TableCell>}
+                                    {(option === '1' || option === 1) && <TableCell sx={{ fontSize: '0.75rem', lineHeight: 1.1 }}>Next Lvl<br />After Max Lvl</TableCell>}
+                                    {(option === '2' || option === 2) && <TableCell sx={{ fontSize: '0.75rem', lineHeight: 1.1 }}>Next Lvl<br />After Max MS</TableCell>}
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -547,14 +565,14 @@ class HackComponent extends Component {
                                         );
                                         rows.push(
                                             <TableRow key="summary-min">
-                                                <TableCell colSpan={9} />
+                                                <TableCell colSpan={8} />
                                                 <TableCell><b>Min total:</b><br />{toTime((sumtime - hackhacktime) / hackhackchange + hackhacktime)}</TableCell>
                                                 <TableCell colSpan={4} />
                                             </TableRow>
                                         );
                                         rows.push(
                                             <TableRow key="summary-max">
-                                                <TableCell colSpan={9} />
+                                                <TableCell colSpan={8} />
                                                 <TableCell><b>Max total:</b><br />{toTime(sumtime)}</TableCell>
                                                 <TableCell colSpan={4}>
                                                     <Button variant="contained" onClick={(e) => {

@@ -13,6 +13,14 @@ export class Hack {
             rBetaPot: 2,
             rDeltaPot: 3
         });
+
+        // Multiplicative Hack-Hack Speed bonus (Hack 13)
+        // We get current level from stats to avoid recursion and apply it to all hacks
+        const h13 = this.hackstats.hacks[13];
+        if (h13) {
+            const h13Bonus = this.bonus(h13.level, 13) / 100;
+            speed *= h13Bonus;
+        }
         return speed;
     }
 
@@ -44,9 +52,10 @@ export class Hack {
 
         const base = Hacks[idx][1];
         const softcapFactor = 1.0078;
+        const initialBonus13 = this.bonus(this.hackstats.hacks[13].level, 13);
 
         while (ticks > 0) {
-            let sf = (idx === 13) ? this.bonus(level, idx) / 100 : 1;
+            let sf = (idx === 13) ? this.bonus(level, idx) / initialBonus13 : 1;
             const cost = Math.ceil((base * (level + 1) * (softcapFactor ** level)) / (cap * pow * speed * sf));
 
             if (ticks < cost) break;
@@ -55,8 +64,10 @@ export class Hack {
             if (ticks > 100 * cost && level < 100000) {
                 const jump = Math.min(1000, Math.floor(ticks / (cost * 1.5)));
                 if (jump > 10) {
-                    // Conservative cost estimation for jump: cost(L) * jump * softcapFactor^jump
-                    const jumpCost = Math.ceil(cost * jump * (softcapFactor ** jump));
+                    // Safe upper bound for jump cost: 
+                    // cost(L+i) <= cost(L) * ((L+jump+1)/(L+1)) * softcapFactor^jump
+                    const growthFactor = (level + jump + 1) / (level + 1);
+                    const jumpCost = Math.ceil(cost * jump * growthFactor * (softcapFactor ** jump));
                     if (ticks >= jumpCost) {
                         ticks -= jumpCost;
                         level += jump;
@@ -81,9 +92,10 @@ export class Hack {
         let totalTicks = 0;
         const base = Hacks[idx][1];
         const softcapFactor = 1.0078;
+        const initialBonus13 = this.bonus(this.hackstats.hacks[13].level, 13);
 
         while (level < target) {
-            let sf = (idx === 13) ? this.bonus(level, idx) / 100 : 1;
+            let sf = (idx === 13) ? this.bonus(level, idx) / initialBonus13 : 1;
             const cost = Math.ceil((base * (level + 1) * (softcapFactor ** level)) / (cap * pow * speed * sf));
             totalTicks += cost;
             level++;
