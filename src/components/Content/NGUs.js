@@ -12,11 +12,13 @@ import ModifierForm from '../ModifierForm/ModifierForm';
 
 import Loading from '../Loading/Loading';
 
-const formatSpeed = (val) => {
+const formatValue = (val, isPercent = true) => {
     if (val === '' || val === undefined || val === null || isNaN(val)) return '';
-    let num = Number(val) * 100;
+    let num = Number(val);
+    if (isPercent) num *= 100;
 
-    if (num < 1000000) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '%';
+    if (num <= 0) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + (isPercent ? '%' : '');
+    if (num < 1000000) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + (isPercent ? '%' : '');
 
     const units = [
         "Million", "Billion", "Trillion", "Quadrillion", "Quintillion",
@@ -26,14 +28,14 @@ const formatSpeed = (val) => {
     let order = Math.floor(Math.log10(num) / 3);
     let unitIndex = order - 2;
 
-    if (unitIndex < 0) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '%';
+    if (unitIndex < 0) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + (isPercent ? '%' : '');
 
-    if (unitIndex >= units.length) return num.toExponential(3) + '%';
+    if (unitIndex >= units.length) return num.toExponential(3) + (isPercent ? '%' : '');
 
     let suffix = units[unitIndex];
     let scaled = num / Math.pow(10, order * 3);
 
-    return `${scaled.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${suffix}%`;
+    return `${scaled.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${suffix}${isPercent ? '%' : ''}`;
 };
 
 class NGUComponent extends Component {
@@ -152,24 +154,26 @@ class NGUComponent extends Component {
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Energy cap" value={energy.cap}
                                             onChange={(e) => this.handleChange(e, 'cap', -1, 0)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                            type="number" fullWidth inputProps={{ step: "any" }}
+                                            helperText={formatValue(energy.cap, false)} />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Energy NGU speed" value={energy.nguspeed}
                                             onChange={(e) => this.handleChange(e, 'nguspeed', -1, 0)} onFocus={this.handleFocus}
                                             type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatSpeed(energy.nguspeed)} />
+                                            helperText={formatValue(energy.nguspeed, true)} />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Magic cap" value={magic.cap}
                                             onChange={(e) => this.handleChange(e, 'cap', -1, 1)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                            type="number" fullWidth inputProps={{ step: "any" }}
+                                            helperText={formatValue(magic.cap, false)} />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Magic NGU speed" value={magic.nguspeed}
                                             onChange={(e) => this.handleChange(e, 'nguspeed', -1, 1)} onFocus={this.handleFocus}
                                             type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatSpeed(magic.nguspeed)} />
+                                            helperText={formatValue(magic.nguspeed, true)} />
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
