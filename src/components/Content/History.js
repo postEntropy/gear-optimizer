@@ -30,7 +30,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    Link
 } from '@mui/material';
 import {
     History as HistoryIcon,
@@ -268,7 +269,10 @@ const History = ({ handleClearHistory }) => {
                     <HistoryIcon sx={{ fontSize: 80, mb: 2, opacity: 0.2, color: 'primary.main' }} />
                     <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>No History Yet</Typography>
                     <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                        Use the button above to import your Rebirth saves and start tracking your journey!
+                        Use the button above to import your Rebirth saves and start tracking your journey!<br />
+                        <Link href="https://github.com/postEntropy/gear-optimizer?tab=readme-ov-file#-history-tracking" target="_blank" rel="noopener" sx={{ fontWeight: 'bold', mt: 1, display: 'inline-block' }}>
+                            View the History Tracking Guide
+                        </Link>
                     </Typography>
                 </Box>
             ) : (
