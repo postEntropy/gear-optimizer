@@ -32,15 +32,20 @@ Optimization isn't just about gear—it's about the app too.
 - Calculate the mathematically perfect loadout for your current stats.
 - Supports all factors: Power, Toughness, NGU Speed, Gold Drops, etc.
 
-### 📈 Progression Tools
-- **NGUs**:
-  - **✨ NGU Efficiency Charts**: Interactive Line charts showing bonus progression over a 24-hour simulation.
-  - **Section-Wide Comparison**: Toggleable charts at the end of Energy/Magic sections to compare RoI between all NGUs.
-  - **Sorting by Efficiency**: See exactly which upgrade gives the best ROI.
-  - **Percentage Change**: Visual indicators for marginal gains.
-  - **Reachable Levels**: Predicts where you'll land after a rebirth.
-- **Hacks**: Advanced prediction and ROI tracking.
-- **Augments & Wishes**: Integrated calculators for optimal spending.
+### 💹 Advanced Visualization
+A major feature of this fork is the integration of interactive **ROI Efficiency Charts** for end-game progression.
+
+![NGU Charts](src/assets/readme/ngus_chart.png)
+*NGU Efficiency Comparison - Visualizing 24-hour bonus growth across all active NGUs.*
+
+- **NGUs & Hacks**:
+  - **Interactive Projections**: Toggleable rows (📈 icon) show individual 24-hour bonus growth curves.
+  - **Cumulative Comparison**: Section-wide graphs at the bottom of Energy/Magic NGU and Hacks tables compare ROI between all available upgrades.
+  - **Precision Tooltips**: Real-time display of both Multiplier Gained (×1.###) and Percentage Change (% gain).
+  - **Performance Optimized**: Powered by a custom "Jump Logic" engine that predicts billions of ticks in milliseconds, ensuring zero browser lag during simulations.
+
+![Hacks Charts](src/assets/readme/hacks_chart.png)
+*Hacks Charting - Tracking progression and milestones with high-precision simulation.*
 
 ### 🛠 UX Improvements
 - **Advanced Modifiers**: Integrated seamlessly into the main dashboard (no more popups!).
