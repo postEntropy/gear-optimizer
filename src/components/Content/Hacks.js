@@ -10,8 +10,13 @@ import { Hack } from '../../Hack';
 import { Hacks } from '../../assets/ItemAux';
 import { shorten, toTime } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
-
 import Loading from '../Loading/Loading';
+
+import Collapse from '@mui/material/Collapse';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import HackGraph from '../NGUGraph/HackGraph';
+import HackComparisonGraph from '../NGUGraph/HackComparisonGraph';
 
 class HackComponent extends Component {
     constructor(props) {
@@ -19,7 +24,9 @@ class HackComponent extends Component {
         this.state = {
             hackoption: this.props.hackstats.hackoption,
             sortConfig: { key: 'change', direction: 'descending' },
-            isReady: false
+            isReady: false,
+            expandedRows: {},
+            timeUnit: 'hours'
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -28,6 +35,15 @@ class HackComponent extends Component {
 
     componentDidMount() {
         setTimeout(() => this.setState({ isReady: true }), 300);
+    }
+
+    toggleRow(rowId) {
+        this.setState(prevState => ({
+            expandedRows: {
+                ...prevState.expandedRows,
+                [rowId]: !prevState.expandedRows[rowId]
+            }
+        }));
     }
 
     requestSort(key) {
@@ -348,27 +364,6 @@ class HackComponent extends Component {
                                     {option === '2' && <TableCell>Max MS<br />in {hacktime}min</TableCell>}
 
                                     <TableCell />
-
-                                    <TableCell>
-                                        <TableSortLabel active={key === 'mschange'} direction={key === 'mschange' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('mschange')}>
-                                            MS
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel active={key === 'time'} direction={key === 'time' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('time')}>
-                                            Time
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel active={key === 'projected_bonus'} direction={key === 'projected_bonus' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('projected_bonus')}>
-                                            Bonus
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell>
-                                        <TableSortLabel active={key === 'change'} direction={key === 'change' ? (direction === 'ascending' ? 'asc' : 'desc') : 'asc'} onClick={this.sortHandler('change')}>
-                                            Change
-                                        </TableSortLabel>
-                                    </TableCell>
                                     <TableCell>Next Level</TableCell>
                                     {option === '0' && <TableCell>Next Level<br />After Target</TableCell>}
                                     {option === '1' && <TableCell>Next Level<br />After Max Level</TableCell>}
@@ -384,11 +379,11 @@ class HackComponent extends Component {
                                             const level = this.props.hackstats.hacks[pos].level;
                                             const currBonus = hackOptimizer.bonus(level, pos);
                                             let target = 0;
-                                            if (option === '0') {
+                                            if (option === '0' || option === 0) {
                                                 target = this.props.hackstats.hacks[pos].goal;
                                             } else {
                                                 target = hackOptimizer.reachable(level, hacktime, pos);
-                                                if (option === '2') {
+                                                if (option === '2' || option === 2) {
                                                     target = hackOptimizer.milestoneLevel(target, pos);
                                                 }
                                             }
@@ -447,54 +442,109 @@ class HackComponent extends Component {
                                             });
                                         }
 
-                                        const rows = data.map((d) => {
+                                        const rows = [];
+                                        data.forEach((d) => {
                                             const { pos, name, reducer, level, currBonus, target, bonus, time, timePastLevel, timePastTarget, mschange_str, change } = d;
-                                            return <TableRow key={pos}>
-                                                <TableCell component="th" scope="row">{name}</TableCell>
-                                                <TableCell>
-                                                    <TextField type="number" value={reducer}
-                                                        onChange={(e) => this.handleChange(e, 'reducer', pos)} onFocus={this.handleFocus}
-                                                        inputProps={{ step: "any" }} sx={{ width: 60 }} hiddenLabel size="small" />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <TextField type="number" value={level}
-                                                        onChange={(e) => this.handleChange(e, 'level', pos)} onFocus={this.handleFocus}
-                                                        inputProps={{ step: "any" }} sx={{ width: 80 }} hiddenLabel size="small" />
-                                                </TableCell>
-                                                <TableCell>{shorten(currBonus, 2)}%</TableCell>
+                                            const rowId = `hack-${pos}`;
+                                            const isExpanded = !!this.state.expandedRows[rowId];
 
-                                                {option === '0' && <TableCell>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                        <TextField type="number" value={target}
-                                                            onChange={(e) => this.handleChange(e, 'goal', pos)} onFocus={this.handleFocus}
-                                                            inputProps={{ step: "any" }} sx={{ width: 80, mr: 1 }} hiddenLabel size="small" />
-                                                        <IconButton size="small" onClick={(e) => this.handleChange(e, 'msdown', pos)}><RemoveIcon fontSize="small" /></IconButton>
-                                                        <IconButton size="small" onClick={(e) => this.handleChange(e, 'msup', pos)}><AddIcon fontSize="small" /></IconButton>
-                                                    </Box>
-                                                </TableCell>}
-                                                {option !== '0' && <TableCell>{target}</TableCell>}
+                                            rows.push(
+                                                <TableRow key={pos}>
+                                                    <TableCell padding="checkbox">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => this.toggleRow(rowId)}
+                                                            color={isExpanded ? "primary" : "default"}
+                                                        >
+                                                            {isExpanded ? <ExpandLessIcon fontSize="small" /> : <TimelineIcon fontSize="small" />}
+                                                        </IconButton>
+                                                    </TableCell>
+                                                    <TableCell component="th" scope="row">{name}</TableCell>
+                                                    <TableCell>
+                                                        <TextField type="number" value={reducer}
+                                                            onChange={(e) => this.handleChange(e, 'reducer', pos)} onFocus={this.handleFocus}
+                                                            inputProps={{ step: "any" }} sx={{ width: 60 }} hiddenLabel size="small" />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <TextField type="number" value={level}
+                                                            onChange={(e) => this.handleChange(e, 'level', pos)} onFocus={this.handleFocus}
+                                                            inputProps={{ step: "any" }} sx={{ width: 80 }} hiddenLabel size="small" />
+                                                    </TableCell>
+                                                    <TableCell>{shorten(currBonus, 2)}%</TableCell>
 
-                                                <TableCell>
-                                                    {target !== this.props.hackstats.hacks[pos].goal ? (
-                                                        option === '0' ? (
-                                                            target === level ? null :
-                                                                <Button size="small" onClick={(e) => this.handleButtonChange({ target: { value: target > level ? target : level } }, target > level ? 'level' : 'goal', pos)}>Complete</Button>
-                                                        ) : (
-                                                            <Button size="small" onClick={(e) => this.handleButtonChange({ target: { value: target } }, 'goal', pos)}>Set Target</Button>
-                                                        )
-                                                    ) : null}
-                                                </TableCell>
+                                                    {(option === '0' || option === 0) && <TableCell>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <TextField type="number" value={target}
+                                                                onChange={(e) => this.handleChange(e, 'goal', pos)} onFocus={this.handleFocus}
+                                                                inputProps={{ step: "any" }} sx={{ width: 80, mr: 1 }} hiddenLabel size="small" />
+                                                            <IconButton size="small" onClick={(e) => this.handleChange(e, 'msdown', pos)}><RemoveIcon fontSize="small" /></IconButton>
+                                                            <IconButton size="small" onClick={(e) => this.handleChange(e, 'msup', pos)}><AddIcon fontSize="small" /></IconButton>
+                                                        </Box>
+                                                    </TableCell>}
+                                                    {(option !== '0' && option !== 0) && <TableCell>{target}</TableCell>}
 
-                                                <TableCell>{mschange_str}</TableCell>
-                                                <TableCell>{toTime(time)}</TableCell>
-                                                <TableCell>{shorten(bonus, 2)}%</TableCell>
-                                                <TableCell>×{shorten(change, 3)} {Math.round((change - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((change - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((change - 1) * 100)}%)</span>}</TableCell>
-                                                <TableCell>{toTime(timePastLevel)}</TableCell>
-                                                <TableCell>{toTime(timePastTarget)}</TableCell>
-                                            </TableRow>;
+                                                    <TableCell>
+                                                        {target !== this.props.hackstats.hacks[pos].goal ? (
+                                                            (option === '0' || option === 0) ? (
+                                                                target === level ? null :
+                                                                    <Button size="small" onClick={(e) => this.handleButtonChange({ target: { value: target > level ? target : level } }, target > level ? 'level' : 'goal', pos)}>Complete</Button>
+                                                            ) : (
+                                                                <Button size="small" onClick={(e) => this.handleButtonChange({ target: { value: target } }, 'goal', pos)}>Set Target</Button>
+                                                            )
+                                                        ) : null}
+                                                    </TableCell>
+
+                                                    <TableCell>{mschange_str}</TableCell>
+                                                    <TableCell>{toTime(time)}</TableCell>
+                                                    <TableCell>{shorten(bonus, 3)}%</TableCell>
+                                                    <TableCell>
+                                                        ×{shorten(change, 4)}
+                                                        {Math.round((change - 1) * 100) !== 0 && (
+                                                            <span style={{ color: 'green', fontWeight: 'bold', marginLeft: 4 }}>
+                                                                ({Math.abs((change - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((change - 1) * 100)}%)
+                                                            </span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>{toTime(timePastLevel)}</TableCell>
+                                                    <TableCell>{toTime(timePastTarget)}</TableCell>
+                                                </TableRow>
+                                            );
+
+                                            // Collapsible Chart Row
+                                            rows.push(
+                                                <TableRow key={pos + '-chart'}>
+                                                    <TableCell colSpan={13} sx={{ py: 0, borderBottom: isExpanded ? undefined : 'none' }}>
+                                                        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                                            <Box sx={{ p: 2 }}>
+                                                                <HackGraph
+                                                                    {...this.props}
+                                                                    hack={{ ...d, name }}
+                                                                />
+                                                            </Box>
+                                                        </Collapse>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
                                         });
 
                                         // Summary rows
+                                        rows.push(
+                                            <TableRow key="spacer-1">
+                                                <TableCell colSpan={13} sx={{ height: 20 }} />
+                                            </TableRow>
+                                        );
+
+                                        rows.push(
+                                            <TableRow key="summary-chart">
+                                                <TableCell colSpan={13}>
+                                                    <HackComparisonGraph
+                                                        {...this.props}
+                                                        hacksData={data}
+                                                        title="Hacks Efficiency Comparison (24 Hours Projection)"
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        );
                                         rows.push(
                                             <TableRow key="summary-min">
                                                 <TableCell colSpan={9} />
