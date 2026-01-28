@@ -37,7 +37,7 @@ Optimization isn't just about gear—it's about the app too.
 - Supports all factors: Power, Toughness, NGU Speed, Gold Drops, etc.
 
 ### 💹 Growth Efficiency Charts
-A major feature of this fork is the integration of interactive **Growth Efficiency Charts** for end-game progression.
+A major feature of this fork is the integration of interactive **Growth Efficiency Charts** for advanced progression.
 
 ![NGU Charts](src/assets/readme/ngus_chart.png)
 *NGU Efficiency Comparison - Visualizing 24-hour bonus growth across all active NGUs.*
