@@ -32,3 +32,6 @@ _version.js
 licenses.json
 
 .idea
+
+# debug
+/src/assets/debug/

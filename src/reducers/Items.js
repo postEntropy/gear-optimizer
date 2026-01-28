@@ -38,6 +38,8 @@ import { LOAD_STATE_LOCALSTORAGE } from '../actions/LoadStateLocalStorage';
 import { SAVE_STATE_LOCALSTORAGE } from '../actions/SaveStateLocalStorage';
 import { MASSUPDATE } from '../actions/MassUpdateItems';
 import { DROP_EQUIP_ITEM } from '../actions/DropEquipItem';
+import { RECORD_HISTORY, CLEAR_HISTORY } from '../actions/History';
+
 
 let ITEMS = new ItemContainer(ITEMLIST.map((item) => {
     return [item.id, item];
@@ -475,8 +477,10 @@ const INITIAL_STATE = {
         mcBetaPot: false,
         mcDeltaPot: false
     },
+    history: [],
     version: '2.0.0'
 };
+
 
 const ItemsReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
@@ -798,7 +802,6 @@ const ItemsReducer = (state = INITIAL_STATE, action) => {
             }
             if (tmpFactors[tmpFactors.length - 1] !== 'NONE') {
                 tmpFactors.push('NONE');
-                tmpMaxslots.push(Infinity);
             }
             return {
                 ...state,
@@ -807,7 +810,54 @@ const ItemsReducer = (state = INITIAL_STATE, action) => {
             };
         }
 
+        case RECORD_HISTORY: {
+            const entry = action.payload.data;
+            let newHistory = [...state.history, { ...entry, timestamp: entry.timestamp || Date.now() }];
+
+            // Sort by timestamp to ensure chronological order first
+            newHistory.sort((a, b) => a.timestamp - b.timestamp);
+
+            // Deduplicate: only keep if rebirths AND exp are unique compared to the previous entry in time
+            // Deduplicate: only keep if rebirths OR exp is different. 
+            // If both are same, only keep if timestamp is significantly different (e.g. > 1 min)
+            const deduped = [];
+            for (let i = 0; i < newHistory.length; i++) {
+                const current = newHistory[i];
+                const last = deduped[deduped.length - 1];
+
+                if (last) {
+                    const isSameRebirth = last.rebirths === current.rebirths;
+                    const isSameExp = last.exp === current.exp && current.exp > 0;
+                    const isSameTime = Math.abs(last.timestamp - current.timestamp) < 60000; // 1 minute
+
+                    if (isSameRebirth && isSameExp && isSameTime) {
+                        continue;
+                    }
+                }
+                deduped.push(current);
+            }
+
+            // Keep last 150 entries
+            if (deduped.length > 150) {
+                deduped.splice(0, deduped.length - 150);
+            }
+
+            return {
+                ...state,
+                history: deduped
+            };
+        }
+
+        case CLEAR_HISTORY: {
+            return {
+                ...state,
+                history: []
+            };
+        }
+
+
         case EQUIP_ITEM: {
+
             const id = action.payload.id;
             const slot = state.itemdata[id].slot[0];
             const count = state.equip[slot].length;

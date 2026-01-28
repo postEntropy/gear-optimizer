@@ -7,6 +7,8 @@ import { Crement } from '../../actions/Crement';
 import { MassUpdate } from '../../actions/MassUpdateItems';
 import { Settings } from '../../actions/Settings';
 import { Deserializer } from './deserializeDotNet'
+import { RecordHistory } from '../../actions/History';
+
 
 // minimal boss for each zone, per difficulty
 const sadisticZones = [
@@ -52,55 +54,110 @@ const normalZones = [
     [7, 3],
 ];
 
-const ImportSaveForm = (props) => {
+const ImportSaveForm = ({ hideSwitch = false }) => {
     const dispatch = useDispatch();
+
     const optimizerState = useSelector(state => state.optimizer);
     const [disableItems, setDisableItems] = useState(false);
     let fileReader;
 
     const inputElem = useRef(null);
 
-    const handleFileRead = (rawSave) => (e) => {
-        let data
-        if (rawSave) {
-            const rawData = Deserializer.fromFile(fileReader.result)[1];
-            data = Deserializer.convertData(undefined, rawData);
-        } else {
-            const content = fileReader.result
-            data = JSON.parse(content)
+    const handleFileRead = (file, content) => {
+        let data;
+        try {
+            // Try to parse as JSON first (NGUSav.es format)
+            data = JSON.parse(content);
+        } catch (e) {
+            // If JSON fails, try as Raw NRBF (native save)
+            try {
+                const rawData = Deserializer.fromFile(content)[1];
+                data = Deserializer.convertData(undefined, rawData);
+            } catch (e2) {
+                console.error("Error parsing save file:", file.name, e, e2);
+                return null;
+            }
         }
 
-        console.log("Imported data", data);
+        if (!data) return null;
 
-        let newItemData = {};
-        Object.keys(optimizerState.itemdata).forEach(key => {
-            const item = optimizerState.itemdata[key];
-            newItemData[key] = Object.assign(Object.create(Object.getPrototypeOf(item)), item);
+        // Debug log to help identify property names in user save
+        console.log("Extracted save data structure:", data);
+
+        // Try to extract timestamp from filename: Rebirth_2026-01-22_14-29-17
+        let timestamp = Date.now();
+        const dateMatch = file.name.match(/(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})/);
+        if (dateMatch) {
+            const [_, year, month, day, hour, minute, second] = dateMatch;
+            timestamp = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`).getTime();
+        }
+
+        // Return extracted stats for history
+        const result = {
+            rebirths: data.rebirths || data.numberRebirths || data.stats?.rebirthNumber || 0,
+            exp: data.totalExperience || data.totalExp || data.totalExpEarned || data.stats?.totalExp || 0,
+            energyCap: Math.max(data.capEnergy || 0, data.curEnergy || 0),
+            magicCap: Math.max(data.magic?.capMagic || 0, data.magic?.curMagic || 0),
+            baseEnergyCap: data.baseEnergyCap || data.energyPurchasedCap || data.purchasedEnergyCap || 0,
+            baseMagicCap: data.baseMagicCap || data.magicPurchasedCap || data.purchasedMagicCap || 0,
+            highestBoss: data.highestBoss || data.stats?.highestBoss || 0,
+            highestHardBoss: data.highestHardBoss || 0,
+            highestSadisticBoss: data.highestSadisticBoss || 0,
+            nguLevels: (data.NGU?.skills || []).map(s => ({ normal: s.level || 0, evil: s.evilLevel || 0, sadistic: s.sadisticLevel || 0 })),
+            magicNguLevels: (data.NGU?.magicSkills || []).map(s => ({ normal: s.level || 0, evil: s.evilLevel || 0, sadistic: s.sadisticLevel || 0 })),
+            hackLevels: (data.hacks?.hacks || []).map(h => h.level || 0),
+
+            // Resource Stats (Power, Cap, Bars)
+            energyCap: data.capEnergy || 0,
+            energyBars: data.energyBars || 0,
+            energyPower: data.energyPower || 1,
+
+            // Magic (Nested in data.magic) - Overrides any previous extraction
+            magicCap: data.magic?.capMagic || 0,
+            magicBars: data.magic?.magicPerBar || 0,
+            magicPower: data.magic?.magicPower || 1,
+
+            // Res3 (Nested in data.res3)
+            res3Cap: data.res3?.capRes3 || 0,
+            res3Bars: data.res3?.res3PerBar || 0,
+            res3Power: data.res3?.res3Power || 1,
+
+            // Advanced Metrics
+            pp: data.adventure?.itopod?.lifetimePoints || data.itopod?.lifetimePoints || 0,
+            ap: data.arbitrary?.curLifetimePoints || 0,
+
+            // Playtime: Handle missing totalseconds by calculating from parts
+            playtime: data.totalPlaytime ? (
+                data.totalPlaytime.totalseconds ||
+                ((data.totalPlaytime.days || 0) * 86400 +
+                    (data.totalPlaytime.hours || 0) * 3600 +
+                    (data.totalPlaytime.minutes || 0) * 60 +
+                    (data.totalPlaytime.seconds || 0))
+            ) : 0,
+
+            challenges: Object.values(data.challenges || {}).reduce((acc, c) => acc + (typeof c === 'object' ? (c.curCompletions || 0) + (c.curEvilCompletions || 0) + (c.curSadisticCompletions || 0) : 0), 0),
+            beardLevels: Array.isArray(data.beards?.beards) ? data.beards.beards.map(b => b?.permLevel || 0) : [],
+            timestamp,
+            // keep the full data locally for initial application
+            fullData: data
+        };
+
+        // Debug: Log extracted metrics
+        console.log("📊 Extracted Metrics:", {
+            pp: result.pp,
+            qp: result.qp,
+            challenges: result.challenges,
+            beardLevels: result.beardLevels,
+            attackMulti: result.attackMulti,
+            defenseMulti: result.defenseMulti
         });
 
-        let zone = getZone(
-            data.highestBoss,
-            data.highestHardBoss,
-            data.highestSadisticBoss,
-        );
-        console.log("Bosses:", data.highestBoss, data.highestHardBoss, data.highestSadisticBoss);
-        console.log("Determined Zone:", zone);
-
-        dispatch(Settings("zone", zone));
-        resetItems(newItemData)
-        let found = updateItemLevels(data, newItemData)
-        if (disableItems) {
-            disableUnownedItems(found, newItemData)
-        }
-
-        dispatch(MassUpdate(newItemData))
-
-        updateNgus(data)
-
-        updateAugmentTab(data)
-
-        updateHackTab(data)
+        return result;
     }
+
+
+
+
 
     const getZone = (B, eB, sB) => {
         let zones = [sadisticZones, evilZones, normalZones];
@@ -266,24 +323,82 @@ const ImportSaveForm = (props) => {
         }
     }
 
+    const applyData = (data) => {
 
-    const handleFilePick = (e) => {
-        let file = e.target.files[0]
-        e.target.value = null
-        fileReader = new FileReader()
-        fileReader.onloadend = handleFileRead(file.type !== 'application/json');
-        try {
-            fileReader.readAsText(file)
-        } catch {
-            inputElem.current.value = null
+        let newItemData = {};
+        Object.keys(optimizerState.itemdata).forEach(key => {
+            const item = optimizerState.itemdata[key];
+            newItemData[key] = Object.assign(Object.create(Object.getPrototypeOf(item)), item);
+        });
+
+        let zone = getZone(
+            data.highestBoss,
+            data.highestHardBoss,
+            data.highestSadisticBoss,
+        );
+
+        dispatch(Settings("zone", zone));
+        resetItems(newItemData)
+        let found = updateItemLevels(data, newItemData)
+        if (disableItems) {
+            disableUnownedItems(found, newItemData)
         }
 
+        dispatch(MassUpdate(newItemData))
+        updateNgus(data)
+        updateAugmentTab(data)
+        updateHackTab(data)
     }
+
+
+
+    const handleFilePick = async (e) => {
+        const files = Array.from(e.target.files);
+        console.log("🔍 Files selected:", files.length);
+        e.target.value = null;
+
+        const results = await Promise.all(files.map(file => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    console.log("📖 Reading file:", file.name);
+                    const processed = handleFileRead(file, event.target.result);
+                    console.log("✅ Processed result:", processed ? "Success" : "Failed");
+                    resolve(processed);
+                };
+                reader.readAsText(file);
+            });
+        }));
+
+        const validResults = results.filter(r => r !== null);
+        console.log("✔️ Valid results:", validResults.length, "out of", results.length);
+        if (validResults.length === 0) return;
+
+        // Record all in history
+        validResults.forEach(res => {
+            const { fullData, ...historyData } = res;
+            console.log("💾 Recording history entry:", historyData);
+            dispatch(RecordHistory(historyData));
+        });
+
+        // Apply only the one with the highest rebirth count (latest)
+        const latest = validResults.sort((a, b) => {
+            if (a.rebirths !== b.rebirths) return b.rebirths - a.rebirths;
+            return b.timestamp - a.timestamp;
+        })[0];
+
+        if (latest) {
+            console.log("🎯 Applying latest save with", latest.rebirths, "rebirths");
+            applyData(latest.fullData);
+        }
+    }
+
 
     return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <input ref={inputElem} style={{ display: "none" }} type='file' id='savefileloader'
-                onChange={e => handleFilePick(e)} />
+                multiple onChange={e => handleFilePick(e)} />
+
             <Tooltip title={
                 <React.Fragment>
                     Supported file types are<br />
@@ -291,20 +406,39 @@ const ImportSaveForm = (props) => {
                     (2) NGUSav.es JSON files.
                 </React.Fragment>
             } placement="bottom">
-                <Button variant="contained" onClick={() => inputElem.current.click()} startIcon={<UploadFileIcon />}>
-                    Import save from file
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => inputElem.current.click()}
+                    startIcon={<UploadFileIcon />}
+                    sx={{
+                        borderRadius: 3,
+                        px: 3,
+                        fontWeight: 600,
+                        boxShadow: 2,
+                        '&:hover': {
+                            boxShadow: 4,
+                            transform: 'translateY(-1px)'
+                        },
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    Import Save
                 </Button>
             </Tooltip>
-            <FormControlLabel
-                control={
-                    <Switch
-                        checked={disableItems}
-                        onChange={() => setDisableItems(!disableItems)}
-                    />
-                }
-                label="Disable unowned"
-            />
+            {!hideSwitch && (
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={disableItems}
+                            onChange={() => setDisableItems(!disableItems)}
+                        />
+                    }
+                    label="Disable unowned"
+                />
+            )}
         </Box>
+
     )
 }
 

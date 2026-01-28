@@ -31,7 +31,9 @@ import {
     FlashOn, // Energy/Magic (NGUs)
     Code, // Hacks
     Star, // Wishes
+    History, // Rebirth History
     ChevronLeft,
+
     ChevronRight
 } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
@@ -47,7 +49,9 @@ import Augment from '../Content/Augment';
 import NGUComponent from '../Content/NGUs';
 import HackComponent from '../Content/Hacks';
 import WishComponent from '../Content/Wishes';
+import HistoryComponent from '../Content/History';
 // import AboutComponent from '../About/About';
+
 
 const DRAWER_WIDTH = 260;
 const COLLAPSED_DRAWER_WIDTH = 80;
@@ -166,13 +170,15 @@ const AppLayout = (props) => {
     const isNGUs = path.startsWith('/ngus');
     const isHacks = path.startsWith('/hacks');
     const isWishes = path.startsWith('/wishes');
+    const isHistory = path.startsWith('/history');
 
     const [visited, setVisited] = React.useState({
         optimizer: true,
         augment: false,
         ngus: false,
         hacks: false,
-        wishes: false
+        wishes: false,
+        history: false
     });
 
     React.useEffect(() => {
@@ -180,7 +186,9 @@ const AppLayout = (props) => {
         if (isNGUs && !visited.ngus) setVisited(v => ({ ...v, ngus: true }));
         if (isHacks && !visited.hacks) setVisited(v => ({ ...v, hacks: true }));
         if (isWishes && !visited.wishes) setVisited(v => ({ ...v, wishes: true }));
-    }, [isAugment, isNGUs, isHacks, isWishes, visited]);
+        if (isHistory && !visited.history) setVisited(v => ({ ...v, history: true }));
+    }, [isAugment, isNGUs, isHacks, isWishes, isHistory, visited]);
+
 
     const currentDrawerWidth = open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH;
 
@@ -257,7 +265,9 @@ const AppLayout = (props) => {
                             <NavItem open={open} to="/ngus" label="NGUs" icon={<FlashOn />} isActive={location.pathname.startsWith('/ngus')} />
                             <NavItem open={open} to="/hacks" label="Hacks" icon={<Code />} isActive={location.pathname.startsWith('/hacks')} />
                             <NavItem open={open} to="/wishes" label="Wishes" icon={<Star />} isActive={location.pathname.startsWith('/wishes')} />
+                            <NavItem open={open} to="/history" label="History" icon={<History />} isActive={location.pathname.startsWith('/history')} />
                         </List>
+
 
                         <Box sx={{ flexGrow: 1 }} />
 
@@ -329,8 +339,12 @@ const AppLayout = (props) => {
                                     <Box sx={{ display: isWishes ? 'block' : 'none', ...fadeAnimation }}>
                                         {(visited.wishes || isWishes) && <WishComponent {...props} className='app_body' />}
                                     </Box>
+                                    <Box sx={{ display: isHistory ? 'block' : 'none', ...fadeAnimation }}>
+                                        {(visited.history || isHistory) && <HistoryComponent {...props} className='app_body' />}
+                                    </Box>
                                 </>
-                            ), [props, isOptimizer, isAugment, isNGUs, isHacks, isWishes, loadoutParams, visited])}
+                            ), [props, isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, loadoutParams, visited])}
+
                         </Box>
                     </Box>
 

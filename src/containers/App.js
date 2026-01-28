@@ -30,6 +30,7 @@ import { SaveStateLocalStorage } from '../actions/SaveStateLocalStorage';
 
 import '../stylesheets/App.css';
 import { DropEquipItem } from '../actions/DropEquipItem';
+import { ClearHistory } from '../actions/History';
 
 ReactGA.initialize('UA-141463995-1');
 
@@ -108,6 +109,7 @@ const mapStateToProps = state => {
         ngustats: state.optimizer.ngustats,
         hackstats: state.optimizer.hackstats,
         wishstats: state.optimizer.wishstats,
+        history: state.optimizer.history,
         version: state.optimizer.version,
         loaded: state.optimizer.loaded
     }
@@ -144,7 +146,8 @@ const mapDispatchToProps = {
     handleSettings: Settings,
     handleGo2Titan: Go2Titan,
     handleSaveStateLocalStorage: SaveStateLocalStorage,
-    handleLoadStateLocalStorage: LoadStateLocalStorage
+    handleLoadStateLocalStorage: LoadStateLocalStorage,
+    handleClearHistory: ClearHistory
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
