@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { Box, Typography, Paper } from '@mui/material';
 import { NGU } from '../../NGU';
@@ -27,7 +27,12 @@ const NGUGraph = (props) => {
     const data = useMemo(() => {
         const nguOptimizer = new NGU(props);
         const chartData = [];
-        const steps = 48; // Every 30 minutes for 24 hours
+        const setTimeMinutes = ngustats.ngutime || 0;
+        const setTimeHours = setTimeMinutes / 60;
+
+        // Ensure we show at least 24 hours or the set time, whichever is greater
+        const maxHours = Math.max(24, Math.ceil(setTimeHours));
+        const steps = maxHours * 2; // Steps of 30 minutes
 
         const currentLevels = ngu.levels;
         const pos = ngu.pos;
@@ -50,7 +55,11 @@ const NGUGraph = (props) => {
                 bonusChange: bonusChange,
             });
         }
-        return chartData;
+
+        // Match setTime to the closest data point for the reference line to show up on a category axis
+        const roundedSetTime = Math.round(setTimeHours * 2) / 2;
+
+        return { chartData, setTimeHours, roundedSetTime };
     }, [ngustats, ngu, isMagic, quirk]);
 
     return (
@@ -60,12 +69,13 @@ const NGUGraph = (props) => {
             </Typography>
             <Box sx={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
-                    <LineChart data={data} margin={{ top: 5, right: 30, left: 10, bottom: 15 }}>
+                    <LineChart data={data.chartData} margin={{ top: 5, right: 30, left: 10, bottom: 15 }}>
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                         <XAxis
                             dataKey="hours"
                             label={{ value: 'Hours', position: 'insideBottom', offset: -10 }}
                             tick={{ fontSize: 12 }}
+                            interval={0}
                         />
                         <YAxis
                             tickFormatter={(val) => `×${shorten(val, 2)}`}
@@ -75,6 +85,13 @@ const NGUGraph = (props) => {
                         <Tooltip
                             formatter={(value) => [`×${shorten(value, 4)} (${Math.round((value - 1) * 100)}%)`, 'Evil Bonus Change']}
                             labelFormatter={(label) => `${label} hours`}
+                        />
+                        <ReferenceLine
+                            x={data.roundedSetTime}
+                            stroke="#ff1744"
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                            label={{ value: 'Set Time', position: 'top', fill: '#ff1744', fontSize: 12, fontWeight: 'bold' }}
                         />
                         <Line
                             type="monotone"

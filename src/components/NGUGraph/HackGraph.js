@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Paper, Typography, Box } from '@mui/material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Hack } from '../../Hack';
 import { shorten } from '../../util';
 
@@ -22,10 +22,15 @@ const HackGraph = (props) => {
     const lineColor = useMemo(() => getColor(hack.name), [hack.name]);
 
     const data = useMemo(() => {
-        if (!hackstats || !hack) return [];
+        if (!hackstats || !hack) return { chartData: [], setTimeHours: 0 };
         const hackOptimizer = new Hack(props);
         const chartData = [];
-        const steps = 48; // Every 30 minutes for 24 hours
+        const setTimeMinutes = hackstats.hacktime || 0;
+        const setTimeHours = setTimeMinutes / 60;
+
+        // Ensure we show at least 24 hours or the set time, whichever is greater
+        const maxHours = Math.max(24, Math.ceil(setTimeHours));
+        const steps = maxHours * 2; // Steps of 30 minutes
 
         const currentLevel = hack.level;
         const pos = hack.pos;
@@ -48,7 +53,11 @@ const HackGraph = (props) => {
                 percentage: Math.round((bonusChange - 1) * 100)
             });
         }
-        return chartData;
+
+        // Match setTime to the closest data point for the reference line to show up on a category axis
+        const roundedSetTime = Math.round(setTimeHours * 2) / 2;
+
+        return { chartData, setTimeHours, roundedSetTime };
     }, [hackstats, hack, props]);
 
     return (
@@ -58,12 +67,13 @@ const HackGraph = (props) => {
             </Typography>
             <Box sx={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
-                    <LineChart data={data}>
+                    <LineChart data={data.chartData}>
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                         <XAxis
                             dataKey="hours"
                             label={{ value: 'Hours', position: 'insideBottom', offset: -5 }}
                             tick={{ fontSize: 12 }}
+                            interval={0}
                         />
                         <YAxis
                             tickFormatter={(val) => `×${shorten(val, 2)}`}
@@ -73,6 +83,13 @@ const HackGraph = (props) => {
                         <Tooltip
                             formatter={(value) => [`×${shorten(value, 4)} (${Math.round((value - 1) * 100)}%)`, 'Bonus Change']}
                             labelFormatter={(label) => `${label} hours`}
+                        />
+                        <ReferenceLine
+                            x={data.roundedSetTime}
+                            stroke="#ff1744"
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                            label={{ value: 'Set Time', position: 'top', fill: '#ff1744', fontSize: 12, fontWeight: 'bold' }}
                         />
                         <Line
                             type="monotone"
