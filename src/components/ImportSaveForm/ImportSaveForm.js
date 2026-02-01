@@ -85,7 +85,7 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
         console.log("Extracted save data structure:", data);
 
         // Try to extract timestamp from filename: Rebirth_2026-01-22_14-29-17
-        let timestamp = Date.now();
+        let timestamp = file.lastModified || Date.now();
         const dateMatch = file.name.match(/(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})/);
         if (dateMatch) {
             const [_, year, month, day, hour, minute, second] = dateMatch;
@@ -106,18 +106,18 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
             magicNguLevels: (data.NGU?.magicSkills || []).map(s => ({ normal: s.level || 0, evil: s.evilLevel || 0, sadistic: s.sadisticLevel || 0 })),
             hackLevels: (data.hacks?.hacks || []).map(h => h.level || 0),
 
-            // Resource Stats (Power, Cap, Bars)
-            energyCap: Math.max(data.capEnergy || 0, data.curEnergy || 0),
+            // Resource Stats (Base/Purchased Cap for stable history)
+            energyCap: data.energyPurchasedCap || data.baseEnergyCap || data.purchasedEnergyCap || data.capEnergy || 0,
             energyBars: data.energyBars || 0,
             energyPower: data.energyPower || 1,
 
-            // Magic (Nested in data.magic) - Overrides any previous extraction
-            magicCap: Math.max(data.magic?.capMagic || 0, data.magic?.curMagic || 0),
+            // Magic (Base/Purchased Cap)
+            magicCap: data.magicPurchasedCap || data.magic?.purchasedMagicCap || data.magic?.capMagic || 0,
             magicBars: data.magic?.magicPerBar || 0,
             magicPower: data.magic?.magicPower || 1,
 
-            // Res3 (Nested in data.res3)
-            res3Cap: data.res3?.capRes3 || 0,
+            // Res3 (Base/Purchased Cap)
+            res3Cap: data.res3PurchasedCap || data.res3?.purchasedRes3Cap || data.res3?.capRes3 || 0,
             res3Bars: data.res3?.res3PerBar || 0,
             res3Power: data.res3?.res3Power || 1,
 
@@ -137,6 +137,7 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
             challenges: Object.values(data.challenges || {}).reduce((acc, c) => acc + (typeof c === 'object' ? (c.curCompletions || 0) + (c.curEvilCompletions || 0) + (c.curSadisticCompletions || 0) : 0), 0),
             beardLevels: Array.isArray(data.beards?.beards) ? data.beards.beards.map(b => b?.permLevel || 0) : [],
             timestamp,
+            isRebirth: file.name.toLowerCase().includes('rebirth'),
             // keep the full data locally for initial application
             fullData: data
         };
@@ -188,7 +189,10 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
     const updateHackTab = (data) => {
         let hacks = data.hacks.hacks;
 
-        let newState = { ...optimizerState.hackstats }
+
+
+        // Deep copy hackstats to avoid mutating read-only Redux state
+        let newState = JSON.parse(JSON.stringify(optimizerState.hackstats));
         for (let i = 0; i < newState.hacks.length; i++) {
             newState.hacks[i].level = hacks[i].level
         }
@@ -288,7 +292,7 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
             mngus.push(temp)
         }
 
-        let newState = { ...optimizerState.ngustats }
+        let newState = JSON.parse(JSON.stringify(optimizerState.ngustats));
 
         newState.quirk.e2n = data.beastQuest.quirkLevel[14] > 0
         newState.quirk.s2e = data.beastQuest.quirkLevel[89] > 0
@@ -373,11 +377,13 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
         console.log("✔️ Valid results:", validResults.length, "out of", results.length);
         if (validResults.length === 0) return;
 
-        // Record all in history
+        // Record only Rebirth saves in history
         validResults.forEach(res => {
-            const { fullData, ...historyData } = res;
-            console.log("💾 Recording history entry:", historyData);
-            dispatch(RecordHistory(historyData));
+            const { fullData, isRebirth, ...historyData } = res;
+            if (isRebirth) {
+                console.log("💾 Recording rebirth history entry:", historyData);
+                dispatch(RecordHistory(historyData));
+            }
         });
 
         // Apply only the one with the highest rebirth count (latest)
@@ -403,6 +409,8 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
                     Supported file types are<br />
                     (1) raw NGU save files, and<br />
                     (2) NGUSav.es JSON files.
+                    <br /><br />
+                    <i>Note: Only files with "Rebirth" in name are added to History.</i>
                 </React.Fragment>
             } placement="bottom">
                 <Button

@@ -1,7 +1,7 @@
 import './polyfill';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { applyMiddleware, compose, createStore } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
 
@@ -15,8 +15,15 @@ import App from './containers/App';
 import * as serviceWorker from './serviceWorker';
 
 const sagaMiddleware = createSagaMiddleware();
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(AppReducer, composeEnhancers(applyMiddleware(sagaMiddleware)));
+const store = configureStore({
+    reducer: AppReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: false,
+            immutableCheck: false,
+        }).concat(sagaMiddleware),
+});
+
 sagaMiddleware.run(rootSaga);
 
 const container = document.getElementById('app');

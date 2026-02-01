@@ -125,10 +125,7 @@ const History = ({ handleClearHistory }) => {
     }, [history]);
 
     const chartData = useMemo(() => {
-        return [...history].sort((a, b) => {
-            if (a.rebirths !== b.rebirths) return a.rebirths - b.rebirths;
-            return a.timestamp - b.timestamp;
-        }).map(entry => {
+        return [...history].sort((a, b) => a.timestamp - b.timestamp).map(entry => {
             const data = {
                 ...entry,
                 date: new Date(entry.timestamp).toLocaleDateString(),
@@ -494,7 +491,7 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 8 }}>
                                 <Typography variant="h6" gutterBottom color="primary">XP Growth</Typography>
                                 <Box sx={{ width: '100%', height: 350, mb: 4 }}>
-                                    <ResponsiveContainer>
+                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <AreaChart data={filteredChartData}>
                                             <defs>
                                                 <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
@@ -621,7 +618,7 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 8 }}>
                                 <Typography variant="h6" gutterBottom color="secondary">Energy NGU Levels</Typography>
                                 <Box sx={{ width: '100%', height: 450 }}>
-                                    <ResponsiveContainer>
+                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <LineChart data={filteredChartData}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                                             <XAxis
@@ -648,7 +645,7 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 8 }}>
                                 <Typography variant="h6" gutterBottom color="secondary">Magic NGU Levels</Typography>
                                 <Box sx={{ width: '100%', height: 450 }}>
-                                    <ResponsiveContainer>
+                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <LineChart data={filteredChartData}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                                             <XAxis
@@ -677,7 +674,7 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="h6" gutterBottom color="info.main">Hack Levels</Typography>
                                 <Box sx={{ width: '100%', height: 550 }}>
-                                    <ResponsiveContainer>
+                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <LineChart data={filteredChartData}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                                             <XAxis
@@ -708,7 +705,7 @@ const History = ({ handleClearHistory }) => {
                                     <Box sx={{ mb: 8 }}>
                                         <Typography variant="h6" gutterBottom sx={{ color: '#8B4513', fontWeight: 'bold' }}>Beard Progression (Permanent Levels)</Typography>
                                         <Box sx={{ width: '100%', height: 400 }}>
-                                            <ResponsiveContainer>
+                                            <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                                 <LineChart data={filteredChartData}>
                                                     <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                                                     <XAxis

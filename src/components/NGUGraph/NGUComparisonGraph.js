@@ -56,7 +56,7 @@ const NGUComparisonGraph = (props) => {
                 {title}
             </Typography>
             <Box sx={{ width: '100%', height: 400 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%" debounce={1}>
                     <LineChart data={chartData.chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                         <XAxis

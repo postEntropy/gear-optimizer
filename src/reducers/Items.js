@@ -132,7 +132,7 @@ export function cleanState(state, skipSaving = false) {
     return state;
 }
 
-function loadState(state) {
+export function loadState(state) {
     const lc = window.localStorage.getItem(LOCALSTORAGE_NAME);
     let localStorageState;
     try {
@@ -478,6 +478,7 @@ const INITIAL_STATE = {
         mcDeltaPot: false
     },
     history: [],
+    highlightBest: false,
     version: '2.0.0'
 };
 

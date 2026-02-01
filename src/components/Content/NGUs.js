@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactGA from 'react-ga';
 import {
     TextField, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Checkbox,
-    FormControlLabel, Paper, Box, Grid, Typography, Select, MenuItem
+    FormControlLabel, Paper, Box, Grid, Typography, Select, MenuItem, Switch
 } from '@mui/material';
 import { NGU } from '../../NGU'
 import { NGUs } from '../../assets/ItemAux';
@@ -15,6 +15,7 @@ import NGUGraph from '../NGUGraph/NGUGraph';
 import NGUComparisonGraph from '../NGUGraph/NGUComparisonGraph';
 import IconButton from '@mui/material/IconButton';
 import TimelineIcon from '@mui/icons-material/Timeline';
+import StarIcon from '@mui/icons-material/Star';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Collapse from '@mui/material/Collapse';
@@ -225,6 +226,18 @@ class NGUComponent extends Component {
                                     <Grid item xs={6} sm={4}>
                                         <FormControlLabel control={<Checkbox checked={this.props.ngustats.quirk.s2e} onChange={(e) => this.handleChange(e, 's2e')} />} label="Sadistic -> Evil Quirk" />
                                     </Grid>
+                                    <Grid item xs={12} sm={4}>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.props.highlightBest}
+                                                    onChange={() => this.props.handleSettings('highlightBest', !this.props.highlightBest)}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label="Highlight Best Gain"
+                                        />
+                                    </Grid>
                                 </Grid>
                             </Paper>
                             <ModifierForm {...this.props} name={'ngustats'} e={true} m={true} r={false} />
@@ -322,19 +335,29 @@ class NGUComponent extends Component {
                                             });
                                         }
 
+                                        // Find max changes for highlighting
+                                        const maxNormal = Math.max(1.00000001, ...data.map(d => d.reachable_normal_change));
+                                        const maxEvil = Math.max(1.00000001, ...data.map(d => d.reachable_evil_change));
+                                        const maxSadistic = Math.max(1.00000001, ...data.map(d => d.reachable_sadistic_change));
+
                                         const rows = data.map((item) => {
                                             const { pos, ngu, bonus, reachable } = item;
                                             const rowId = `${resource}-${pos}`;
                                             const isExpanded = !!this.state.expandedRows[rowId];
 
+                                            const isBestNormal = this.props.highlightBest && item.reachable_normal_change === maxNormal;
+                                            const isBestEvil = this.props.highlightBest && item.reachable_evil_change === maxEvil;
+                                            const isBestSadistic = this.props.highlightBest && item.reachable_sadistic_change === maxSadistic;
+                                            const isBestAny = isBestNormal || isBestEvil || isBestSadistic;
+
                                             return [
-                                                <TableRow key={rowId}>
+                                                <TableRow key={rowId} sx={isBestAny ? { backgroundColor: 'rgba(76, 175, 80, 0.12) !important' } : {}}>
                                                     <TableCell padding="checkbox">
                                                         <IconButton size="small" onClick={() => this.toggleRow(rowId)}>
                                                             {isExpanded ? <ExpandLessIcon fontSize="small" /> : <TimelineIcon fontSize="small" />}
                                                         </IconButton>
                                                     </TableCell>
-                                                    <TableCell component="th" scope="row">{ngu.name}</TableCell>
+                                                    <TableCell component="th" scope="row" sx={isBestAny ? { fontWeight: 'bold' } : {}}>{ngu.name}</TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].normal}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'normal', pos, isMagic)}
@@ -350,15 +373,24 @@ class NGUComponent extends Component {
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'sadistic', pos, isMagic)}
                                                             inputProps={{ step: "any" }} sx={{ width: 140 }} hiddenLabel size="small" />
                                                     </TableCell>
-                                                    <TableCell>{'×' + shorten(bonus * 100) + '%'}</TableCell>
-                                                    <TableCell>
-                                                        {shorten(reachable.level.normal)} (×{shorten(reachable.bonus.normal / bonus, 4)}) {Math.round((reachable.bonus.normal / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.normal / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.normal / bonus - 1) * 100)}%)</span>}
+                                                    <TableCell sx={isBestAny ? { fontWeight: 'bold' } : {}}>{'×' + shorten(bonus * 100) + '%'}</TableCell>
+                                                    <TableCell sx={isBestNormal ? { fontWeight: 'bold' } : {}}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            {isBestNormal && <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />}
+                                                            {shorten(reachable.level.normal)} (×{shorten(reachable.bonus.normal / bonus, 4)}) {Math.round((reachable.bonus.normal / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.normal / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.normal / bonus - 1) * 100)}%)</span>}
+                                                        </Box>
                                                     </TableCell>
-                                                    <TableCell>
-                                                        {shorten(reachable.level.evil)} (×{shorten(reachable.bonus.evil / bonus, 4)}) {Math.round((reachable.bonus.evil / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.evil / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.evil / bonus - 1) * 100)}%)</span>}
+                                                    <TableCell sx={isBestEvil ? { fontWeight: 'bold' } : {}}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            {isBestEvil && <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />}
+                                                            {shorten(reachable.level.evil)} (×{shorten(reachable.bonus.evil / bonus, 4)}) {Math.round((reachable.bonus.evil / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.evil / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.evil / bonus - 1) * 100)}%)</span>}
+                                                        </Box>
                                                     </TableCell>
-                                                    <TableCell>
-                                                        {shorten(reachable.level.sadistic)} (×{shorten(reachable.bonus.sadistic / bonus, 4)}) {Math.round((reachable.bonus.sadistic / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.sadistic / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.sadistic / bonus - 1) * 100)}%)</span>}
+                                                    <TableCell sx={isBestSadistic ? { fontWeight: 'bold' } : {}}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            {isBestSadistic && <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />}
+                                                            {shorten(reachable.level.sadistic)} (×{shorten(reachable.bonus.sadistic / bonus, 4)}) {Math.round((reachable.bonus.sadistic / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.sadistic / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.sadistic / bonus - 1) * 100)}%)</span>}
+                                                        </Box>
                                                     </TableCell>
                                                 </TableRow>,
                                                 <TableRow key={rowId + '-chart'}>

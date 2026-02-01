@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import ReactGA from 'react-ga';
+import { HashRouter } from 'react-router-dom';
 
 import { default as AppLayout } from '../components/AppLayout/AppLayout';
 
@@ -27,15 +28,13 @@ import { SaveName, SaveSlot } from '../actions/SaveSlot'
 import { ToggleSaved, ToggleUnused } from '../actions/ToggleSaved'
 import { LoadStateLocalStorage } from '../actions/LoadStateLocalStorage';
 import { SaveStateLocalStorage } from '../actions/SaveStateLocalStorage';
-
-import '../stylesheets/App.css';
 import { DropEquipItem } from '../actions/DropEquipItem';
 import { ClearHistory } from '../actions/History';
 
-ReactGA.initialize('UA-141463995-1');
-
-import { HashRouter } from 'react-router-dom';
+import '../stylesheets/App.css';
 import { LOCALSTORAGE_NAME } from '../constants';
+
+ReactGA.initialize('UA-141463995-1');
 
 // Helper to debounce save operations
 function debounce(func, wait) {
@@ -47,107 +46,125 @@ function debounce(func, wait) {
     };
 }
 
-class App extends Component {
-    componentDidMount = () => {
-        this.props.handleLoadStateLocalStorage();
-        window.appHandlers = this.props;
-    }
-    componentDidUpdate = () => this.saveStateDebounced(this.props);
+const App = () => {
+    const dispatch = useDispatch();
+    const state = useSelector(state => state.optimizer);
 
-    saveStateDebounced = debounce((state) => this.saveState(state), 1000);
+    // Map state to props-like structure for backward compatibility with AppLayout
+    const props = useMemo(() => ({
+        itemdata: state.itemdata,
+        items: state.items,
+        offhand: state.offhand,
+        equip: state.equip,
+        locked: state.locked,
+        lastequip: state.lastequip,
+        savedequip: state.savedequip,
+        savedidx: state.savedidx,
+        maxsavedidx: state.maxsavedidx,
+        showsaved: state.showsaved,
+        showunused: state.showunused,
+        editItem: state.editItem,
+        ignoreDisabled: state.ignoreDisabled,
+        factors: state.factors,
+        maxslots: state.maxslots,
+        running: state.running,
+        zone: state.zone,
+        titanversion: state.titanversion,
+        looty: state.looty,
+        pendant: state.pendant,
+        hidden: state.hidden,
+        hidenotmaxed: state.hidenotmaxed,
+        hidedisabled: state.hidedisabled,
+        compactbonus: state.compactbonus,
+        compactitemlist: state.compactitemlist,
+        augstats: state.augstats,
+        basestats: state.basestats,
+        capstats: state.capstats,
+        cubestats: state.cubestats,
+        ngustats: state.ngustats,
+        hackstats: state.hackstats,
+        wishstats: state.wishstats,
+        history: state.history,
+        highlightBest: state.highlightBest,
+        version: state.version,
+        loaded: state.loaded,
+    }), [state]);
 
-    saveState = (state) => {
-        if (state && document.cookie.includes('accepts-cookies=true')) {
+    // Actions
+    const handlers = useMemo(() => ({
+        handleCrement: (...args) => dispatch(Crement(...args)),
+        handleDisableItem: (...args) => dispatch(DisableItem(...args)),
+        handleToggleModal: (...args) => dispatch(ToggleModal(...args)),
+        handleEditItem: (...args) => dispatch(EditItem(...args)),
+        handleLockItem: (...args) => dispatch(LockItem(...args)),
+        handleEditFactor: (...args) => dispatch(EditFactor(...args)),
+        handleEquipItem: (...args) => dispatch(EquipItem(...args)),
+        handleEquipItems: (...args) => dispatch(EquipItems(...args)),
+        handleDisableZone: (...args) => dispatch(DisableZone(...args)),
+        handleHideZone: (...args) => dispatch(HideZone(...args)),
+        handleOptimizeGear: (...args) => dispatch(OptimizeGearAsync(...args)),
+        handleOptimizeSaves: (...args) => dispatch(OptimizeSavesAsync(...args)),
+        handleTerminate: (...args) => dispatch(Terminate(...args)),
+        handleUndo: (...args) => dispatch(Undo(...args)),
+        handleUnequipItem: (...args) => dispatch(UnequipItem(...args)),
+        handleDropEquipItem: (...args) => dispatch(DropEquipItem(...args)),
+        handleDeleteSlot: (...args) => dispatch(DeleteSlot(...args)),
+        handleLoadFactors: (...args) => dispatch(LoadFactors(...args)),
+        handleLoadSlot: (...args) => dispatch(LoadSlot(...args)),
+        handleSaveName: (...args) => dispatch(SaveName(...args)),
+        handleSaveSlot: (...args) => dispatch(SaveSlot(...args)),
+        handleToggleSaved: (...args) => dispatch(ToggleSaved(...args)),
+        handleToggleUnused: (...args) => dispatch(ToggleUnused(...args)),
+        handleAugmentSettings: (...args) => dispatch(AugmentSettings(...args)),
+        handleAugmentAsync: (...args) => dispatch(AugmentAsync(...args)),
+        handleHackAsync: (...args) => dispatch(HackAsync(...args)),
+        handleWishAsync: (...args) => dispatch(WishAsync(...args)),
+        handleSettings: (...args) => dispatch(Settings(...args)),
+        handleGo2Titan: (...args) => dispatch(Go2Titan(...args)),
+        handleSaveStateLocalStorage: (...args) => dispatch(SaveStateLocalStorage(...args)),
+        handleLoadStateLocalStorage: (...args) => dispatch(LoadStateLocalStorage(...args)),
+        handleClearHistory: (...args) => dispatch(ClearHistory(...args)),
+    }), [dispatch]);
+
+    // Initial load
+    useEffect(() => {
+        handlers.handleLoadStateLocalStorage();
+    }, [handlers]);
+
+    // Expose to window (legacy requirement)
+    useEffect(() => {
+        window.appHandlers = handlers;
+    }, [handlers]);
+
+    useEffect(() => {
+        window.appState = state;
+    }, [state]);
+
+    // Debounced save
+    const saveState = (currentState) => {
+        if (currentState && document.cookie.includes('accepts-cookies=true')) {
             window.localStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
-                ...state,
+                ...currentState,
                 loaded: false
             }));
         }
-    }
+    };
 
-    render() {
-        return (
-            <HashRouter>
-                <AppLayout {...this.props} />
-            </HashRouter>
-        );
-    }
+    const debouncedSave = useMemo(
+        () => debounce((currentState) => saveState(currentState), 1000),
+        []
+    );
+
+    useEffect(() => {
+        debouncedSave(state);
+    }, [state, debouncedSave]);
+
+
+    return (
+        <HashRouter>
+            <AppLayout {...props} {...handlers} />
+        </HashRouter>
+    );
 }
 
-const mapStateToProps = state => {
-    window.appState = state.optimizer;
-    return {
-        itemdata: state.optimizer.itemdata,
-        items: state.optimizer.items,
-        offhand: state.optimizer.offhand,
-        equip: state.optimizer.equip,
-        locked: state.optimizer.locked,
-        lastequip: state.optimizer.lastequip,
-        savedequip: state.optimizer.savedequip,
-        savedidx: state.optimizer.savedidx,
-        maxsavedidx: state.optimizer.maxsavedidx,
-        showsaved: state.optimizer.showsaved,
-        showunused: state.optimizer.showunused,
-        editItem: state.optimizer.editItem,
-        ignoreDisabled: state.optimizer.ignoreDisabled,
-        factors: state.optimizer.factors,
-        maxslots: state.optimizer.maxslots,
-        running: state.optimizer.running,
-        zone: state.optimizer.zone,
-        titanversion: state.optimizer.titanversion,
-        looty: state.optimizer.looty,
-        pendant: state.optimizer.pendant,
-        hidden: state.optimizer.hidden,
-        hidenotmaxed: state.optimizer.hidenotmaxed,
-        hidedisabled: state.optimizer.hidedisabled,
-        compactbonus: state.optimizer.compactbonus,
-        compactitemlist: state.optimizer.compactitemlist,
-        augstats: state.optimizer.augstats,
-        basestats: state.optimizer.basestats,
-        capstats: state.optimizer.capstats,
-        cubestats: state.optimizer.cubestats,
-        ngustats: state.optimizer.ngustats,
-        hackstats: state.optimizer.hackstats,
-        wishstats: state.optimizer.wishstats,
-        history: state.optimizer.history,
-        version: state.optimizer.version,
-        loaded: state.optimizer.loaded
-    }
-}
-
-const mapDispatchToProps = {
-    handleCrement: Crement,
-    handleDisableItem: DisableItem,
-    handleToggleModal: ToggleModal,
-    handleEditItem: EditItem,
-    handleLockItem: LockItem,
-    handleEditFactor: EditFactor,
-    handleEquipItem: EquipItem,
-    handleEquipItems: EquipItems,
-    handleDisableZone: DisableZone,
-    handleHideZone: HideZone,
-    handleOptimizeGear: OptimizeGearAsync,
-    handleOptimizeSaves: OptimizeSavesAsync,
-    handleTerminate: Terminate,
-    handleUndo: Undo,
-    handleUnequipItem: UnequipItem,
-    handleDropEquipItem: DropEquipItem,
-    handleDeleteSlot: DeleteSlot,
-    handleLoadFactors: LoadFactors,
-    handleLoadSlot: LoadSlot,
-    handleSaveName: SaveName,
-    handleSaveSlot: SaveSlot,
-    handleToggleSaved: ToggleSaved,
-    handleToggleUnused: ToggleUnused,
-    handleAugmentSettings: AugmentSettings,
-    handleAugmentAsync: AugmentAsync,
-    handleHackAsync: HackAsync,
-    handleWishAsync: WishAsync,
-    handleSettings: Settings,
-    handleGo2Titan: Go2Titan,
-    handleSaveStateLocalStorage: SaveStateLocalStorage,
-    handleLoadStateLocalStorage: LoadStateLocalStorage,
-    handleClearHistory: ClearHistory
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

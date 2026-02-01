@@ -65,9 +65,10 @@ const fadeAnimation = {
     }
 };
 
-const NavItem = ({ to, label, icon, isActive, open }) => {
+// Memoized NavItem to prevent re-renders unless essential props change
+const NavItem = React.memo(({ to, label, icon, isActive, open }) => {
     return (
-        <ListItem disablePadding sx={{ mb: 1, display: 'block' }}>
+        <ListItem disablePadding sx={{ mb: 0.5, display: 'block' }}>
             <Tooltip title={!open ? label : ""} placement="right">
                 <ListItemButton
                     component={NavLink}
@@ -76,20 +77,15 @@ const NavItem = ({ to, label, icon, isActive, open }) => {
                     sx={{
                         minHeight: 48,
                         justifyContent: open ? 'initial' : 'center',
-                        borderRadius: open ? '0 24px 24px 0' : '12px',
-                        mx: open ? 0 : 1,
+                        borderRadius: '12px',
+                        mx: 1,
                         px: 2.5,
-                        transition: 'all 0.2s',
                         '&.active': {
                             bgcolor: 'primary.main',
                             color: 'primary.contrastText',
-                            boxShadow: (theme) => `0 4px 20px 0 ${alpha(theme.palette.primary.main, 0.4)}`,
                             '& .MuiListItemIcon-root': {
                                 color: 'primary.contrastText',
                             }
-                        },
-                        '&:hover:not(.active)': {
-                            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
                         }
                     }}
                 >
@@ -103,16 +99,109 @@ const NavItem = ({ to, label, icon, isActive, open }) => {
                     >
                         {icon}
                     </ListItemIcon>
-                    <ListItemText
-                        primary={label}
-                        primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '1rem' }}
-                        sx={{ opacity: open ? 1 : 0, display: open ? 'block' : 'none' }}
-                    />
+                    {open && (
+                        <ListItemText
+                            primary={label}
+                            primaryTypographyProps={{ fontWeight: isActive ? 700 : 500, fontSize: '0.9rem' }}
+                        />
+                    )}
                 </ListItemButton>
             </Tooltip>
         </ListItem>
     );
-};
+});
+
+// ISOLATED ThemeSwitcher component
+const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, changeColor, open }) => {
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const colorMenuOpen = Boolean(anchorEl);
+
+    const handleColorMenuOpen = (event) => setAnchorEl(event.currentTarget);
+    const handleColorMenuClose = () => setAnchorEl(null);
+
+    return (
+        <>
+            <Box sx={{
+                p: 1,
+                borderRadius: 4,
+                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.5),
+                display: 'flex',
+                flexDirection: open ? 'row' : 'column',
+                justifyContent: 'space-around',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid',
+                borderColor: 'divider',
+                width: '100%',
+                gap: 1
+            }}>
+                <Tooltip title="Change Color" placement="right">
+                    <IconButton onClick={handleColorMenuOpen} size="small">
+                        <Palette fontSize="small" color="primary" />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Toggle Theme" placement="right">
+                    <IconButton onClick={toggleDarkMode} size="small">
+                        {darkMode ? <Brightness7 fontSize="small" color="primary" /> : <Brightness4 fontSize="small" color="primary" />}
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="GitHub" placement="right">
+                    <IconButton component={Link} href="https://github.com/postEntropy/gear-optimizer" target="_blank" size="small">
+                        <GitHub fontSize="small" color="primary" />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
+            <Menu
+                anchorEl={anchorEl}
+                open={colorMenuOpen}
+                onClose={handleColorMenuClose}
+                PaperProps={{ sx: { borderRadius: 3, mt: 1 } }}
+            >
+                {Object.values(THEME_COLORS).map((color) => (
+                    <MenuItem
+                        key={color.key}
+                        onClick={() => {
+                            changeColor(color.key);
+                            handleColorMenuClose();
+                        }}
+                        selected={selectedColorKey === color.key}
+                    >
+                        <ListItemIcon>
+                            <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: color.main, border: '1px solid', borderColor: 'divider' }} />
+                        </ListItemIcon>
+                        <ListItemText>{color.name}</ListItemText>
+                    </MenuItem>
+                ))}
+            </Menu>
+        </>
+    );
+});
+
+// ISOLATED Page Content to prevent re-renders when sidebar toggles
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, props, loadoutParams, visited, fadeAnimation }) => {
+    return (
+        <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto' }}>
+            <Box sx={{ display: isOptimizer ? 'block' : 'none', ...fadeAnimation }}>
+                <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />
+            </Box>
+            <Box sx={{ display: isAugment ? 'block' : 'none', ...fadeAnimation }}>
+                {(visited.augment || isAugment) && <Augment {...props} className='app_body' />}
+            </Box>
+            <Box sx={{ display: isNGUs ? 'block' : 'none', ...fadeAnimation }}>
+                {(visited.ngus || isNGUs) && <NGUComponent {...props} className='app_body' />}
+            </Box>
+            <Box sx={{ display: isHacks ? 'block' : 'none', ...fadeAnimation }}>
+                {(visited.hacks || isHacks) && <HackComponent {...props} className='app_body' />}
+            </Box>
+            <Box sx={{ display: isWishes ? 'block' : 'none', ...fadeAnimation }}>
+                {(visited.wishes || isWishes) && <WishComponent {...props} className='app_body' />}
+            </Box>
+            <Box sx={{ display: isHistory ? 'block' : 'none', ...fadeAnimation }}>
+                {(visited.history || isHistory) && <HistoryComponent {...props} className='app_body' />}
+            </Box>
+        </Box>
+    );
+});
 
 const AppLayout = (props) => {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -131,30 +220,18 @@ const AppLayout = (props) => {
         setOpen(!open);
     };
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const colorMenuOpen = Boolean(anchorEl);
-
-    const handleColorMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleColorMenuClose = () => {
-        setAnchorEl(null);
-    };
-
-    const changeColor = (key) => {
-        setSelectedColorKey(key);
-        localStorage.setItem('theme-color-key', key);
-        handleColorMenuClose();
-    };
-
-    const toggleDarkMode = () => {
+    const toggleDarkMode = React.useCallback(() => {
         setDarkMode(prev => {
             const next = !prev;
             localStorage.setItem('dark-mode', next);
             return next;
         });
-    };
+    }, []);
+
+    const changeColor = React.useCallback((key) => {
+        setSelectedColorKey(key);
+        localStorage.setItem('theme-color-key', key);
+    }, []);
 
     const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light', THEME_COLORS[selectedColorKey]), [darkMode, selectedColorKey]);
 
@@ -209,23 +286,20 @@ const AppLayout = (props) => {
                     <Drawer
                         variant="permanent"
                         sx={{
-                            width: currentDrawerWidth,
+                            width: open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH,
                             flexShrink: 0,
                             whiteSpace: 'nowrap',
                             boxSizing: 'border-box',
-                            transition: theme.transitions.create('width', {
-                                easing: theme.transitions.easing.sharp,
-                                duration: theme.transitions.duration.enteringScreen,
-                            }),
                             '& .MuiDrawer-paper': {
-                                width: currentDrawerWidth,
+                                width: open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH,
                                 transition: theme.transitions.create('width', {
                                     easing: theme.transitions.easing.sharp,
-                                    duration: theme.transitions.duration.enteringScreen,
+                                    duration: theme.transitions.duration.shorter,
                                 }),
                                 overflowX: 'hidden',
                                 borderRight: 'none',
-                                background: (theme) => theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.5) : alpha('#fff', 0.8), // Custom glass for sidebar
+                                backdropFilter: 'blur(10px)',
+                                background: (theme) => theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.5) : alpha('#fff', 0.8),
                             },
                         }}
                     >
@@ -238,7 +312,15 @@ const AppLayout = (props) => {
                             px: 2.5,
                             py: 2
                         }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, opacity: open ? 1 : 0, transition: 'opacity 0.2s', width: open ? 'auto' : 0, overflow: 'hidden' }}>
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2,
+                                opacity: open ? 1 : 0,
+                                width: open ? 'auto' : 0,
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap'
+                            }}>
                                 <Avatar variant="rounded" sx={{ bgcolor: 'primary.main', boxShadow: 3 }}>
                                     <SettingsSuggest />
                                 </Avatar>
@@ -273,97 +355,40 @@ const AppLayout = (props) => {
 
                         {/* FOOTER ACTIONS */}
                         <Box sx={{ p: 2, display: 'flex', flexDirection: open ? 'row' : 'column', gap: 1, alignItems: 'center' }}>
-                            <Box sx={{
-                                p: open ? 2 : 1,
-                                borderRadius: 4,
-                                bgcolor: (theme) => alpha(theme.palette.background.paper, 0.5), // Safely use paper color
-                                display: 'flex',
-                                flexDirection: open ? 'row' : 'column',
-                                justifyContent: 'space-around',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                width: '100%',
-                                gap: open ? 0 : 1
-                            }}>
-                                <Tooltip title="Change Color" placement="right">
-                                    <IconButton onClick={handleColorMenuOpen} size="small">
-                                        <Palette fontSize="small" color="primary" />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Toggle Theme" placement="right">
-                                    <IconButton onClick={toggleDarkMode} size="small">
-                                        {darkMode ? <Brightness7 fontSize="small" color="primary" /> : <Brightness4 fontSize="small" color="primary" />}
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="GitHub" placement="right">
-                                    <IconButton component={Link} href="https://github.com/postEntropy/gear-optimizer" target="_blank" size="small">
-                                        <GitHub fontSize="small" color="primary" />
-                                    </IconButton>
-                                </Tooltip>
-                            </Box>
+                            <ThemeSwitcher
+                                darkMode={darkMode}
+                                toggleDarkMode={toggleDarkMode}
+                                selectedColorKey={selectedColorKey}
+                                changeColor={changeColor}
+                                open={open}
+                            />
                         </Box>
                     </Drawer>
 
-                    {/* MAIN CONTENT */}
+                    {/* MAIN CONTENT AREA */}
                     <Box component="main" sx={{
                         flexGrow: 1,
-                        p: 3,
-                        pb: 10,
-                        width: { sm: `calc(100% - ${currentDrawerWidth}px)` },
-                        display: 'flex',
-                        flexDirection: 'column',
-                        // Optional: Separate scroll for content if fixed sidebar
+                        width: '100%',
+                        overflowX: 'hidden',
                         height: '100vh',
                         overflowY: 'auto',
-                        transition: theme.transitions.create('width', {
-                            easing: theme.transitions.easing.sharp,
-                            duration: theme.transitions.duration.enteringScreen,
-                        }),
+                        p: 3,
+                        pb: 10,
                     }}>
-                        <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto' }}>
-                            {React.useMemo(() => (
-                                <>
-                                    <Box sx={{ display: isOptimizer ? 'block' : 'none', ...fadeAnimation }}>
-                                        <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />
-                                    </Box>
-                                    <Box sx={{ display: isAugment ? 'block' : 'none', ...fadeAnimation }}>
-                                        {(visited.augment || isAugment) && <Augment {...props} className='app_body' />}
-                                    </Box>
-                                    <Box sx={{ display: isNGUs ? 'block' : 'none', ...fadeAnimation }}>
-                                        {(visited.ngus || isNGUs) && <NGUComponent {...props} className='app_body' />}
-                                    </Box>
-                                    <Box sx={{ display: isHacks ? 'block' : 'none', ...fadeAnimation }}>
-                                        {(visited.hacks || isHacks) && <HackComponent {...props} className='app_body' />}
-                                    </Box>
-                                    <Box sx={{ display: isWishes ? 'block' : 'none', ...fadeAnimation }}>
-                                        {(visited.wishes || isWishes) && <WishComponent {...props} className='app_body' />}
-                                    </Box>
-                                    <Box sx={{ display: isHistory ? 'block' : 'none', ...fadeAnimation }}>
-                                        {(visited.history || isHistory) && <HistoryComponent {...props} className='app_body' />}
-                                    </Box>
-                                </>
-                            ), [props, isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, loadoutParams, visited])}
-
-                        </Box>
+                        <PageContent
+                            isOptimizer={isOptimizer}
+                            isAugment={isAugment}
+                            isNGUs={isNGUs}
+                            isHacks={isHacks}
+                            isWishes={isWishes}
+                            isHistory={isHistory}
+                            props={props}
+                            loadoutParams={loadoutParams}
+                            visited={visited}
+                            fadeAnimation={fadeAnimation}
+                        />
                     </Box>
 
-                    {/* Color Menu (Kept same logic) */}
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={colorMenuOpen}
-                        onClose={handleColorMenuClose}
-                        PaperProps={{ sx: { borderRadius: 3, mt: 1 } }}
-                    >
-                        {Object.values(THEME_COLORS).map((color) => (
-                            <MenuItem key={color.key} onClick={() => changeColor(color.key)} selected={selectedColorKey === color.key}>
-                                <ListItemIcon>
-                                    <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: color.main, border: '1px solid', borderColor: 'divider' }} />
-                                </ListItemIcon>
-                                <ListItemText>{color.name}</ListItemText>
-                            </MenuItem>
-                        ))}
-                    </Menu>
 
                 </Box>
             </DarkModeContext.Provider>

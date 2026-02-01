@@ -1,7 +1,7 @@
-import {combineReducers} from 'redux';
+import { combineReducers } from 'redux';
 
-import ItemsReducer from './Items';
+import optimizerReducer from './optimizerSlice';
 
-const AppReducer = combineReducers({optimizer: ItemsReducer});
+const AppReducer = combineReducers({ optimizer: optimizerReducer });
 
 export default AppReducer;

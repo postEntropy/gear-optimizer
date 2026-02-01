@@ -68,7 +68,7 @@ const NGUGraph = (props) => {
                 {ngu.name} - Evil Bonus Change Projection (24 Hours)
             </Typography>
             <Box sx={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%" debounce={1}>
                     <LineChart data={data.chartData} margin={{ top: 5, right: 30, left: 10, bottom: 15 }}>
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                         <XAxis

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Paper, Typography, Grid } from '@mui/material';
 import { SourceItem } from '../Item/Item'
 import { allowed_zone, get_limits } from '../../util'
@@ -37,105 +37,148 @@ function group(a, b, g) {
     return a[g][0].substring(0, a[g][0].length - 2) !== b[g][0].substring(0, b[g][0].length - 2);
 }
 
-export default class ItemTable extends React.Component {
-    constructor(props) {
-        super(props);
-        this.localbuffer = [];
-    }
+const ItemSection = ({ groupName, items, hidden, handleZoneClick }) => {
+    if (items.length === 0) return null;
 
-    handleZoneClick(e, zoneId) {
+    return (
+        <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Paper sx={{ p: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Typography
+                    variant="subtitle2"
+                    onClick={handleZoneClick}
+                    sx={{ cursor: 'pointer', mb: 1, fontWeight: 'bold' }}
+                >
+                    {groupName}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {!hidden && items}
+                </Box>
+            </Paper>
+        </Grid>
+    );
+};
+
+const ItemTable = (props) => {
+    const {
+        group: groupBy,
+        itemdata,
+        items,
+        compactitemlist,
+        showunused,
+        savedequip,
+        hidden,
+        handleDisableZone,
+        handleSettings,
+        handleHideZone,
+        handleClickItem,
+        handleCtrlClickItem,
+        handleEditItem,
+        handleRightClickItem
+    } = props;
+
+    const limits = useMemo(() => get_limits(props), [props.zone, props.titanversion, props.looty, props.pendant]);
+
+    const handleZoneClick = (e, zoneId) => {
         if (e.ctrlKey || e.altKey) {
-            this.props.handleDisableZone(zoneId);
+            handleDisableZone(zoneId);
         } else if (e.shiftKey) {
-            this.props.handleSettings('compactitemlist', !this.props.compactitemlist);
+            handleSettings('compactitemlist', !compactitemlist);
         } else {
-            this.props.handleHideZone(zoneId);
+            handleHideZone(zoneId);
         }
-    }
+    };
 
-    create_section(buffer, last, class_idx, groupName = '') {
-        if (groupName.length === 0) {
-            groupName = last[this.props.group][0];
-        }
-        if (this.localbuffer.length > 0) {
-            buffer.push(
-                <Grid item xs={12} sm={6} md={4} lg={3} key={class_idx++}>
-                    <Paper sx={{ p: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <Typography
-                            variant="subtitle2"
-                            onClick={(e) => this.handleZoneClick(e, last.zone[1])}
-                            sx={{ cursor: 'pointer', mb: 1, fontWeight: 'bold' }}
-                        >
-                            {groupName}
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {this.props.hidden[last.zone[1]] ? undefined : this.localbuffer}
-                        </Box>
-                    </Paper>
-                </Grid>
-            );
-            this.localbuffer = [];
-        }
-        return class_idx;
-    }
-
-    render() {
-        //TODO: sorting on every change is very inefficient
+    const sortedBuffer = useMemo(() => {
         let buffer = [];
-        let class_idx = 0;
-        const limits = get_limits(this.props);
-        {
-            const compare = compare_factory(this.props.group)(this.props.itemdata);
-            const sorted = this.props.items.sort(compare);
-            let last = undefined;
-            for (let idx = 0; idx < sorted.length; idx++) {
-                const id = sorted[idx];
-                const item = this.props.itemdata[id];
-                if (item.empty) {
-                    continue;
-                }
-                let next = group(last, item, this.props.group);
-                if (next && (!this.props.compactitemlist || last.zone[1] < 0)) {
-                    class_idx = this.create_section(buffer, last, class_idx)
-                }
-                let className = '';
-                if (!item.disable && this.props.showunused) {
-                    className = ' unused-item';
-                    this.props.savedequip.forEach(save => {
-                        if (className === '') {
-                            return;
-                        }
-                        if (save.ignore) {
-                            return;
-                        }
-                        if (save[item.slot[0]] === undefined) {
-                            return;
-                        }
-                        save[item.slot[0]].forEach(i => {
-                            if (i === id) {
-                                className = '';
-                            }
-                        });
-                    });
-                }
-                if (allowed_zone(this.props.itemdata, limits, id) && !(this.props.compactitemlist && item.disable)) {
-                    this.localbuffer.push(<SourceItem className={className} item={item}
-                        handleClickItem={this.props.handleClickItem}
-                        handleCtrlClickItem={this.props.handleCtrlClickItem}
-                        handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
-                        handleRightClickItem={this.props.handleRightClickItem}
-                        key={id} />);
-                }
-                last = item;
+        let localbuffer = [];
+
+        const compare = compare_factory(groupBy)(itemdata);
+        const sorted = [...items].sort(compare);
+        let last = undefined;
+        let lastZoneId = undefined;
+        let lastGroupName = '';
+
+        const flushBuffer = (zoneId, groupName) => {
+            if (localbuffer.length > 0) {
+                buffer.push(
+                    <ItemSection
+                        key={buffer.length} // Simple index key as order is stable
+                        groupName={groupName}
+                        items={localbuffer}
+                        hidden={hidden[zoneId]}
+                        handleZoneClick={(e) => handleZoneClick(e, zoneId)}
+                    />
+                );
+                localbuffer = [];
             }
-            class_idx = this.create_section(buffer, this.props.compactitemlist ? { zone: Infinity } : last, class_idx, this.props.compactitemlist ? 'Items' : '');
+        };
+
+        for (let idx = 0; idx < sorted.length; idx++) {
+            const id = sorted[idx];
+            const item = itemdata[id];
+            if (item.empty) {
+                continue;
+            }
+
+            // Determine if we need to start a new section
+            let next = group(last, item, groupBy);
+
+            // If changing groups and not in compact mode (or if prev group was invalid), flush.
+            // Also logic from original: (!compactitemlist || last.zone[1] < 0)
+            if (next && (!compactitemlist || (last && last.zone[1] < 0))) {
+                flushBuffer(lastZoneId, lastGroupName);
+            }
+
+            // Update current group info if we are starting a fresh one or just continuing
+            if (last === undefined || next) {
+                lastGroupName = item[groupBy][0];
+                lastZoneId = item.zone[1];
+            }
+
+            let className = '';
+            if (!item.disable && showunused) {
+                className = ' unused-item';
+                // Check if used in any saved equip
+                let isUsed = false;
+                for (let save of savedequip) {
+                    if (save.ignore || !save[item.slot[0]]) continue;
+                    if (save[item.slot[0]].includes(id)) {
+                        isUsed = true;
+                        break;
+                    }
+                }
+                if (isUsed) className = '';
+            }
+
+            if (allowed_zone(itemdata, limits, id) && !(compactitemlist && item.disable)) {
+                localbuffer.push(
+                    <SourceItem
+                        className={className}
+                        item={item}
+                        handleClickItem={handleClickItem}
+                        handleCtrlClickItem={handleCtrlClickItem}
+                        handleShiftClickItem={(itemId) => handleEditItem(itemId, -1)}
+                        handleRightClickItem={handleRightClickItem}
+                        key={id}
+                    />
+                );
+            }
+            last = item;
         }
-        return (
-            <Box sx={{ width: '100%', height: '72vh', margin: 'auto', overflowY: 'auto', p: 1 }}>
-                <Grid container spacing={1}>
-                    {buffer}
-                </Grid>
-            </Box>
-        );
-    }
+
+        // Final flush
+        flushBuffer(compactitemlist ? Infinity : lastZoneId, compactitemlist ? 'Items' : lastGroupName);
+
+        return buffer;
+    }, [items, itemdata, groupBy, compactitemlist, showunused, savedequip, hidden, limits]);
+
+    return (
+        <Box sx={{ width: '100%', height: '72vh', margin: 'auto', overflowY: 'auto', p: 1 }}>
+            <Grid container spacing={1}>
+                {sortedBuffer}
+            </Grid>
+        </Box>
+    );
 }
+
+export default ItemTable;

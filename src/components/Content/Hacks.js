@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import ReactGA from 'react-ga';
 import {
-    TextField, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Checkbox,
-    FormControlLabel, Paper, Box, Grid, Button, IconButton, MenuItem, Typography, InputAdornment, Select
+    TextField, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel,
+    FormControlLabel, Paper, Box, Grid, Button, IconButton, MenuItem, Typography, InputAdornment, Select, Switch
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import StarIcon from '@mui/icons-material/Star';
 import { Hack } from '../../Hack';
 import { Hacks } from '../../assets/ItemAux';
 import { shorten, toTime } from '../../util';
@@ -31,6 +32,7 @@ class HackComponent extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.requestSort = this.requestSort.bind(this);
+        this.handleLockSpeed = this.handleLockSpeed.bind(this);
     }
 
     componentDidMount() {
@@ -60,6 +62,13 @@ class HackComponent extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
+    }
+
+    handleLockSpeed(event) {
+        this.props.handleSettings('hackstats', {
+            ...this.props.hackstats,
+            lockSpeed: event.target.checked
+        });
     }
 
     handleChange(event, name, idx = -1) {
@@ -268,19 +277,24 @@ class HackComponent extends Component {
                                             type="number" fullWidth inputProps={{ step: "any" }} />
                                     </Grid>
                                     <Grid item xs={6} sm={4}>
-                                        <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
-                                            <TextField label="Hack speed" value={this.props.hackstats.hackspeed}
-                                                onChange={(e) => this.handleChange(e, 'hackspeed')} onFocus={this.handleFocus}
-                                                type="number" fullWidth inputProps={{ step: "any" }} />
-                                            <FormControlLabel
-                                                control={<Checkbox checked={this.props.hackstats.lockSpeed}
-                                                    onChange={(e) => this.props.handleSettings('hackstats', {
-                                                        ...this.props.hackstats,
-                                                        lockSpeed: !this.props.hackstats.lockSpeed
-                                                    })} size="small" />}
-                                                label="Lock"
-                                            />
-                                        </Box>
+                                        <TextField label="Hack speed" value={this.props.hackstats.hackspeed}
+                                            onChange={(e) => this.handleChange(e, 'hackspeed')} onFocus={this.handleFocus}
+                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                    </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <FormControlLabel control={<Switch checked={this.props.hackstats.lockSpeed} onChange={this.handleLockSpeed} color="primary" />} label="Lock Hack 13 Speed" />
+                                    </Grid>
+                                    <Grid item xs={12} sm={4}>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.props.highlightBest}
+                                                    onChange={() => this.props.handleSettings('highlightBest', !this.props.highlightBest)}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label="Highlight Best Gain"
+                                        />
                                     </Grid>
                                     <Grid item xs={6} sm={6}>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -440,16 +454,18 @@ class HackComponent extends Component {
                                             };
                                         });
 
-                                        // Calculate totals
+                                        // Calculate totals and find max change
                                         sumtime = 0;
                                         hackhacktime = 0;
                                         hackhackchange = 1;
+                                        let maxChange = 1;
                                         data.forEach(d => {
                                             sumtime += d.time;
                                             if (d.pos === 13) {
                                                 hackhacktime = d.time;
                                                 hackhackchange = d.change < 1 ? 1 : d.change;
                                             }
+                                            if (d.change > maxChange) maxChange = d.change;
                                         });
 
                                         // Sort
@@ -470,9 +486,10 @@ class HackComponent extends Component {
                                             const { pos, name, reducer, level, currBonus, target, bonus, time, timePastLevel, timePastTarget, mschange_str, change } = d;
                                             const rowId = `hack-${pos}`;
                                             const isExpanded = !!this.state.expandedRows[rowId];
+                                            const isBestGain = this.props.highlightBest && change === maxChange && change > 1;
 
                                             rows.push(
-                                                <TableRow key={pos}>
+                                                <TableRow key={pos} sx={isBestGain ? { backgroundColor: 'rgba(76, 175, 80, 0.12) !important' } : {}}>
                                                     <TableCell padding="checkbox">
                                                         <IconButton
                                                             size="small"
@@ -520,13 +537,16 @@ class HackComponent extends Component {
                                                     <TableCell>{mschange_str}</TableCell>
                                                     <TableCell>{toTime(time)}</TableCell>
                                                     <TableCell>{shorten(bonus, 2)}%</TableCell>
-                                                    <TableCell>
-                                                        ×{shorten(change, 3)}
-                                                        {Math.round((change - 1) * 100) !== 0 && (
-                                                            <span style={{ color: 'green', fontWeight: 'bold', marginLeft: 4 }}>
-                                                                ({Math.abs((change - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((change - 1) * 100)}%)
-                                                            </span>
-                                                        )}
+                                                    <TableCell sx={isBestGain ? { fontWeight: 'bold' } : {}}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                            {isBestGain && <StarIcon sx={{ color: '#FFD700', fontSize: '1.1rem' }} />}
+                                                            ×{shorten(change, 3)}
+                                                            {Math.round((change - 1) * 100) !== 0 && (
+                                                                <span style={{ color: 'green', fontWeight: 'bold', marginLeft: 4 }}>
+                                                                    ({Math.abs((change - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((change - 1) * 100)}%)
+                                                                </span>
+                                                            )}
+                                                        </Box>
                                                     </TableCell>
                                                     <TableCell>{toTime(timePastLevel)}</TableCell>
                                                     <TableCell>{toTime(timePastTarget)}</TableCell>

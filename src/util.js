@@ -24,35 +24,7 @@ export function old2newequip(accslots, offhand, base_layout) {
 }
 
 export function clone(obj) {
-    let copy;
-    // Handle the 3 simple types, and null or undefined
-    if (null == obj || "object" != typeof obj)
-        return obj;
-
-    // Handle Date
-    if (obj instanceof Date) {
-        copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
-    }
-    // Handle Array
-    if (obj instanceof Array) {
-        copy = [];
-        for (let i = 0, len = obj.length; i < len; i++) {
-            copy[i] = clone(obj[i]);
-        }
-        return copy;
-    }
-    // Handle Object
-    if (obj instanceof Object) {
-        copy = {};
-        for (let attr in obj) {
-            if (obj.hasOwnProperty(attr))
-                copy[attr] = clone(obj[attr]);
-        }
-        return copy;
-    }
-    throw new Error("Unable to copy obj! Its type isn't supported.");
+    return structuredClone(obj);
 }
 
 export function get_limits(state) {
@@ -149,7 +121,7 @@ export function get_raw_vals(data, equip, factors, offhand) {
         for (let jdx in sorted) {
             const name = sorted[jdx];
             if (data[name] === undefined) {
-                console.log(name, data[name])
+                // console.log(name, data[name])
                 continue;
             }
             let val = data[name][stat];
