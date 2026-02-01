@@ -214,7 +214,7 @@ export const shorten = (val, mfd = 2) => {
         'Dc'
     ];
     // Fixed: removed /10 to correctly calculate the order of magnitude
-    let order = Math.floor(Math.log(val) / Math.log(1000));
+    let order = Math.floor(Math.log(val / 10) / Math.log(1000));
     let unitname = units[(order - 1)];
     let num = val / 1000 ** order;
     return num.toLocaleString(undefined, { maximumFractionDigits: mfd }) + unitname;

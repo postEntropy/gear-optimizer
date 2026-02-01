@@ -71,16 +71,15 @@ class HackComponent extends Component {
         let hackstats = {
             ...this.props.hackstats
         };
+        const hhidx = 13;
+        const hackhacklevel = hackstats.hacks[hhidx].level;
+
         if (idx < 0) {
             hackstats = {
                 ...hackstats,
                 [name]: val
             };
-            this.props.handleSettings('hackstats', hackstats);
-            return;
-        }
-
-        if (name === 'msdown') {
+        } else if (name === 'msdown') {
             let hacks = [...hackstats.hacks];
             let hack = {
                 ...hacks[idx],
@@ -96,11 +95,7 @@ class HackComponent extends Component {
                 ...hackstats,
                 hacks: hacks
             };
-            this.props.handleSettings('hackstats', hackstats);
-            return;
-        }
-
-        if (name === 'msup') {
+        } else if (name === 'msup') {
             let hacks = [...hackstats.hacks];
             let hack = {
                 ...hacks[idx],
@@ -117,31 +112,41 @@ class HackComponent extends Component {
                 ...hackstats,
                 hacks: hacks
             };
-            this.props.handleSettings('hackstats', hackstats);
-            return;
-
-        }
-
-        let hacks = [...hackstats.hacks];
-        // Special case for 'hacks' full update
-        if (name === 'hacks') {
-            hacks = val;
-            // In original code: event.target.value was hacks array passed via object structure
-            // We'll adapt.
         } else {
-            let hack = {
-                ...hacks[idx],
-                [name]: val
+            let hacks = [...hackstats.hacks];
+            if (name === 'hacks') {
+                hacks = val;
+            } else {
+                let hack = {
+                    ...hacks[idx],
+                    [name]: val
+                };
+                hacks[idx] = hack;
+            }
+            hackstats = {
+                ...hackstats,
+                hacks: hacks
             };
-            hacks[idx] = hack;
         }
 
-        hackstats = {
-            ...hackstats,
-            hacks: hacks
-        };
-        this.props.handleSettings('hackstats', hackstats);
+        // update hack speed if not locked
+        if (!hackstats.lockSpeed && name !== 'hackspeed') {
+            let hackOptimizer = new Hack(this.props);
+            const oldBonus = hackOptimizer.bonus(hackhacklevel, hhidx);
+            hackOptimizer = new Hack({
+                ...this.props,
+                hackstats: hackstats
+            });
+            const newBonus = hackOptimizer.bonus(hackstats.hacks[hhidx].level, hhidx);
+            if (oldBonus > 0) {
+                hackstats = {
+                    ...hackstats,
+                    hackspeed: hackstats.hackspeed * newBonus / oldBonus
+                };
+            }
+        }
 
+        this.props.handleSettings('hackstats', hackstats);
     }
 
     // Helper to handle the complex object passed in original code for buttons
@@ -514,9 +519,9 @@ class HackComponent extends Component {
 
                                                     <TableCell>{mschange_str}</TableCell>
                                                     <TableCell>{toTime(time)}</TableCell>
-                                                    <TableCell>{shorten(bonus, 3)}%</TableCell>
+                                                    <TableCell>{shorten(bonus, 2)}%</TableCell>
                                                     <TableCell>
-                                                        ×{shorten(change, 4)}
+                                                        ×{shorten(change, 3)}
                                                         {Math.round((change - 1) * 100) !== 0 && (
                                                             <span style={{ color: 'green', fontWeight: 'bold', marginLeft: 4 }}>
                                                                 ({Math.abs((change - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((change - 1) * 100)}%)
