@@ -96,8 +96,7 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
         const result = {
             rebirths: data.rebirths || data.numberRebirths || data.stats?.rebirthNumber || 0,
             exp: data.totalExperience || data.totalExp || data.totalExpEarned || data.stats?.totalExp || 0,
-            energyCap: Math.max(data.capEnergy || 0, data.curEnergy || 0),
-            magicCap: Math.max(data.magic?.capMagic || 0, data.magic?.curMagic || 0),
+
             baseEnergyCap: data.baseEnergyCap || data.energyPurchasedCap || data.purchasedEnergyCap || 0,
             baseMagicCap: data.baseMagicCap || data.magicPurchasedCap || data.purchasedMagicCap || 0,
             highestBoss: data.highestBoss || data.stats?.highestBoss || 0,
@@ -108,12 +107,12 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
             hackLevels: (data.hacks?.hacks || []).map(h => h.level || 0),
 
             // Resource Stats (Power, Cap, Bars)
-            energyCap: data.capEnergy || 0,
+            energyCap: Math.max(data.capEnergy || 0, data.curEnergy || 0),
             energyBars: data.energyBars || 0,
             energyPower: data.energyPower || 1,
 
             // Magic (Nested in data.magic) - Overrides any previous extraction
-            magicCap: data.magic?.capMagic || 0,
+            magicCap: Math.max(data.magic?.capMagic || 0, data.magic?.curMagic || 0),
             magicBars: data.magic?.magicPerBar || 0,
             magicPower: data.magic?.magicPower || 1,
 
