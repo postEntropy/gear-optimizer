@@ -58,14 +58,11 @@ A major feature of this fork is the integration of high-precision **Growth Effic
 Track your progress over time by importing "Rebirth Saves". This feature is designed to work with **[jshepler's NGU Mods](https://github.com/jshepler/jshepler.ngu.mods)**, which automatically generate saves named in the format `Rebirth_YYYY-MM-DD_HH-MM-SS.json`.
 
 ![History Start](src/assets/readme/history_start.png)
-*Import your rebirth saves to build a comprehensive timeline of your progress.*
+*Import your rebirth saves to build a comprehensive timeline of your progress using detailed charts for Energy, Magic, and Resource 3.*
 
 - **Resource Visualization**: Detailed charts for **Energy**, **Magic**, and **Resource 3** (Power, Capacity, Bars).
 - **Metric Tracking**: Monitor **Total Playtime**, **Arbitrary Points (AP)**, and other key stats across rebirths.
 - **Save Management**: Automatically detects duplication to ensure clean history data.
-
-![History Middle](src/assets/readme/history_middle.png)
-*Analyze trends and visualize your growth efficiency over weeks or months of gameplay.*
 
 ### 🛠 UX Improvements
 - **Advanced Modifiers**: Integrated seamlessly into the main dashboard (no more popups!).
