@@ -11,10 +11,11 @@ import ModifierForm from '../ModifierForm/ModifierForm';
 
 
 import Loading from '../Loading/Loading';
+import NGUTimeline from '../NGUGraph/NGUTimeline';
 import NGUGraph from '../NGUGraph/NGUGraph';
 import NGUComparisonGraph from '../NGUGraph/NGUComparisonGraph';
 import IconButton from '@mui/material/IconButton';
-import TimelineIcon from '@mui/icons-material/Timeline';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import StarIcon from '@mui/icons-material/Star';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -354,7 +355,7 @@ class NGUComponent extends Component {
                                                 <TableRow key={rowId} sx={isBestAny ? { backgroundColor: 'rgba(76, 175, 80, 0.12) !important' } : {}}>
                                                     <TableCell padding="checkbox">
                                                         <IconButton size="small" onClick={() => this.toggleRow(rowId)}>
-                                                            {isExpanded ? <ExpandLessIcon fontSize="small" /> : <TimelineIcon fontSize="small" />}
+                                                            {isExpanded ? <ExpandLessIcon fontSize="small" /> : <AccessTimeIcon fontSize="small" />}
                                                         </IconButton>
                                                     </TableCell>
                                                     <TableCell component="th" scope="row" sx={isBestAny ? { fontWeight: 'bold' } : {}}>{ngu.name}</TableCell>
@@ -397,7 +398,7 @@ class NGUComponent extends Component {
                                                     <TableCell colSpan={9} sx={{ py: 0, borderBottom: isExpanded ? undefined : 'none' }}>
                                                         <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                                                             <Box sx={{ p: 2 }}>
-                                                                <NGUGraph
+                                                                <NGUTimeline
                                                                     {...this.props}
                                                                     ngu={{ ...ngu, levels: stats[pos], pos }}
                                                                     isMagic={isMagic}

@@ -169,26 +169,33 @@ export function score_equip(data, equip, factors, offhand, capstats) {
 }
 
 export const shorten = (val, mfd = 2) => {
-    if (val < 10000) {
+    if (val < 1000000) {
         return val.toLocaleString(undefined, { maximumFractionDigits: mfd });
     }
-    let units = [
-        'k',
-        'M',
-        'B',
-        'T',
-        'Qa',
-        'Qi',
-        'Sx',
-        'Sp',
-        'Oc',
-        'No',
-        'Dc'
+    const units = [
+        ' Million',
+        ' Billion',
+        ' Trillion',
+        ' Quadrillion',
+        ' Quintillion',
+        ' Sextillion',
+        ' Septillion',
+        ' Octillion',
+        ' Nonillion',
+        ' Decillion'
     ];
-    // Fixed: removed /10 to correctly calculate the order of magnitude
-    let order = Math.floor(Math.log(val / 10) / Math.log(1000));
-    let unitname = units[(order - 1)];
-    let num = val / 1000 ** order;
+    let order = Math.floor(Math.log10(val) / 3);
+    let unitname = units[order - 2];
+    let num = val / Math.pow(10, order * 3);
+
+    // If num is less than 1 (e.g., 999,999 is technically order 1.99), 
+    // adjust to the previous unit to keep it >= 1
+    if (num < 1 && order > 2) {
+        order--;
+        unitname = units[order - 2];
+        num = val / Math.pow(10, order * 3);
+    }
+
     return num.toLocaleString(undefined, { maximumFractionDigits: mfd }) + unitname;
 }
 
