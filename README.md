@@ -36,17 +36,20 @@ Optimization isn't just about gear—it's about the app too.
 - Calculate the mathematically perfect loadout for your current stats.
 - Supports all factors: Power, Toughness, NGU Speed, Gold Drops, etc.
 
-### 💹 Growth Efficiency Charts
-A major feature of this fork is the integration of interactive **Growth Efficiency Charts** for advanced progression.
+### 💹 Growth Efficiency & Highlights
+A major feature of this fork is the integration of high-precision **Growth Efficiency** tools and visualization for advanced progression.
 
-![NGU Charts](src/assets/readme/ngus_chart.png)
-*NGU Efficiency Comparison - Visualizing 24-hour bonus growth across all active NGUs.*
+![NGU Timeline](src/assets/readme/ngus_timeline.png)
+*NGU Progress Timeline - Visualizing projected levels and bonus gains at key milestones (1h, 12h, 24h).*
 
-- **NGUs & Hacks**:
-  - **Interactive Projections**: Toggleable rows (📈 icon) show individual 24-hour bonus growth curves.
-  - **Cumulative Comparison**: Section-wide graphs at the bottom of Energy/Magic NGU and Hacks tables compare ROI between all available upgrades.
-  - **Precision Tooltips**: Real-time display of both Multiplier Gained (×1.###) and Percentage Change (% gain).
-  - **Performance Optimized**: Powered by a custom "Jump Logic" engine that predicts billions of ticks in milliseconds, ensuring zero browser lag during simulations.
+- **NGU Progress Timeline**:
+  - **Milestone Navigation**: Toggleable rows (🕒 icon) reveal a comprehensive timeline showing projected levels (Normal, Evil, Sadistic) and percentage bonus gains.
+  - **Dynamic Highlights**: The timeline automatically emphasizes your "Set Time" configuration, providing immediate feedback on rewards for your current rebirth plan.
+  - **Game-Native Formatting**: All numbers (Million, Billion, Trillion, etc.) and level gains match the in-game experience perfectly.
+- **Efficiency Highlighting**:
+  - **Star Indicators (⭐)**: The system automatically calculates the efficiency across all active NGUs and Hacks, highlighting the upgrade with the best gain per resource with a star icon.
+- **Cumulative Comparison**:
+  - Section-wide charts at the bottom of Energy/Magic NGU and Hacks tables allow you to compare total growth between all available upgrades at a glance.
 
 ![Hacks Charts](src/assets/readme/hacks_chart.png)
 *Hacks Charting - Tracking progression and milestones with high-precision simulation.*
