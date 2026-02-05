@@ -273,7 +273,8 @@ const AppLayout = (props) => {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <DarkModeContext.Provider value={darkMode}>
-                <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+                <Box sx={{ display: 'flex', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+                    <Box className="scanline" />
                     <CookieBanner
                         styles={{
                             banner: { height: 'auto', zIndex: 9999 },

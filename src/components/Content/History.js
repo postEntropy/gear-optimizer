@@ -281,8 +281,8 @@ const History = ({ handleClearHistory }) => {
                             height: '100%',
                             background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                             color: 'white',
-                            borderRadius: 4,
-                            boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.3)}`,
+                            borderRadius: 3,
+                            boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
                             position: 'relative',
                             overflow: 'hidden',
                             '&::before': {
@@ -290,27 +290,27 @@ const History = ({ handleClearHistory }) => {
                                 position: 'absolute',
                                 top: 0,
                                 right: 0,
-                                width: '150px',
-                                height: '150px',
+                                width: '100px',
+                                height: '100px',
                                 background: alpha('#fff', 0.1),
                                 borderRadius: '50%',
                                 transform: 'translate(50%, -50%)'
                             }
                         }}>
-                            <CardContent sx={{ position: 'relative', zIndex: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                                    <HistoryIcon sx={{ opacity: 0.9 }} />
-                                    <Typography variant="overline" sx={{ opacity: 0.9, fontWeight: 600, letterSpacing: 1 }}>
+                            <CardContent sx={{ position: 'relative', zIndex: 1, py: 2 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                    <HistoryIcon sx={{ opacity: 0.9, fontSize: '1.2rem' }} />
+                                    <Typography variant="overline" sx={{ opacity: 0.9, fontWeight: 600, letterSpacing: 1, fontSize: '0.65rem' }}>
                                         Total Rebirths
                                     </Typography>
                                 </Box>
-                                <Typography variant="h2" fontWeight={900} sx={{ mb: 1 }}>
+                                <Typography variant="h3" fontWeight={900} sx={{ mb: 0.5 }}>
                                     {sortedHistory[0].rebirths.toLocaleString()}
                                 </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, opacity: 0.9 }}>
-                                    <TrendingUp fontSize="small" />
-                                    <Typography variant="body2">
-                                        Tracking since {new Date(history[0].timestamp).toLocaleDateString()}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, opacity: 0.8 }}>
+                                    <TrendingUp sx={{ fontSize: '0.9rem' }} />
+                                    <Typography variant="caption">
+                                        Since {new Date(history[0].timestamp).toLocaleDateString()}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -320,34 +320,34 @@ const History = ({ handleClearHistory }) => {
                     <Grid item xs={12} md={4}>
                         <Card sx={{
                             height: '100%',
-                            borderRadius: 4,
-                            border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                            boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.1)}`,
+                            borderRadius: 3,
+                            border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                            boxShadow: `0 2px 12px ${alpha(theme.palette.primary.main, 0.05)}`,
                             transition: 'all 0.3s ease',
                             '&:hover': {
-                                transform: 'translateY(-4px)',
-                                boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.2)}`
+                                transform: 'translateY(-2px)',
+                                boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.15)}`
                             }
                         }}>
-                            <CardContent>
-                                <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                            <CardContent sx={{ py: 2 }}>
+                                <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1, fontSize: '0.65rem' }}>
                                     Total Experience
                                 </Typography>
-                                <Typography variant="h2" fontWeight={900} color="primary" sx={{ my: 1 }}>
+                                <Typography variant="h3" fontWeight={900} color="primary" sx={{ my: 0.5 }}>
                                     {shorten(sortedHistory[0].exp || 0)}
                                 </Typography>
                                 <Box sx={{
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     gap: 0.5,
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: 2,
+                                    px: 1,
+                                    py: 0.25,
+                                    borderRadius: 1.5,
                                     bgcolor: alpha(theme.palette.success.main, 0.1)
                                 }}>
-                                    <TrendingUp fontSize="small" sx={{ color: 'success.main' }} />
-                                    <Typography variant="body2" color="success.main" fontWeight={700}>
-                                        {history.length > 1 ? (((sortedHistory[0].exp || 0) / (sortedHistory[1].exp || 1) - 1) * 100).toFixed(1) : 0}% since last save
+                                    <TrendingUp sx={{ color: 'success.main', fontSize: '0.9rem' }} />
+                                    <Typography variant="caption" color="success.main" fontWeight={700}>
+                                        {history.length > 1 ? (((sortedHistory[0].exp || 0) / (sortedHistory[1].exp || 1) - 1) * 100).toFixed(1) : 0}% vs last
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -357,25 +357,25 @@ const History = ({ handleClearHistory }) => {
                     <Grid item xs={12} md={4}>
                         <Card sx={{
                             height: '100%',
-                            borderRadius: 4,
-                            border: `2px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
-                            boxShadow: `0 4px 20px ${alpha(theme.palette.secondary.main, 0.1)}`,
+                            borderRadius: 3,
+                            border: `1px solid ${alpha(theme.palette.secondary.main, 0.15)}`,
+                            boxShadow: `0 2px 12px ${alpha(theme.palette.secondary.main, 0.05)}`,
                             transition: 'all 0.3s ease',
                             '&:hover': {
-                                transform: 'translateY(-4px)',
-                                boxShadow: `0 8px 32px ${alpha(theme.palette.secondary.main, 0.2)}`
+                                transform: 'translateY(-2px)',
+                                boxShadow: `0 4px 16px ${alpha(theme.palette.secondary.main, 0.15)}`
                             }
                         }}>
-                            <CardContent>
-                                <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                            <CardContent sx={{ py: 2 }}>
+                                <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1, fontSize: '0.65rem' }}>
                                     Max Boss Reached
                                 </Typography>
-                                <Typography variant="h2" fontWeight={900} color="secondary" sx={{ my: 1 }}>
+                                <Typography variant="h3" fontWeight={900} color="secondary" sx={{ my: 0.5 }}>
                                     {sortedHistory[0].highestSadisticBoss > 1 ? `S${sortedHistory[0].highestSadisticBoss}` :
                                         sortedHistory[0].highestHardBoss > 1 ? `E${sortedHistory[0].highestHardBoss}` :
                                             `N${sortedHistory[0].highestBoss}`}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                                <Typography variant="caption" color="text.secondary" fontWeight={500}>
                                     {sortedHistory[0].highestSadisticBoss > 1 ? 'Sadistic Difficulty' :
                                         sortedHistory[0].highestHardBoss > 1 ? 'Evil Difficulty' : 'Normal Difficulty'}
                                 </Typography>
@@ -388,49 +388,49 @@ const History = ({ handleClearHistory }) => {
                         <Grid container spacing={2}>
                             {sortedHistory[0].pp > 0 && (
                                 <Grid item xs={12} sm={6} md={3}>
-                                    <Card sx={{ height: '100%', borderRadius: 3, bgcolor: alpha(theme.palette.info.main, 0.08), border: `1px solid ${alpha(theme.palette.info.main, 0.2)}` }}>
-                                        <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Card sx={{ height: '100%', borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.06), border: `1px solid ${alpha(theme.palette.info.main, 0.1)}` }}>
+                                        <CardContent sx={{ py: 1.5, px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', '&:last-child': { pb: 1.5 } }}>
                                             <Box>
-                                                <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase' }}>ITOPOD PP</Typography>
-                                                <Typography variant="h6" fontWeight={800} color="info.main">{shorten(sortedHistory[0].pp)}</Typography>
+                                                <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', fontSize: '0.6rem' }}>ITOPOD PP</Typography>
+                                                <Typography variant="subtitle1" fontWeight={800} color="info.main" sx={{ lineHeight: 1.2 }}>{shorten(sortedHistory[0].pp)}</Typography>
                                             </Box>
-                                            <TrendingUp color="info" />
+                                            <TrendingUp color="info" sx={{ fontSize: '1.2rem' }} />
                                         </CardContent>
                                     </Card>
                                 </Grid>
                             )}
                             {sortedHistory[0].challenges > 0 && (
                                 <Grid item xs={12} sm={6} md={3}>
-                                    <Card sx={{ height: '100%', borderRadius: 3, bgcolor: alpha(theme.palette.success.main, 0.08), border: `1px solid ${alpha(theme.palette.success.main, 0.2)}` }}>
-                                        <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Card sx={{ height: '100%', borderRadius: 2, bgcolor: alpha(theme.palette.success.main, 0.06), border: `1px solid ${alpha(theme.palette.success.main, 0.1)}` }}>
+                                        <CardContent sx={{ py: 1.5, px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', '&:last-child': { pb: 1.5 } }}>
                                             <Box>
-                                                <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase' }}>Challenges</Typography>
-                                                <Typography variant="h6" fontWeight={800} color="success.main">{sortedHistory[0].challenges}</Typography>
+                                                <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', fontSize: '0.6rem' }}>Challenges</Typography>
+                                                <Typography variant="subtitle1" fontWeight={800} color="success.main" sx={{ lineHeight: 1.2 }}>{sortedHistory[0].challenges}</Typography>
                                             </Box>
-                                            <CompareArrows color="success" />
+                                            <CompareArrows color="success" sx={{ fontSize: '1.2rem' }} />
                                         </CardContent>
                                     </Card>
                                 </Grid>
                             )}
                             <Grid item xs={12} sm={6} md={3}>
-                                <Card sx={{ height: '100%', borderRadius: 3, bgcolor: alpha(theme.palette.warning.main, 0.08), border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}` }}>
-                                    <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Card sx={{ height: '100%', borderRadius: 2, bgcolor: alpha(theme.palette.warning.main, 0.06), border: `1px solid ${alpha(theme.palette.warning.main, 0.1)}` }}>
+                                    <CardContent sx={{ py: 1.5, px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', '&:last-child': { pb: 1.5 } }}>
                                         <Box>
-                                            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase' }}>Arbitrary Points</Typography>
-                                            <Typography variant="h6" fontWeight={800} color="warning.main">{shorten(sortedHistory[0].ap || 0)}</Typography>
+                                            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', fontSize: '0.6rem' }}>Arbitrary Points</Typography>
+                                            <Typography variant="subtitle1" fontWeight={800} color="warning.main" sx={{ lineHeight: 1.2 }}>{shorten(sortedHistory[0].ap || 0)}</Typography>
                                         </Box>
-                                        <Star color="warning" />
+                                        <Star color="warning" sx={{ fontSize: '1.2rem' }} />
                                     </CardContent>
                                 </Card>
                             </Grid>
                             <Grid item xs={12} sm={6} md={3}>
-                                <Card sx={{ height: '100%', borderRadius: 3, bgcolor: alpha(theme.palette.primary.main, 0.08), border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}` }}>
-                                    <CardContent sx={{ py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Card sx={{ height: '100%', borderRadius: 2, bgcolor: alpha(theme.palette.primary.main, 0.06), border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}` }}>
+                                    <CardContent sx={{ py: 1.5, px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', '&:last-child': { pb: 1.5 } }}>
                                         <Box>
-                                            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase' }}>Playtime</Typography>
-                                            <Typography variant="h6" fontWeight={800} color="primary.main">{toTime((sortedHistory[0].playtime || 0) * 50)}</Typography>
+                                            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', fontSize: '0.6rem' }}>Playtime</Typography>
+                                            <Typography variant="subtitle1" fontWeight={800} color="primary.main" sx={{ lineHeight: 1.2 }}>{toTime((sortedHistory[0].playtime || 0) * 50)}</Typography>
                                         </Box>
-                                        <AccessTime color="primary" />
+                                        <AccessTime color="primary" sx={{ fontSize: '1.2rem' }} />
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -439,10 +439,10 @@ const History = ({ handleClearHistory }) => {
 
                     {/* Main Content Areas */}
                     <Grid item xs={12}>
-                        <Paper sx={{ borderRadius: 4, overflow: 'hidden', p: 3 }}>
-                            <Box sx={{ mb: 6 }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Growth Analytics</Typography>
+                        <Paper sx={{ borderRadius: 3, overflow: 'hidden', p: 3 }}>
+                            <Box sx={{ mb: 4 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Growth Analytics</Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <FilterAlt fontSize="small" color="action" />
                                         <ToggleButtonGroup
@@ -450,20 +450,21 @@ const History = ({ handleClearHistory }) => {
                                             value={timeRange}
                                             exclusive
                                             onChange={(e, v) => v !== null && setTimeRange(v)}
+                                            sx={{ height: 32 }}
                                         >
-                                            <ToggleButton value={7}>7d</ToggleButton>
-                                            <ToggleButton value={10}>10d</ToggleButton>
-                                            <ToggleButton value={30}>1m</ToggleButton>
-                                            <ToggleButton value={60}>2m</ToggleButton>
-                                            <ToggleButton value={0}>All</ToggleButton>
+                                            <ToggleButton value={7} sx={{ px: 1.5 }}>7d</ToggleButton>
+                                            <ToggleButton value={10} sx={{ px: 1.5 }}>10d</ToggleButton>
+                                            <ToggleButton value={30} sx={{ px: 1.5 }}>1m</ToggleButton>
+                                            <ToggleButton value={60} sx={{ px: 1.5 }}>2m</ToggleButton>
+                                            <ToggleButton value={0} sx={{ px: 1.5 }}>All</ToggleButton>
                                         </ToggleButtonGroup>
                                     </Box>
                                 </Box>
 
-                                <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <CalendarMonth fontSize="small" /> Activity Calendar (Last 30 Days)
+                                <Typography variant="caption" sx={{ mb: 1, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <CalendarMonth sx={{ fontSize: '1rem' }} /> Activity Calendar (30 Days)
                                 </Typography>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 4, p: 2, bgcolor: alpha(theme.palette.divider, 0.05), borderRadius: 2 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 3, p: 1.5, bgcolor: alpha(theme.palette.divider, 0.03), borderRadius: 2 }}>
                                     {Array.from({ length: 30 }).map((_, i) => {
                                         const d = new Date();
                                         d.setDate(d.getDate() - (29 - i));
@@ -473,9 +474,9 @@ const History = ({ handleClearHistory }) => {
                                             <Tooltip key={i} title={`${dateStr}: ${count} saves`}>
                                                 <Box
                                                     sx={{
-                                                        width: 12,
-                                                        height: 12,
-                                                        borderRadius: 0.5,
+                                                        width: 10,
+                                                        height: 10,
+                                                        borderRadius: 0.25,
                                                         bgcolor: count > 0 ? 'primary.main' : 'divider',
                                                         opacity: count > 0 ? Math.min(0.3 + count * 0.2, 1) : 0.3,
                                                         transition: 'all 0.2s',
@@ -488,9 +489,9 @@ const History = ({ handleClearHistory }) => {
                                 </Box>
                             </Box>
 
-                            <Box sx={{ mb: 8 }}>
-                                <Typography variant="h6" gutterBottom color="primary">XP Growth</Typography>
-                                <Box sx={{ width: '100%', height: 350, mb: 4 }}>
+                            <Box sx={{ mb: 6 }}>
+                                <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>XP Growth</Typography>
+                                <Box sx={{ width: '100%', height: 280, mb: 2 }}>
                                     <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <AreaChart data={filteredChartData}>
                                             <defs>
@@ -505,12 +506,13 @@ const History = ({ handleClearHistory }) => {
                                                 type="number"
                                                 domain={['dataMin', 'dataMax']}
                                                 tickFormatter={(t) => new Date(t).toLocaleDateString()}
+                                                fontSize={11}
                                             />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} />
+                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
                                             <ChartTooltip
                                                 labelFormatter={(t) => new Date(t).toLocaleString()}
                                                 formatter={(v) => [shorten(v), "XP"]}
-                                                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                             />
                                             <Area type="monotone" dataKey="exp" stroke={theme.palette.primary.main} fillOpacity={1} fill="url(#colorExp)" />
                                         </AreaChart>
@@ -519,9 +521,9 @@ const History = ({ handleClearHistory }) => {
                             </Box>
 
                             {/* Resource Power Chart */}
-                            <Box sx={{ height: 400, mb: 6 }}>
-                                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <FlashOn color="error" /> Resource Power History
+                            <Box sx={{ height: 320, mb: 6 }}>
+                                <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 'bold' }}>
+                                    <FlashOn color="error" sx={{ fontSize: '1.2rem' }} /> Resource Power History
                                 </Typography>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={filteredChartData}>
@@ -530,30 +532,30 @@ const History = ({ handleClearHistory }) => {
                                             dataKey="timestamp"
                                             tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                             stroke={theme.palette.text.secondary}
-                                            fontSize={12}
+                                            fontSize={11}
                                         />
                                         <YAxis
                                             tickFormatter={(v) => shorten(v)}
                                             stroke={theme.palette.text.secondary}
-                                            fontSize={12}
+                                            fontSize={11}
                                         />
                                         <ChartTooltip
                                             labelFormatter={(t) => new Date(t).toLocaleString()}
                                             formatter={(v, name) => [shorten(v), name]}
-                                            contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                            contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                         />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="energyPowerVal" name="Energy Power" stroke="#4caf50" strokeWidth={3} dot={false} />
-                                        <Line type="monotone" dataKey="magicPowerVal" name="Magic Power" stroke="#2196f3" strokeWidth={3} dot={false} />
-                                        <Line type="monotone" dataKey="res3PowerVal" name="R3 Power" stroke="#9e9e9e" strokeWidth={3} dot={false} />
+                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+                                        <Line type="monotone" dataKey="energyPowerVal" name="Energy Power" stroke="#4caf50" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="magicPowerVal" name="Magic Power" stroke="#2196f3" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="res3PowerVal" name="R3 Power" stroke="#9e9e9e" strokeWidth={2} dot={false} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Box>
 
                             {/* Resource Cap Chart */}
-                            <Box sx={{ height: 400, mb: 6 }}>
-                                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <AutoFixHigh color="primary" /> Resource Cap History
+                            <Box sx={{ height: 320, mb: 6 }}>
+                                <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 'bold' }}>
+                                    <AutoFixHigh color="primary" sx={{ fontSize: '1.2rem' }} /> Resource Cap History
                                 </Typography>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={filteredChartData}>
@@ -562,30 +564,30 @@ const History = ({ handleClearHistory }) => {
                                             dataKey="timestamp"
                                             tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                             stroke={theme.palette.text.secondary}
-                                            fontSize={12}
+                                            fontSize={11}
                                         />
                                         <YAxis
                                             tickFormatter={(v) => shorten(v)}
                                             stroke={theme.palette.text.secondary}
-                                            fontSize={12}
+                                            fontSize={11}
                                         />
                                         <ChartTooltip
                                             labelFormatter={(t) => new Date(t).toLocaleString()}
                                             formatter={(v, name) => [shorten(v), name]}
-                                            contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                            contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                         />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="energyCapVal" name="Energy Cap" stroke="#81c784" strokeWidth={3} dot={false} />
-                                        <Line type="monotone" dataKey="magicCapVal" name="Magic Cap" stroke="#64b5f6" strokeWidth={3} dot={false} />
-                                        <Line type="monotone" dataKey="res3CapVal" name="R3 Cap" stroke="#bdbdbd" strokeWidth={3} dot={false} />
+                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+                                        <Line type="monotone" dataKey="energyCapVal" name="Energy Cap" stroke="#81c784" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="magicCapVal" name="Magic Cap" stroke="#64b5f6" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="res3CapVal" name="R3 Cap" stroke="#bdbdbd" strokeWidth={2} dot={false} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Box>
 
                             {/* Resource Bars Chart */}
-                            <Box sx={{ height: 400, mb: 6 }}>
-                                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Science color="secondary" /> Resource Bars History
+                            <Box sx={{ height: 320, mb: 6 }}>
+                                <Typography variant="subtitle1" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 'bold' }}>
+                                    <Science color="secondary" sx={{ fontSize: '1.2rem' }} /> Resource Bars History
                                 </Typography>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={filteredChartData}>
@@ -594,30 +596,30 @@ const History = ({ handleClearHistory }) => {
                                             dataKey="timestamp"
                                             tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                             stroke={theme.palette.text.secondary}
-                                            fontSize={12}
+                                            fontSize={11}
                                         />
                                         <YAxis
                                             tickFormatter={(v) => shorten(v)}
                                             stroke={theme.palette.text.secondary}
-                                            fontSize={12}
+                                            fontSize={11}
                                         />
                                         <ChartTooltip
                                             labelFormatter={(t) => new Date(t).toLocaleString()}
                                             formatter={(v, name) => [shorten(v), name]}
-                                            contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                            contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                         />
-                                        <Legend />
-                                        <Line type="monotone" dataKey="energyBarsVal" name="Energy Bars" stroke="#a5d6a7" strokeWidth={3} dot={false} />
-                                        <Line type="monotone" dataKey="magicBarsVal" name="Magic Bars" stroke="#90caf9" strokeWidth={3} dot={false} />
-                                        <Line type="monotone" dataKey="res3BarsVal" name="R3 Bars" stroke="#e0e0e0" strokeWidth={3} dot={false} />
+                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+                                        <Line type="monotone" dataKey="energyBarsVal" name="Energy Bars" stroke="#a5d6a7" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="magicBarsVal" name="Magic Bars" stroke="#90caf9" strokeWidth={2} dot={false} />
+                                        <Line type="monotone" dataKey="res3BarsVal" name="R3 Bars" stroke="#e0e0e0" strokeWidth={2} dot={false} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Box>
-                            <Divider sx={{ my: 6 }} />
+                            <Divider sx={{ my: 4 }} />
 
-                            <Box sx={{ mb: 8 }}>
-                                <Typography variant="h6" gutterBottom color="secondary">Energy NGU Levels</Typography>
-                                <Box sx={{ width: '100%', height: 450 }}>
+                            <Box sx={{ mb: 6 }}>
+                                <Typography variant="subtitle1" gutterBottom color="secondary" sx={{ fontWeight: 'bold' }}>Energy NGU Levels</Typography>
+                                <Box sx={{ width: '100%', height: 350 }}>
                                     <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <LineChart data={filteredChartData}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -626,25 +628,26 @@ const History = ({ handleClearHistory }) => {
                                                 type="number"
                                                 domain={['dataMin', 'dataMax']}
                                                 tickFormatter={(t) => new Date(t).toLocaleDateString()}
+                                                fontSize={11}
                                             />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} />
+                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
                                             <ChartTooltip
                                                 labelFormatter={(t) => new Date(t).toLocaleString()}
                                                 formatter={(v, name) => [shorten(v), name]}
-                                                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                             />
-                                            <Legend />
+                                            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
                                             {visibleEnergyNgus.map(({ name, i }) => (
-                                                <Line key={`e_${i}`} type="monotone" dataKey={`ngu_e_${i}`} name={name} stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`} strokeWidth={2} dot={{ r: 3 }} />
+                                                <Line key={`e_${i}`} type="monotone" dataKey={`ngu_e_${i}`} name={name} stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`} strokeWidth={1.5} dot={{ r: 2 }} />
                                             ))}
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </Box>
                             </Box>
 
-                            <Box sx={{ mb: 8 }}>
-                                <Typography variant="h6" gutterBottom color="secondary">Magic NGU Levels</Typography>
-                                <Box sx={{ width: '100%', height: 450 }}>
+                            <Box sx={{ mb: 6 }}>
+                                <Typography variant="subtitle1" gutterBottom color="secondary" sx={{ fontWeight: 'bold' }}>Magic NGU Levels</Typography>
+                                <Box sx={{ width: '100%', height: 350 }}>
                                     <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <LineChart data={filteredChartData}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -653,27 +656,28 @@ const History = ({ handleClearHistory }) => {
                                                 type="number"
                                                 domain={['dataMin', 'dataMax']}
                                                 tickFormatter={(t) => new Date(t).toLocaleDateString()}
+                                                fontSize={11}
                                             />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} />
+                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
                                             <ChartTooltip
                                                 labelFormatter={(t) => new Date(t).toLocaleString()}
                                                 formatter={(v, name) => [shorten(v), name]}
-                                                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                             />
-                                            <Legend />
+                                            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
                                             {visibleMagicNgus.map(({ name, i }) => (
-                                                <Line key={`m_${i}`} type="monotone" dataKey={`ngu_m_${i}`} name={name} stroke={`hsl(${(i * 40 + 180) % 360}, 70%, 50%)`} strokeWidth={2} dot={{ r: 3 }} />
+                                                <Line key={`m_${i}`} type="monotone" dataKey={`ngu_m_${i}`} name={name} stroke={`hsl(${(i * 40 + 180) % 360}, 70%, 50%)`} strokeWidth={1.5} dot={{ r: 2 }} />
                                             ))}
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </Box>
                             </Box>
 
-                            <Divider sx={{ my: 6 }} />
+                            <Divider sx={{ my: 4 }} />
 
                             <Box sx={{ mb: 4 }}>
-                                <Typography variant="h6" gutterBottom color="info.main">Hack Levels</Typography>
-                                <Box sx={{ width: '100%', height: 550 }}>
+                                <Typography variant="subtitle1" gutterBottom color="info.main" sx={{ fontWeight: 'bold' }}>Hack Levels</Typography>
+                                <Box sx={{ width: '100%', height: 400 }}>
                                     <ResponsiveContainer width="100%" height="100%" debounce={1}>
                                         <LineChart data={filteredChartData}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -682,16 +686,17 @@ const History = ({ handleClearHistory }) => {
                                                 type="number"
                                                 domain={['dataMin', 'dataMax']}
                                                 tickFormatter={(t) => new Date(t).toLocaleDateString()}
+                                                fontSize={11}
                                             />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} />
+                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
                                             <ChartTooltip
                                                 labelFormatter={(t) => new Date(t).toLocaleString()}
                                                 formatter={(v, name) => [shorten(v), name]}
-                                                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
                                             />
-                                            <Legend />
+                                            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
                                             {visibleHacks.map(({ name, i }) => (
-                                                <Line key={`h_${i}`} type="monotone" dataKey={`hack_${i}`} name={name} stroke={`hsl(${(i * 24) % 360}, 60%, 45%)`} strokeWidth={2} dot={{ r: 3 }} />
+                                                <Line key={`h_${i}`} type="monotone" dataKey={`hack_${i}`} name={name} stroke={`hsl(${(i * 24) % 360}, 60%, 45%)`} strokeWidth={1.5} dot={{ r: 2 }} />
                                             ))}
                                         </LineChart>
                                     </ResponsiveContainer>

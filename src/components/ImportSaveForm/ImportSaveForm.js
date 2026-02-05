@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, Tooltip, Switch, FormControlLabel } from '@mui/material';
+import { Box, Button, Tooltip, Switch, FormControlLabel, Typography, Dialog, DialogContent } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Crement } from '../../actions/Crement';
 import { MassUpdate } from '../../actions/MassUpdateItems';
@@ -54,11 +54,14 @@ const normalZones = [
     [7, 3],
 ];
 
-const ImportSaveForm = ({ hideSwitch = false }) => {
+const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
     const dispatch = useDispatch();
 
     const optimizerState = useSelector(state => state.optimizer);
-    const [disableItems, setDisableItems] = useState(false);
+    const [disableItems, setDisableItems] = useState(true);
+    const [syncStatus, setSyncStatus] = useState('disconnected'); // 'disconnected', 'connected', 'error'
+    const [guideOpen, setGuideOpen] = useState(false);
+    const [hasReceivedData, setHasReceivedData] = useState(false);
     let fileReader;
 
     const inputElem = useRef(null);
@@ -353,6 +356,47 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
         updateHackTab(data)
     }
 
+    // Live Sync Listener
+    React.useEffect(() => {
+        let eventSource;
+        const connect = () => {
+            console.log("🔌 Attempting to connect to NGU Live Sync Bridge...");
+            eventSource = new EventSource('http://localhost:3005/events');
+
+            eventSource.onopen = () => {
+                console.log("✅ Connected to Live Sync Bridge");
+                setSyncStatus('connected');
+                if (onSyncStatusChange) onSyncStatusChange('connected');
+            };
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log("⚡ Auto-Update: Received new save data from bridge");
+                    setHasReceivedData(true);
+                    applyData(data);
+                } catch (err) {
+                    console.error("❌ Error parsing live sync data:", err);
+                }
+            };
+
+            eventSource.onerror = (err) => {
+                console.warn("⚠️ Live Sync Bridge not found or disconnected. Retrying in 10s...");
+                setSyncStatus('error');
+                if (onSyncStatusChange) onSyncStatusChange('error');
+                eventSource.close();
+                // Retry after 10 seconds
+                setTimeout(connect, 10000);
+            };
+        };
+
+        connect();
+
+        return () => {
+            if (eventSource) eventSource.close();
+        };
+    }, []); // Only run once on mount
+
 
 
     const handleFilePick = async (e) => {
@@ -400,54 +444,178 @@ const ImportSaveForm = ({ hideSwitch = false }) => {
 
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <input ref={inputElem} style={{ display: "none" }} type='file' id='savefileloader'
-                multiple onChange={e => handleFilePick(e)} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
+            <Box sx={{
+                display: 'flex',
+                gap: 1.5,
+                width: '100%',
+                mb: 1
+            }}>
+                <input ref={inputElem} style={{ display: "none" }} type='file' id='savefileloader'
+                    multiple onChange={e => handleFilePick(e)} />
 
-            <Tooltip title={
-                <React.Fragment>
-                    Supported file types are<br />
-                    (1) raw NGU save files, and<br />
-                    (2) NGUSav.es JSON files.
-                    <br /><br />
-                    <i>Note: Only files with "Rebirth" in name are added to History.</i>
-                </React.Fragment>
-            } placement="bottom">
+                <Tooltip title="Manually import save files" placement="bottom">
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => inputElem.current.click()}
+                        startIcon={<UploadFileIcon />}
+                        sx={{
+                            borderRadius: '8px',
+                            flex: 1,
+                            py: 0.8,
+                            fontWeight: 700,
+                            fontSize: '0.85rem'
+                        }}
+                    >
+                        Manual Import
+                    </Button>
+                </Tooltip>
+
                 <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => inputElem.current.click()}
-                    startIcon={<UploadFileIcon />}
+                    variant="outlined"
+                    onClick={() => setGuideOpen(true)}
+                    startIcon={<span style={{ fontSize: '1.1rem' }}>📡</span>}
                     sx={{
-                        borderRadius: 3,
-                        px: 3,
-                        fontWeight: 600,
-                        boxShadow: 2,
+                        borderRadius: '8px',
+                        flex: 1,
+                        py: 0.8,
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
+                        background: 'rgba(0, 255, 255, 0.02)',
                         '&:hover': {
-                            boxShadow: 4,
-                            transform: 'translateY(-1px)'
-                        },
-                        transition: 'all 0.2s ease'
+                            borderColor: 'primary.light',
+                            background: 'rgba(0, 255, 255, 0.08)',
+                        }
                     }}
                 >
-                    Import Save
+                    Live Sync
                 </Button>
-            </Tooltip>
+            </Box>
+
             {!hideSwitch && (
                 <FormControlLabel
                     control={
                         <Switch
+                            size="small"
                             checked={disableItems}
                             onChange={() => setDisableItems(!disableItems)}
                         />
                     }
-                    label="Disable unowned"
+                    label={<Typography variant="caption">Disable unowned</Typography>}
                 />
             )}
-        </Box>
 
+            {/* Sync Setup Dialog */}
+            <Dialog open={guideOpen} onClose={() => setGuideOpen(false)} maxWidth="sm" fullWidth>
+                <DialogContent sx={{ p: 4, position: 'relative' }}>
+                    <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>📡 Live Sync Setup Guide</Typography>
+                        <Box sx={{
+                            px: 1.5, py: 0.5, borderRadius: 50,
+                            bgcolor: syncStatus === 'connected' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 61, 0, 0.1)',
+                            border: '1px solid',
+                            borderColor: syncStatus === 'connected' ? 'success.main' : 'error.main',
+                            display: 'flex', alignItems: 'center', gap: 1
+                        }}>
+                            <Box sx={{
+                                width: 8, height: 8, borderRadius: '50%',
+                                bgcolor: syncStatus === 'connected' ? 'success.main' : 'error.main',
+                                animation: syncStatus === 'connected' ? 'pulse 2s infinite' : 'none',
+                                '@keyframes pulse': {
+                                    '0%': { opacity: 1, transform: 'scale(1)' },
+                                    '50%': { opacity: 0.4, transform: 'scale(1.2)' },
+                                    '100%': { opacity: 1, transform: 'scale(1)' }
+                                }
+                            }} />
+                            <Typography variant="caption" sx={{ fontWeight: 'bold', color: syncStatus === 'connected' ? 'success.main' : 'error.main' }}>
+                                {syncStatus === 'connected' ? 'CONNECTED' : 'WAITING FOR GAME...'}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <StepItem
+                            num="1"
+                            title="Download & Install Mod"
+                            desc={
+                                <Box>
+                                    <Typography
+                                        component="a"
+                                        href="https://github.com/postEntropy/gear-optimizer/raw/master/public/NGULiveSync.dll"
+                                        download
+                                        sx={{
+                                            color: 'primary.main',
+                                            fontWeight: 'bold',
+                                            textDecoration: 'none',
+                                            borderBottom: '1px solid',
+                                            borderColor: 'primary.main',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                color: 'primary.light',
+                                                borderColor: 'primary.light'
+                                            }
+                                        }}
+                                    >
+                                        Click here to download NGULiveSync.dll
+                                    </Typography>.
+                                    <br />
+                                    Place the file in your <code>BepInEx/plugins</code> folder.
+                                </Box>
+                            }
+                            active={true}
+                            completed={true}
+                        />
+                        <StepItem
+                            num="2"
+                            title="Open the Game"
+                            desc="Launch NGU Idle. The mod will automatically start the connection."
+                            active={syncStatus === 'connected'}
+                            completed={syncStatus === 'connected'}
+                        />
+                        <StepItem
+                            num="3"
+                            title="Sync Active!"
+                            desc={hasReceivedData ? "Data received! The optimizer is now updating live." : "Waiting for the first save data bundle from the game..."}
+                            active={syncStatus === 'connected'}
+                            completed={hasReceivedData}
+                        />
+                    </Box>
+
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        onClick={() => setGuideOpen(false)}
+                        sx={{ mt: 4, borderRadius: 2 }}
+                    >
+                        Got it!
+                    </Button>
+                </DialogContent>
+            </Dialog>
+        </Box>
     )
 }
+
+const StepItem = ({ num, title, desc, active, completed }) => (
+    <Box sx={{ display: 'flex', gap: 2, opacity: active ? 1 : 0.4, transition: 'all 0.4s ease' }}>
+        <Box sx={{
+            width: 32, height: 32, borderRadius: '50%',
+            bgcolor: completed ? 'success.main' : 'action.disabledBackground',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 'bold', color: completed ? 'white' : 'text.secondary',
+            flexShrink: 0,
+            boxShadow: completed ? '0 0 10px rgba(76, 175, 80, 0.4)' : 'none'
+        }}>
+            {completed ? '✓' : num}
+        </Box>
+        <Box>
+            <Typography sx={{ fontWeight: 'bold', color: completed ? 'success.main' : 'text.primary', transition: 'color 0.3s' }}>{title}</Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>{desc}</Typography>
+        </Box>
+    </Box>
+);
 
 ImportSaveForm.propTypes = {}
 export default ImportSaveForm;

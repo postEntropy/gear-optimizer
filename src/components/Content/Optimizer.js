@@ -4,11 +4,11 @@ import { Navigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
-    Grid, Paper, Box, Button, Checkbox, TextField,
+    Grid, Paper, Box, Button, Checkbox, TextField, Typography,
     Table, TableBody, TableCell, TableRow, Dialog, DialogContent
 } from '@mui/material';
 
-import { get_max_titan, get_max_zone, get_zone } from '../../util';
+import { cubeBaseItemData, get_max_titan, get_max_zone, get_zone } from '../../util';
 import { LOOTIES, PENDANTS } from '../../assets/Items';
 
 import { default as Crement } from '../Crement/Crement';
@@ -22,6 +22,7 @@ import './Optimizer.css';
 import ImportSaveForm from '../ImportSaveForm/ImportSaveForm';
 import ResetItemsButton from '../ResetItemsButton/ResetItemsButton';
 import DarkModeContext from '../AppLayout/DarkModeContext';
+import Paperdoll from '../Paperdoll/Paperdoll';
 
 
 
@@ -32,7 +33,10 @@ class Optimizer extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { isReady: false };
+        this.state = {
+            isReady: false,
+            syncStatus: 'disconnected'
+        };
         this.fresh = true;
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -97,6 +101,8 @@ class Optimizer extends Component {
         if (!this.props.loaded) {
             return <div />;
         }
+        this.itemdata = cubeBaseItemData(this.props.itemdata, this.props.cubestats, this.props.basestats);
+
         if (this.props.loadLoadout === undefined) {
             ReactGA.pageview('/gear-optimizer/');
         } else {
@@ -122,20 +128,69 @@ class Optimizer extends Component {
         return (
             <DndProvider backend={HTML5Backend}>
                 <Box className={this.props.className} sx={{ flexGrow: 1, p: 2 }}>
-                    <Grid container spacing={2} justifyContent="center">
-                        {/* Top Section: Settings & Controls */}
+                    <Grid container spacing={2}>
+                        {/* Main HUD & Control Bar */}
+                        <Grid item xs={12} md={8}>
+                            <Paperdoll
+                                equip={this.props.equip}
+                                itemdata={this.itemdata}
+                                handleClickItem={this.props.handleUnequipItem}
+                                handleCtrlClickItem={this.props.handleDisableItem}
+                                handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
+                                handleRightClickItem={(itemId, lockable) => this.props.handleToggleModal('edit item', {
+                                    itemId: itemId,
+                                    lockable: lockable,
+                                    on: true
+                                })}
+                                handleDropItem={this.props.handleDropEquipItem}
+                                locked={this.props.locked}
+                                offhand={this.props.offhand}
+                                syncStatus={this.state.syncStatus}
+                            />
+                        </Grid>
+
                         <Grid item xs={12} md={4}>
-                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                                <ImportSaveForm />
-                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', my: 1 }}>
-                                    <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(8, 3, 5, 12)}>
-                                        Titan 8 Preset
-                                    </Button>
-                                    <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(11, 6, 8, 15)}>
-                                        Titan 11 Preset
-                                    </Button>
-                                    <ResetItemsButton />
+                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                <Box>
+                                    <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
+                                        DATA INTEGRATION
+                                    </Typography>
+                                    <ImportSaveForm onSyncStatusChange={(status) => this.setState({ syncStatus: status })} />
+                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1.5 }}>
+                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(8, 3, 5, 12)}>
+                                            T8 Preset
+                                        </Button>
+                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(11, 6, 8, 15)}>
+                                            T11 Preset
+                                        </Button>
+                                        <ResetItemsButton />
+                                    </Box>
                                 </Box>
+
+                                <Box>
+                                    <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
+                                        TACTICAL PROCESSOR
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                                        <OptimizeButton text={'Gear'} running={this.props.running}
+                                            abort={this.props.handleTerminate}
+                                            optimize={this.props.handleOptimizeGear} />
+                                    </Box>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        {[...this.props.factors.keys()].map((idx) => (
+                                            <div key={'factorform' + idx}>
+                                                <FactorForm {...this.props} idx={idx} />
+                                            </div>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            </Paper>
+                        </Grid>
+
+                        {/* Settings Section */}
+                        <Grid item xs={12} md={6}>
+                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
+                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 2, display: 'block' }}>Zone Configuration</Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <Crement header='Highest zone' value={zone[0]} name='zone'
                                         handleClick={this.props.handleCrement} min={2} max={maxzone} />
@@ -157,30 +212,9 @@ class Optimizer extends Component {
                             </Paper>
                         </Grid>
 
-                        {/* Middle Section: Optimization Controls */}
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={6}>
                             <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                                    <OptimizeButton text={'Gear'} running={this.props.running}
-                                        abort={this.props.handleTerminate}
-                                        optimize={this.props.handleOptimizeGear} />
-                                    <Button variant="outlined" onClick={this.props.handleUndo}>
-                                        Load previous
-                                    </Button>
-                                </Box>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    {[...this.props.factors.keys()].map((idx) => (
-                                        <div key={'factorform' + idx}>
-                                            <FactorForm {...this.props} idx={idx} />
-                                        </div>
-                                    ))}
-                                </Box>
-                            </Paper>
-                        </Grid>
-
-                        {/* Right Section: Stats Input */}
-                        <Grid item xs={12} md={4}>
-                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
+                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 2, display: 'block' }}>Stats Modifiers</Typography>
                                 <Table size="small">
                                     <TableBody>
                                         <TableRow>
@@ -271,11 +305,11 @@ class Optimizer extends Component {
                                 </Table>
                             </Paper>
                         </Grid>
-                    </Grid>
 
-                    <Grid container spacing={2} sx={{ mt: 2 }}>
+                        {/* Equipment List Row */}
                         <Grid item xs={12} md={6}>
                             <Paper sx={{ p: 2 }}>
+                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block' }}>Current Equipment</Typography>
                                 <EquipTable {...this.props} group={'slot'} type='equip'
                                     handleClickItem={this.props.handleUnequipItem}
                                     handleDropItem={this.props.handleDropEquipItem}
@@ -289,6 +323,7 @@ class Optimizer extends Component {
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <Paper sx={{ p: 2 }}>
+                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block' }}>Inventory / Available</Typography>
                                 <ItemTable {...this.props} maxtitan={maxtitan} group={'zone'} type='items'
                                     handleClickItem={this.props.handleEquipItem}
                                     handleCtrlClickItem={this.props.handleDisableItem}
@@ -311,9 +346,9 @@ class Optimizer extends Component {
                             <ItemForm {...this.props} closeEditModal={this.closeEditModal} />
                         </DialogContent>
                     </Dialog>
-
                 </Box>
-            </DndProvider>);
+            </DndProvider>
+        );
     };
 }
 
