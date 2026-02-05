@@ -22,7 +22,7 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("Live Sync Mod Loaded (v9)!");
+            Logger.LogInfo("Live Sync Mod Loaded (v12)! Waiting for browser...");
         }
 
         void StartServer() {
@@ -30,38 +30,60 @@ namespace NGULiveSync {
                 _listener = new HttpListener();
                 _listener.Prefixes.Add("http://localhost:3005/");
                 _listener.Start();
-                while (_listener. IsListening) {
+                while (_listener.IsListening) {
                     try {
                         var ctx = _listener.GetContext();
+                        var req = ctx.Request;
                         var res = ctx.Response;
+
                         res.AddHeader("Access-Control-Allow-Origin", "*");
                         res.AddHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-                        if (ctx.Request.Url.AbsolutePath == "/events") {
+                        res.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+                        res.AddHeader("Access-Control-Max-Age", "3600");
+
+                        if (req.HttpMethod == "OPTIONS") {
+                            res.StatusCode = 200;
+                            res.Close();
+                            continue;
+                        }
+
+                        if (req.Url.AbsolutePath == "/events") {
                             res.ContentType = "text/event-stream";
                             res.Headers.Add("Cache-Control", "no-cache");
+                            res.Headers.Add("Connection", "keep-alive");
+                            
+                            byte[] ok = Encoding.UTF8.GetBytes(": ok\n\n");
+                            res.OutputStream.Write(ok, 0, ok.Length);
+                            res.OutputStream.Flush();
+
                             lock(_clients) { _clients.Add(res); }
-                        } else { res.Close(); }
-                    } catch {}
+                        } else { 
+                            res.StatusCode = 404;
+                            res.Close(); 
+                        }
+                    } catch { }
                 }
-            } catch {}
+            } catch { }
         }
 
-        public static void BroadcastData() {
+        public static void BroadcastData(PlayerData pd) {
             try {
-                if (Character != null) {
-                    var pd = Character.importExport.gameStateToData();
-                    if (pd != null) {
-                        string json = JsonConvert.SerializeObject(pd);
-                        byte[] data = Encoding.UTF8.GetBytes("data: " + json + "\n\n");
-                        lock(_clients) {
-                            for (int i = _clients.Count - 1; i >= 0; i--) {
-                                try { _clients[i].OutputStream.Write(data, 0, data.Length); _clients[i].OutputStream.Flush(); }
-                                catch { _clients.RemoveAt(i); }
+                if (pd != null) {
+                    string json = JsonConvert.SerializeObject(pd);
+                    byte[] data = Encoding.UTF8.GetBytes("data: " + json + "\n\n");
+                    lock(_clients) {
+                        for (int i = _clients.Count - 1; i >= 0; i--) {
+                            try { 
+                                _clients[i].OutputStream.Write(data, 0, data.Length); 
+                                _clients[i].OutputStream.Flush(); 
+                            } catch { 
+                                try { _clients[i].Close(); } catch {}
+                                _clients.RemoveAt(i); 
                             }
                         }
                     }
                 }
-            } catch (Exception) { }
+            } catch { }
         }
     }
 
@@ -70,8 +92,10 @@ namespace NGULiveSync {
         static void Postfix(Character __instance) { LiveSyncPlugin.Character = __instance; }
     }
 
-    [HarmonyPatch(typeof(Character), "saveCharacter")]
+    [HarmonyPatch(typeof(ImportExport), "gameStateToData")]
     public static class Patch_Save {
-        static void Postfix() { LiveSyncPlugin.BroadcastData(); }
+        static void Postfix(PlayerData __result) {
+            LiveSyncPlugin.BroadcastData(__result);
+        }
     }
 }

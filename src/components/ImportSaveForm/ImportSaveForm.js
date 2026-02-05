@@ -370,6 +370,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
             };
 
             eventSource.onmessage = (event) => {
+                console.log("📩 SSE Message received:", event.data.substring(0, 50) + "...");
                 try {
                     const data = JSON.parse(event.data);
                     console.log("⚡ Auto-Update: Received new save data from bridge");
@@ -381,7 +382,10 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
             };
 
             eventSource.onerror = (err) => {
-                console.warn("⚠️ Live Sync Bridge not found or disconnected. Retrying in 10s...");
+                console.warn("⚠️ Live Sync connection error. Current state:", eventSource.readyState);
+                if (eventSource.readyState === 2) {
+                    console.error("🚫 Connection closed by browser/server (Possible CORS or Mixed Content issue)");
+                }
                 setSyncStatus('error');
                 if (onSyncStatusChange) onSyncStatusChange('error');
                 eventSource.close();
