@@ -616,7 +616,15 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
             </Box>
 
             {/* Sync Setup Dialog */}
-            <Dialog open={guideOpen} onClose={() => setGuideOpen(false)} maxWidth="sm" fullWidth>
+            <Dialog
+                open={guideOpen}
+                onClose={() => setGuideOpen(false)}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: { bgcolor: 'background.paper', backgroundImage: 'none' }
+                }}
+            >
                 <DialogContent sx={{ p: 4, position: 'relative' }}>
                     <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>📡 Live Sync Setup Guide</Typography>
