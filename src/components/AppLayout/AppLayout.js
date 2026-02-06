@@ -42,6 +42,7 @@ import DarkModeContext from './DarkModeContext';
 import getTheme from '../../theme';
 import { THEME_COLORS } from '../../themeColors';
 import Loading from '../Loading/Loading';
+import LiveSyncPill from '../LiveSyncPill/LiveSyncPill';
 
 // Static Imports for Instant Navigation
 import Optimizer from '../Content/Optimizer';
@@ -334,9 +335,11 @@ const AppLayout = (props) => {
                                     </Typography>
                                 </Box>
                             </Box>
-                            <IconButton onClick={toggleDrawer}>
-                                {open ? <ChevronLeft /> : <ChevronRight />}
-                            </IconButton>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <IconButton onClick={toggleDrawer}>
+                                    {open ? <ChevronLeft /> : <ChevronRight />}
+                                </IconButton>
+                            </Box>
                         </Box>
 
                         <Divider sx={{ mb: 2, mx: 3, opacity: 0.1 }} />
@@ -355,7 +358,10 @@ const AppLayout = (props) => {
                         <Box sx={{ flexGrow: 1 }} />
 
                         {/* FOOTER ACTIONS */}
-                        <Box sx={{ p: 2, display: 'flex', flexDirection: open ? 'row' : 'column', gap: 1, alignItems: 'center' }}>
+                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
+                            <Box sx={{ width: '100%', px: open ? 1 : 0, display: 'flex', justifyContent: 'center' }}>
+                                <LiveSyncPill collapsed={!open} />
+                            </Box>
                             <ThemeSwitcher
                                 darkMode={darkMode}
                                 toggleDarkMode={toggleDarkMode}

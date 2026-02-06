@@ -240,6 +240,11 @@ const INITIAL_STATE = {
     },
     history: [],
     highlightBest: false,
+    liveSync: {
+        status: 'disconnected',
+        lastUpdate: null,
+        updateCount: 0
+    },
     version: '2.0.0'
 };
 

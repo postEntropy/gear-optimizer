@@ -64,7 +64,9 @@ const ModifierForm = (props) => {
             </Box>
 
             {settings.modifiers && (
-                <Table size="small">
+                <Table size="small" sx={{
+                    '& .MuiTableCell-root': { borderBottom: 'none' }
+                }}>
                     <TableBody>
                         <TableRow>
                             <TableCell>Current loadout</TableCell>

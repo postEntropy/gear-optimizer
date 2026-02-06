@@ -150,38 +150,49 @@ class Optimizer extends Component {
                         </Grid>
 
                         <Grid item xs={12} md={4}>
-                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 <Box>
                                     <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
                                         DATA INTEGRATION
                                     </Typography>
-                                    <ImportSaveForm onSyncStatusChange={(status) => this.setState({ syncStatus: status })} />
-                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1.5 }}>
-                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(8, 3, 5, 12)}>
+                                    <ImportSaveForm onSyncStatusChange={(status) => this.setState({ syncStatus: status })}>
+                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(8, 3, 5, 12)} sx={{ py: 0.5 }}>
                                             T8 Preset
                                         </Button>
-                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(11, 6, 8, 15)}>
+                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(11, 6, 8, 15)} sx={{ py: 0.5 }}>
                                             T11 Preset
                                         </Button>
                                         <ResetItemsButton />
-                                    </Box>
+                                    </ImportSaveForm>
                                 </Box>
 
                                 <Box>
                                     <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
-                                        TACTICAL PROCESSOR
+                                        ZONE CONFIGURATION
                                     </Typography>
-                                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                                        <OptimizeButton text={'Gear'} running={this.props.running}
-                                            abort={this.props.handleTerminate}
-                                            optimize={this.props.handleOptimizeGear} />
-                                    </Box>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        {[...this.props.factors.keys()].map((idx) => (
-                                            <div key={'factorform' + idx}>
-                                                <FactorForm {...this.props} idx={idx} />
-                                            </div>
-                                        ))}
+                                        <Crement header='Highest zone' value={zone[0]} name='zone'
+                                            handleClick={this.props.handleCrement} min={2} max={maxzone} />
+                                        {this.props.zone > 20 && (
+                                            <Crement header={maxtitan[0] + ' version'} value={this.props.titanversion}
+                                                name='titanversion' handleClick={this.props.handleCrement} min={1} max={4} />
+                                        )}
+                                        <Crement header='Highest looty' value={looty} name='looty'
+                                            handleClick={this.props.handleCrement} min={-1} max={LOOTIES.length - 1} />
+                                        <Crement header='Highest pendant' value={pendant} name='pendant'
+                                            handleClick={this.props.handleCrement} min={-1} max={PENDANTS.length - 1} />
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Box sx={{ flex: 1 }}>
+                                                <Crement header='Acc slots' value={accslots} name='accslots'
+                                                    handleClick={this.props.handleCrement} min={0} max={100} />
+                                            </Box>
+                                            {this.props.zone > 27 && (
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Crement header='Offhand' value={this.props.offhand * 5 + '%'}
+                                                        name='offhand' handleClick={this.props.handleCrement} min={0} max={20} />
+                                                </Box>
+                                            )}
+                                        </Box>
                                     </Box>
                                 </Box>
                             </Paper>
@@ -190,25 +201,21 @@ class Optimizer extends Component {
                         {/* Settings Section */}
                         <Grid item xs={12} md={6}>
                             <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 2, display: 'block' }}>Zone Configuration</Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    <Crement header='Highest zone' value={zone[0]} name='zone'
-                                        handleClick={this.props.handleCrement} min={2} max={maxzone} />
-                                    {this.props.zone > 20 && (
-                                        <Crement header={maxtitan[0] + ' version'} value={this.props.titanversion}
-                                            name='titanversion' handleClick={this.props.handleCrement} min={1} max={4} />
-                                    )}
-                                    <Crement header='Highest looty' value={looty} name='looty'
-                                        handleClick={this.props.handleCrement} min={-1} max={LOOTIES.length - 1} />
-                                    <Crement header='Highest pendant' value={pendant} name='pendant'
-                                        handleClick={this.props.handleCrement} min={-1} max={PENDANTS.length - 1} />
-                                    <Crement header='Accessory slots' value={accslots} name='accslots'
-                                        handleClick={this.props.handleCrement} min={0} max={100} />
-                                    {this.props.zone > 27 && (
-                                        <Crement header='Offhand power' value={this.props.offhand * 5 + '%'}
-                                            name='offhand' handleClick={this.props.handleCrement} min={0} max={20} />
-                                    )}
+                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
+                                    TACTICAL PROCESSOR
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                                    <OptimizeButton text={'Gear'} running={this.props.running}
+                                        abort={this.props.handleTerminate}
+                                        optimize={this.props.handleOptimizeGear} />
                                 </Box>
+                                <Grid container spacing={1}>
+                                    {[...this.props.factors.keys()].map((idx) => (
+                                        <Grid item xs={12} sm={6} key={'factorform' + idx}>
+                                            <FactorForm {...this.props} idx={idx} />
+                                        </Grid>
+                                    ))}
+                                </Grid>
                             </Paper>
                         </Grid>
 

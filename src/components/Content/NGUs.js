@@ -175,7 +175,8 @@ class NGUComponent extends Component {
                                         <TextField label="Energy cap" value={energy.cap}
                                             onChange={(e) => this.handleChange(e, 'cap', -1, 0)} onFocus={this.handleFocus}
                                             type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatValue(energy.cap, false)} />
+                                            helperText={formatValue(energy.cap, false)}
+                                        />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Energy NGU speed" value={energy.nguspeed}
@@ -187,7 +188,8 @@ class NGUComponent extends Component {
                                         <TextField label="Magic cap" value={magic.cap}
                                             onChange={(e) => this.handleChange(e, 'cap', -1, 1)} onFocus={this.handleFocus}
                                             type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatValue(magic.cap, false)} />
+                                            helperText={formatValue(magic.cap, false)}
+                                        />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
                                         <TextField label="Magic NGU speed" value={magic.nguspeed}

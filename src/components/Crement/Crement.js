@@ -8,7 +8,7 @@ const Crement = ({ header, value, name, handleClick, min, max }) => {
     const displayValue = isInfinity ? '∞' : value;
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
             <Typography variant="body2" color="text.secondary">{header}:</Typography>
             <IconButton
                 onClick={() => handleClick(name, -1, min, max)}

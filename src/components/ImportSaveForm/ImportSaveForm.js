@@ -8,6 +8,7 @@ import { MassUpdate } from '../../actions/MassUpdateItems';
 import { Settings } from '../../actions/Settings';
 import { Deserializer } from './deserializeDotNet'
 import { RecordHistory } from '../../actions/History';
+import { ItemNameContainer } from '../../assets/ItemAux';
 
 
 // minimal boss for each zone, per difficulty
@@ -54,7 +55,7 @@ const normalZones = [
     [7, 3],
 ];
 
-const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
+const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) => {
     const dispatch = useDispatch();
 
     const optimizerState = useSelector(state => state.optimizer);
@@ -314,6 +315,38 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
         ))
     }
 
+    const updateEquipped = (data) => {
+        const inv = data.inventory;
+        const offhand = inv.weapon2 && inv.weapon2.id > 0 ? 1 : 0;
+        const accSlots = inv.accs.length;
+
+        let newEquip = ItemNameContainer(accSlots, offhand);
+
+        const setItem = (slot, idx, item) => {
+            if (item && item.id > 0) {
+                newEquip[slot][idx] = item.id;
+            }
+        };
+
+        setItem('head', 0, inv.head);
+        setItem('armor', 0, inv.chest);
+        setItem('pants', 0, inv.legs);
+        setItem('boots', 0, inv.boots);
+        setItem('weapon', 0, inv.weapon);
+        if (offhand) {
+            setItem('weapon', 1, inv.weapon2);
+        }
+
+        inv.accs.forEach((acc, i) => {
+            if (i < accSlots) {
+                setItem('accessory', i, acc);
+            }
+        });
+
+        dispatch(Settings("offhand", offhand));
+        dispatch(Settings("equip", newEquip));
+    }
+
     const disableUnownedItems = (foundIds, newData) => {
         for (let i of Object.keys(newData)) {
             if (!foundIds.includes(newData[i].id)) {
@@ -354,11 +387,23 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
         updateNgus(data)
         updateAugmentTab(data)
         updateHackTab(data)
+        updateEquipped(data)
     }
+
+    // Initialize liveSyncEnabled from persisted state or default to true
+    const liveSyncEnabled = optimizerState.liveSyncEnabled !== false;
 
     // Live Sync Listener
     React.useEffect(() => {
         let eventSource;
+
+        // Only connect if enabled
+        if (!liveSyncEnabled) {
+            setSyncStatus('disconnected');
+            if (onSyncStatusChange) onSyncStatusChange('disconnected');
+            return;
+        }
+
         const connect = () => {
             console.log("🔌 Attempting to connect to NGU Live Sync Bridge...");
             eventSource = new EventSource('http://localhost:3005/events');
@@ -366,16 +411,41 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
             eventSource.onopen = () => {
                 console.log("✅ Connected to Live Sync Bridge");
                 setSyncStatus('connected');
+                dispatch(Settings("liveSync", {
+                    ...optimizerState.liveSync,
+                    status: 'connected'
+                }));
                 if (onSyncStatusChange) onSyncStatusChange('connected');
             };
 
             eventSource.onmessage = (event) => {
-                console.log("📩 SSE Message received:", event.data.substring(0, 50) + "...");
+                console.log("📩 SSE Message received (length):", event.data.length);
                 try {
-                    const data = JSON.parse(event.data);
-                    console.log("⚡ Auto-Update: Received new save data from bridge");
-                    setHasReceivedData(true);
-                    applyData(data);
+                    let data;
+                    if (event.data.trim().startsWith('{')) {
+                        // Old JSON format
+                        data = JSON.parse(event.data);
+                    } else {
+                        // New Base64 format (native save)
+                        const extracted = handleFileRead({ name: "LiveSync.txt" }, event.data);
+                        if (extracted && extracted.fullData) {
+                            data = extracted.fullData;
+                        }
+                    }
+
+                    if (data) {
+                        console.log("⚡ Auto-Update: Received new save data from bridge");
+                        setHasReceivedData(true);
+
+                        // Update Redux Metrics
+                        dispatch(Settings("liveSync", {
+                            status: 'connected',
+                            lastUpdate: Date.now(),
+                            updateCount: (optimizerState.liveSync?.updateCount || 0) + 1
+                        }));
+
+                        applyData(data);
+                    }
                 } catch (err) {
                     console.error("❌ Error parsing live sync data:", err);
                 }
@@ -384,13 +454,19 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
             eventSource.onerror = (err) => {
                 console.warn("⚠️ Live Sync connection error. Current state:", eventSource.readyState);
                 if (eventSource.readyState === 2) {
-                    console.error("🚫 Connection closed by browser/server (Possible CORS or Mixed Content issue)");
+                    // console.error("🚫 Connection closed by browser/server");
                 }
                 setSyncStatus('error');
+                dispatch(Settings("liveSync", {
+                    ...optimizerState.liveSync,
+                    status: 'error'
+                }));
                 if (onSyncStatusChange) onSyncStatusChange('error');
                 eventSource.close();
-                // Retry after 10 seconds
-                setTimeout(connect, 10000);
+                // Retry after 10 seconds only if still enabled
+                if (liveSyncEnabled) {
+                    setTimeout(connect, 10000);
+                }
             };
         };
 
@@ -399,8 +475,12 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
         return () => {
             if (eventSource) eventSource.close();
         };
-    }, []); // Only run once on mount
+    }, [liveSyncEnabled]); // Run when enabled state changes
 
+    const toggleLiveSync = () => {
+        const newValue = !liveSyncEnabled;
+        dispatch(Settings("liveSyncEnabled", newValue));
+    }
 
 
     const handleFilePick = async (e) => {
@@ -448,12 +528,12 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
 
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 0.5 }}>
             <Box sx={{
                 display: 'flex',
-                gap: 1.5,
-                width: '100%',
-                mb: 1
+                alignItems: 'center',
+                gap: 1,
+                width: '100%'
             }}>
                 <input ref={inputElem} style={{ display: "none" }} type='file' id='savefileloader'
                     multiple onChange={e => handleFilePick(e)} />
@@ -463,54 +543,77 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange }) => {
                         variant="contained"
                         color="primary"
                         onClick={() => inputElem.current.click()}
-                        startIcon={<UploadFileIcon />}
                         sx={{
                             borderRadius: '8px',
-                            flex: 1,
-                            py: 0.8,
+                            flex: '1 1 auto',
+                            py: 0.5,
+                            minWidth: 0,
                             fontWeight: 700,
-                            fontSize: '0.85rem'
                         }}
                     >
-                        Manual Import
+                        Import
                     </Button>
                 </Tooltip>
 
                 <Button
                     variant="outlined"
                     onClick={() => setGuideOpen(true)}
-                    startIcon={<span style={{ fontSize: '1.1rem' }}>📡</span>}
+                    disabled={!liveSyncEnabled}
                     sx={{
                         borderRadius: '8px',
-                        flex: 1,
-                        py: 0.8,
-                        fontSize: '0.85rem',
+                        flex: '1 1 auto',
+                        py: 0.5,
+                        minWidth: 0,
                         fontWeight: 700,
-                        borderColor: 'primary.main',
-                        color: 'primary.main',
-                        background: 'rgba(0, 255, 255, 0.02)',
+                        borderColor: liveSyncEnabled ? 'primary.main' : 'action.disabled',
+                        color: liveSyncEnabled ? 'primary.main' : 'action.disabled',
+                        background: liveSyncEnabled ? 'rgba(0, 255, 255, 0.02)' : 'transparent',
                         '&:hover': {
-                            borderColor: 'primary.light',
-                            background: 'rgba(0, 255, 255, 0.08)',
+                            borderColor: liveSyncEnabled ? 'primary.light' : 'action.disabled',
+                            background: liveSyncEnabled ? 'rgba(0, 255, 255, 0.08)' : 'transparent',
                         }
                     }}
                 >
-                    Live Sync
+                    Live Sync {liveSyncEnabled && (syncStatus === 'connected' ? '🟢' : '🔴')}
                 </Button>
             </Box>
 
-            {!hideSwitch && (
-                <FormControlLabel
-                    control={
-                        <Switch
-                            size="small"
-                            checked={disableItems}
-                            onChange={() => setDisableItems(!disableItems)}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '0 0 auto', mr: 1 }}>
+                    <Tooltip title="Enable/Disable Live Sync Connection" arrow>
+                        <FormControlLabel
+                            sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
+                            control={
+                                <Switch
+                                    size="small"
+                                    checked={liveSyncEnabled}
+                                    onChange={toggleLiveSync}
+                                />
+                            }
+                            label="Enable Live Sync"
                         />
-                    }
-                    label={<Typography variant="caption">Disable unowned</Typography>}
-                />
-            )}
+                    </Tooltip>
+                </Box>
+
+                {!hideSwitch && (
+                    <Box sx={{ flex: '0 0 auto', mr: 1 }}>
+                        <Tooltip title="Disable unowned items upon import" arrow>
+                            <FormControlLabel
+                                sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
+                                control={
+                                    <Switch
+                                        size="small"
+                                        checked={disableItems}
+                                        onChange={() => setDisableItems(!disableItems)}
+                                    />
+                                }
+                                label="Disable unowned"
+                            />
+                        </Tooltip>
+                    </Box>
+                )}
+                {children}
+            </Box>
 
             {/* Sync Setup Dialog */}
             <Dialog open={guideOpen} onClose={() => setGuideOpen(false)} maxWidth="sm" fullWidth>

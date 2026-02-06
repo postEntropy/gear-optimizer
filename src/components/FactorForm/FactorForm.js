@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import ListSubheader from '@mui/material/ListSubheader';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import Typography from '@mui/material/Typography';
 import SearchIcon from '@mui/icons-material/Search';
 import { Factors, FactorGroups } from '../../assets/ItemAux';
 import { default as Crement } from '../Crement/Crement';
@@ -43,7 +44,10 @@ const FactorForm = (props) => {
     const accslots = equip.accessory.length;
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Typography variant="caption" sx={{ fontWeight: 900, opacity: 0.3, width: '20px' }}>
+                #{idx + 1}
+            </Typography>
             <FormControl size="small" sx={{ width: 200 }}>
                 <Select
                     value={factorKey}
