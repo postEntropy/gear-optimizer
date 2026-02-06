@@ -1,6 +1,6 @@
-# Gear Optimizer - Material 3 Edition ✨
+# Gear Optimizer - Enhanced Edition ✨
 
-A modernized, high-performance fork of the original **Gear Optimizer** for NGU Idle. Redesigned with **Material 3 Expressive** aesthetics and powered by a lightning-fast React engine.
+A modernized, high-performance fork of the original **Gear Optimizer** for NGU Idle. Redesigned with a sleek modern aesthetic and powered by a lightning-fast React engine.
 
 [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/react-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)](https://reactjs.org/)
@@ -12,10 +12,10 @@ A modernized, high-performance fork of the original **Gear Optimizer** for NGU I
 
 ## 🎨 Fresh Look, New Powers
 ![Home Page](src/assets/readme/home.png)
-*Experience NGU Idle optimization with a sleek, responsive Material 3 interface.*
+*Experience NGU Idle optimization with a sleek, responsive modern interface.*
 
 ### ✨ Highlights
-- **Material 3 Design**: Dynamic colors, glassmorphism, and smooth animations.
+- **Modern Design**: Dynamic colors, glassmorphism, and smooth animations.
 - **Instant Performance**: Powered by Vite and React for zero-lag interactions.
 - **Smart History**: Track your progress across rebirths with detailed charts.
 - **Growth Analysis**: Visualize NGU and Hack efficiency with "best gain" highlighting.
@@ -37,7 +37,7 @@ Stop manually exporting and importing saves! **Live Sync** connects the optimize
 
 ## 🚀 Features Deep Dive
 
-### 🛒 Gear Optimization
+### ⚔️ Gear Optimization
 Calculate the mathematically perfect loadout for your current stats, factoring in Power, Toughness, NGU Speed, Gold Drops, and more with high-precision math.
 
 ### 💹 Growth Efficiency
