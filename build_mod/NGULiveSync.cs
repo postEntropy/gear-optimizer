@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using BepInEx;
-using Newtonsoft.Json;
 using HarmonyLib;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("Live Sync Mod Loaded (v12)! Waiting for browser...");
+            Logger.LogInfo("Live Sync Mod Loaded (v13)! Using native serialization (No-Crash).");
         }
 
         void StartServer() {
@@ -66,11 +65,10 @@ namespace NGULiveSync {
             } catch { }
         }
 
-        public static void BroadcastData(PlayerData pd) {
+        public static void BroadcastData(string b64) {
             try {
-                if (pd != null) {
-                    string json = JsonConvert.SerializeObject(pd);
-                    byte[] data = Encoding.UTF8.GetBytes("data: " + json + "\n\n");
+                if (!string.IsNullOrEmpty(b64)) {
+                    byte[] data = Encoding.UTF8.GetBytes("data: " + b64 + "\n\n");
                     lock(_clients) {
                         for (int i = _clients.Count - 1; i >= 0; i--) {
                             try { 
@@ -87,14 +85,9 @@ namespace NGULiveSync {
         }
     }
 
-    [HarmonyPatch(typeof(Character), "Start")]
-    public static class Patch_Character_Start {
-        static void Postfix(Character __instance) { LiveSyncPlugin.Character = __instance; }
-    }
-
-    [HarmonyPatch(typeof(ImportExport), "gameStateToData")]
+    [HarmonyPatch(typeof(ImportExport), "getBase64Data")]
     public static class Patch_Save {
-        static void Postfix(PlayerData __result) {
+        static void Postfix(string __result) {
             LiveSyncPlugin.BroadcastData(__result);
         }
     }
