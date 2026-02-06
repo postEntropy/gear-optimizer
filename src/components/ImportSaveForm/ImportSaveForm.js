@@ -622,7 +622,11 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
                 maxWidth="sm"
                 fullWidth
                 PaperProps={{
-                    sx: { bgcolor: 'background.paper', backgroundImage: 'none' }
+                    sx: {
+                        bgcolor: 'white',
+                        backgroundImage: 'none',
+                        boxShadow: 24
+                    }
                 }}
             >
                 <DialogContent sx={{ p: 4, position: 'relative' }}>
