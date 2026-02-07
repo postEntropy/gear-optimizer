@@ -164,6 +164,29 @@ class HackComponent extends Component {
         }
 
 
+
+        // Lock Speed Logic: Adjust hackspeed if Hack Hack (index 13) bonus changes
+        if (!hackstats.lockSpeed && name !== 'hackspeed') {
+            const hhidx = 13;
+            // Existing state from props
+            const oldOptimizer = new Hack(this.props);
+            const oldLevel = this.props.hackstats.hacks[hhidx].level;
+            const oldBonus = oldOptimizer.bonus(oldLevel, hhidx);
+
+            // Simulated new state
+            const newOptimizer = new Hack({
+                ...this.props,
+                hackstats: hackstats
+            });
+            const newLevel = hackstats.hacks[hhidx].level;
+            const newBonus = newOptimizer.bonus(newLevel, hhidx);
+
+            if (oldBonus !== 0) {
+                // Adjust speed to maintain consistency given the new bonus
+                hackstats.hackspeed = hackstats.hackspeed * newBonus / oldBonus;
+            }
+        }
+
         this.props.handleSettings('hackstats', hackstats);
     }
 
@@ -308,7 +331,7 @@ class HackComponent extends Component {
                                             inputProps={{ step: "any" }}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={12}>
+                                    <Grid item xs={6} sm={6}>
                                         <FormControlLabel
                                             control={
                                                 <Switch
@@ -318,6 +341,21 @@ class HackComponent extends Component {
                                                 />
                                             }
                                             label="Highlight Best Gain"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} sm={6}>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={this.props.hackstats.lockSpeed}
+                                                    onChange={() => this.props.handleSettings('hackstats', {
+                                                        ...this.props.hackstats,
+                                                        lockSpeed: !this.props.hackstats.lockSpeed
+                                                    })}
+                                                    color="primary"
+                                                />
+                                            }
+                                            label="Lock Speed"
                                         />
                                     </Grid>
                                     <Grid item xs={6} sm={6}>
@@ -645,8 +683,8 @@ class HackComponent extends Component {
                             </TableBody>
                         </Table>
                     </Paper>
-                </form>
-            </Box>
+                </form >
+            </Box >
         );
     };
 }

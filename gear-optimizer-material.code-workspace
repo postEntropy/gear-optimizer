@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../gear-optimizer-original/gear-optimizer-master"
 		}
 	],
 	"settings": {

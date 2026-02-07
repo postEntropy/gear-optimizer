@@ -336,6 +336,9 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
     }
 
     const updateEquipped = (data) => {
+        // Check if syncEquip is enabled in Redux state
+        if (!stateRef.current.syncEquip) return;
+
         const inv = data.inventory;
         const offhand = inv.weapon2 && inv.weapon2.id > 0 ? 1 : 0;
         const accSlots = inv.accs.length;
@@ -382,7 +385,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
         }
     }
 
-    const applyData = (data) => {
+    const applyData = (data, fromLiveSync = false) => {
 
         let newItemData = {};
         Object.keys(stateRef.current.itemdata).forEach(key => {
@@ -464,7 +467,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
                             updateCount: (stateRef.current.liveSync?.updateCount || 0) + 1
                         }));
 
-                        applyData(data);
+                        applyData(data, true);
                     }
                 } catch (err) {
                     console.error("❌ Error parsing live sync data:", err);
@@ -600,6 +603,22 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                 <Box sx={{ flex: '0 0 auto', mr: 1 }}>
+                    <Tooltip title="When enabled, Live Sync will update your Current Equipment automatically. Disable to view/edit Saved Loadouts without interruption." arrow>
+                        <FormControlLabel
+                            sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
+                            control={
+                                <Switch
+                                    size="small"
+                                    checked={optimizerState.syncEquip !== false}
+                                    onChange={() => dispatch(Settings("syncEquip", !optimizerState.syncEquip))}
+                                />
+                            }
+                            label="Sync Equipment"
+                        />
+                    </Tooltip>
+                </Box>
+
+                <Box sx={{ flex: '0 0 auto', mr: 1 }}>
                     <Tooltip title="Enable/Disable Live Sync Connection" arrow>
                         <FormControlLabel
                             sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
@@ -733,7 +752,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
                     </Button>
                 </DialogContent>
             </Dialog>
-        </Box>
+        </Box >
     )
 }
 

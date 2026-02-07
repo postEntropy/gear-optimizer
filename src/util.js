@@ -297,15 +297,11 @@ export const speedmodifier = (stats, state, factors, effect, exponent = 1) => {
     if (!stats.modifiers) {
         return 1;
     }
-    stats.currentLoadout = stats.currentLoadout < 0
-        ? 0
-        : stats.currentLoadout;
-    stats.dedicatedLoadout = stats.dedicatedLoadout < 0
-        ? 0
-        : stats.dedicatedLoadout;
+    const currentLoadout = stats.currentLoadout < 0 ? 0 : stats.currentLoadout;
+    const dedicatedLoadout = stats.dedicatedLoadout < 0 ? 0 : stats.dedicatedLoadout;
     let itemdata = cubeBaseItemData(state.itemdata, state.cubestats, state.basestats);
-    let currentBonus = score_equip(itemdata, state.savedequip[stats.currentLoadout], factors, state.offhand * 5, state.capstats);
-    let dedicatedBonus = score_equip(itemdata, state.savedequip[stats.dedicatedLoadout], factors, state.offhand * 5, state.capstats);
+    let currentBonus = score_equip(itemdata, state.savedequip[currentLoadout], factors, state.offhand * 5, state.capstats);
+    let dedicatedBonus = score_equip(itemdata, state.savedequip[dedicatedLoadout], factors, state.offhand * 5, state.capstats);
     let blueHeart = stats.blueHeart
         ? 1.1
         : 1;

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Paper, Typography, Grid } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import { Box, Paper, Typography, Grid, Divider, Button } from '@mui/material';
 import { TargetItem } from '../Item/Item'
 import { EmptySlot, Factors, Slot } from '../../assets/ItemAux'
 import { cubeBaseItemData, score_equip, shorten } from '../../util'
@@ -29,29 +29,6 @@ function equip2url(equip, itemdata) {
     return encodeURI(url);
 }
 
-function compare_factory(key) {
-    return function (prop) {
-        return function (a, b) {
-            a = prop[a];
-            b = prop[b];
-            if (a === undefined || a[key] === undefined || b === undefined || b[key] === undefined) {
-                return true;
-            }
-            if (a[key][1] !== b[key][1]) {
-                return a[key][1] - b[key][1];
-            }
-            return a.slot[1] - b.slot[1];
-        }
-    }
-}
-
-function group(a, b, g) {
-    if (a[g] === undefined || b[g] === undefined) {
-        return false;
-    }
-    return a[g][1] !== b[g][1];
-}
-
 const formatted = (val, stat, d) => {
     if (val === Infinity) {
         return '(+∞%)';
@@ -79,192 +56,324 @@ const formatted = (val, stat, d) => {
     return pf + num + sf
 };
 
-class BonusLine extends React.Component {
-    diffclass(old, val) {
-        let color = 'text.primary';
-        if (old < val) {
-            color = 'success.main';
-        } else if (old > val) {
-            color = 'error.main';
+const BonusLine = ({ factor, factors, itemdata, equip, savedequip, compactbonus, offhand, capstats }) => {
+    const diffclass = (old, val) => {
+        if (old < val) return 'success.main';
+        if (old > val) return 'error.main';
+        return 'text.primary';
+    };
+
+    const stat = factor[0];
+    let priority = false;
+    let fontWeight = 'normal';
+
+    for (let idx = 0; idx < factors.length; idx++) {
+        if (stat === Factors[factors[idx]][0]) {
+            priority = true;
+            fontWeight = 'bold';
+            break;
         }
-        return color;
     }
 
-    render() {
-        let stat = this.props.factor[0];
-        let priority = false;
-        let fontWeight = 'normal';
-        for (let idx = 0; idx < this.props.factors.length; idx++) {
-            if (stat === Factors[this.props.factors[idx]][0]) {
-                priority = true;
-                fontWeight = 'bold';
-                break;
-            }
-        }
-        if (this.props.compactbonus && !priority) {
-            return <></>;
-        }
-        let val = score_equip(this.props.itemdata, this.props.equip, this.props.factor, this.props.offhand, this.props.capstats);
-        let old = score_equip(this.props.itemdata, this.props.savedequip, this.props.factor, this.props.offhand, this.props.capstats);
-        let diff_val;
-        if (stat === 'Power' || stat === 'Toughness' || stat === 'Respawn') {
-            val *= 100;
-            old *= 100;
-        }
-        if (stat === 'Respawn') {
-            diff_val = val - old;
-        } else {
-            diff_val = val === old
-                ? 0
-                : 100 * (val / old - 1);
-        }
-        let colorDiff = this.diffclass(old, val);
-        let diff = (<Typography component="span" sx={{ color: colorDiff }}>
-            {formatted(diff_val, stat, true)}
-        </Typography>);
-        let text = (<Typography component="span" sx={{ fontWeight }}>
-            {this.props.factor[0] + ': ' + formatted(val, stat, false) + ' '}
-            {diff}</Typography>);
-        return (<> {
-            text
-        }<br /></>);
-    }
-}
-
-export default class EquipTable extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            open: false
-        };
-        this.itemdata = cubeBaseItemData(props.itemdata, props.cubestats, props.basestats);
+    if (compactbonus && !priority) {
+        return null;
     }
 
-    render_equip(equip, prefix, compare, buffer, handleClickItem, handleCtrlClickItem, handleShiftClickItem, lockable) {
+    let val = score_equip(itemdata, equip, factor, offhand, capstats);
+    let old = score_equip(itemdata, savedequip, factor, offhand, capstats);
+    let diff_val;
 
-        this.itemdata = cubeBaseItemData(this.props.itemdata, this.props.cubestats, this.props.basestats);
-        let sorted = Object.getOwnPropertyNames(Slot).sort((a, b) => Slot[a][1] - Slot[b][1]).reduce((res, slot) => res.concat(equip[Slot[slot][0]]), []);
-        let localbuffer = [];
-        let last = new EmptySlot();
-        let typeIdx = 0;
-        for (let idx = 0; idx < sorted.length; idx++) {
-            const id = sorted[idx];
-            const item = this.itemdata[id];
-            if (item === undefined) {
-                // fixes some bugs when loading new gear optimizer version
-                continue
-            }
-            if (item.slot === Slot.OTHER) {
-                continue;
-            }
-            const next = group(last, item, this.props.group);
-            if (next) {
-                typeIdx = idx;
-                if (item.slot[0] === Slot.ACCESSORY[0]) {
-                    buffer.push(
-                        <Grid item xs={12} key={this.class_idx++}>
-                            <Paper elevation={0} variant="outlined" sx={{ p: 1 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>{prefix + 'Outfit'}</Typography>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{localbuffer}</Box>
-                            </Paper>
-                        </Grid>
-                    );
-                    localbuffer = [];
-                }
-            }
-            localbuffer.push(<TargetItem item={item} idx={idx - typeIdx} lockable={lockable} locked={this.props.locked}
-                handleClickItem={handleClickItem} handleCtrlClickItem={handleCtrlClickItem}
-                handleShiftClickItem={handleShiftClickItem}
-                handleRightClickItem={(itemId) => this.props.handleRightClickItem(itemId, true)}
-                handleDropItem={this.props.handleDropItem}
-                key={id + '_' + idx} />);
-            last = item;
-        }
-        buffer.push(
-            <Grid item xs={12} key={this.class_idx++} >
-                <Paper elevation={0} variant="outlined" sx={{ p: 1 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>{prefix + 'Accessories'}</Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>{localbuffer}</Box>
-                </Paper>
-            </Grid>
-        );
+    if (stat === 'Power' || stat === 'Toughness' || stat === 'Respawn') {
+        val *= 100;
+        old *= 100;
     }
 
-    render_conditional(condition, title, buffer, handleCtrlClickItem, handleShiftClickItem) {
-        const short = 'hide' + title.toLowerCase().replace(/\s/g, '');
-        let sorted = this.props.items.filter((id) => (condition(id) && this.itemdata[id].level !== undefined));
-        let localbuffer = [];
-        for (let idx = 0; idx < sorted.length; idx++) {
-            let id = sorted[idx];
-            const item = this.itemdata[id];
-            localbuffer.push(<TargetItem item={item} lockable={false} handleClickItem={this.props.handleEquipItem}
+    if (stat === 'Respawn') {
+        diff_val = val - old;
+    } else {
+        diff_val = val === old ? 0 : 100 * (val / old - 1);
+    }
+
+    const colorDiff = diffclass(old, val);
+
+    return (
+        <>
+            <Typography component="span" sx={{ fontWeight }}>
+                {factor[0] + ': ' + formatted(val, stat, false) + ' '}
+                <Typography component="span" sx={{ color: colorDiff }}>
+                    {formatted(diff_val, stat, true)}
+                </Typography>
+            </Typography>
+            <br />
+        </>
+    );
+};
+
+// Simplified component without heavy memoization overhead for cleaner fast renders
+const EquipmentSection = ({ equip, prefix, itemdata, group, locked, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, lockable, bgColor = 'transparent' }) => {
+
+    // Calculate sections immediately - optimized enough without useMemo for this amount of data
+    // to avoid overhead of dependency checking on every prop change
+    const sorted = Object.getOwnPropertyNames(Slot)
+        .sort((a, b) => Slot[a][1] - Slot[b][1])
+        .reduce((res, slot) => res.concat(equip[Slot[slot][0]]), []);
+
+    const result = [];
+    let localbuffer = [];
+    let last = new EmptySlot();
+    let typeIdx = 0;
+    let classIdx = 0;
+
+    const groupFunc = (a, b, g) => {
+        if (a[g] === undefined || b[g] === undefined) {
+            return false;
+        }
+        return a[g][1] !== b[g][1];
+    };
+
+    for (let idx = 0; idx < sorted.length; idx++) {
+        const id = sorted[idx];
+        const item = itemdata[id];
+
+        if (item === undefined || item.slot === Slot.OTHER) {
+            continue;
+        }
+
+        const next = groupFunc(last, item, group);
+
+        if (next) {
+            typeIdx = idx;
+            if (item.slot[0] === Slot.ACCESSORY[0]) {
+                result.push({
+                    key: classIdx++,
+                    title: prefix + 'Outfit',
+                    items: [...localbuffer]
+                });
+                localbuffer = [];
+            }
+        }
+
+        localbuffer.push(
+            <TargetItem
+                item={item}
+                idx={idx - typeIdx}
+                lockable={lockable}
+                locked={locked}
+                handleClickItem={handleClickItem}
                 handleCtrlClickItem={handleCtrlClickItem}
                 handleShiftClickItem={handleShiftClickItem}
-                handleRightClickItem={(itemId) => this.props.handleRightClickItem(itemId, false)}
-                handleDropItem={this.props.handleDropItem}
-                key={id} />);
-        }
-        if (localbuffer.length > 0) {
-            buffer.push(
-                <Grid item xs={12} key={this.class_idx++}>
-                    <Paper sx={{ p: 1 }}>
-                        <Typography
-                            variant="subtitle2"
-                            onClick={() => this.props.handleSettings(short, !this.props[short])}
-                            sx={{ cursor: 'pointer', mb: 1, fontWeight: 'bold' }}
-                        >
-                            {title}
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {this.props[short] ? undefined : localbuffer}
-                        </Box>
-                    </Paper>
-                </Grid>
-            );
-        }
+                handleRightClickItem={(itemId) => handleRightClickItem(itemId, true)}
+                handleDropItem={handleDropItem}
+                key={id + '_' + idx}
+            />
+        );
+        last = item;
     }
 
-    render() {
-        //TODO: sorting on every change is very inefficient
-        let buffer = [];
-        this.class_idx = 0;
-        const compare = compare_factory(this.props.group)(this.itemdata);
-        const equip = this.props.equip;
-        const savedequip = this.props.savedequip[this.props.savedidx];
-        this.render_equip(equip, '', compare, buffer, this.props.handleClickItem, this.props.handleCtrlClickItem, (itemId) => this.props.handleEditItem(itemId, -1), true);
-        buffer.push(
-            <Grid item xs={12} key='savebuttons'>
-                <SaveButtons {...this.props} loadoutURI={equip2url(equip, this.itemdata)}
-                    saveURI={equip2url(savedequip, this.itemdata)} key='savebuttons' />
+    result.push({
+        key: classIdx++,
+        title: prefix + 'Accessories',
+        items: [...localbuffer]
+    });
+
+    return (
+        <Paper elevation={0} sx={{ p: 1, backgroundColor: bgColor, borderRadius: 1 }}>
+            {/* Render flat list of grids to avoid excessive nesting */}
+            <Grid container spacing={1}>
+                {result.map(section => (
+                    <Grid item xs={12} key={section.key}>
+                        <Paper elevation={0} variant="outlined" sx={{ p: 1, bgcolor: 'background.paper' }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                                {section.title}
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                {section.items}
+                            </Box>
+                        </Paper>
+                    </Grid>
+                ))}
             </Grid>
-        )
-        if (this.props.showsaved) {
-            this.render_equip(savedequip, 'Saved ', compare, buffer, this.props.handleEquipItem, this.props.handleCtrlClickItem, false);
-        }
-        buffer.push(
-            <Grid item xs={12} key='stats'>
-                <Paper sx={{ p: 1, cursor: 'pointer' }} onClick={() => this.props.handleSettings('compactbonus', !this.props.compactbonus)}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Gear stats (change w.r.t. save slot)</Typography>
-                    <Box sx={{ mt: 1 }}>
-                        {Object.getOwnPropertyNames(Factors).map((factor) => (
-                            (factor === 'NONE' || factor === 'DELETE' || factor === 'INSERT')
-                                ? <div key={factor} />
-                                : <BonusLine itemdata={this.itemdata} equip={equip} savedequip={savedequip}
-                                    compactbonus={this.props.compactbonus} factor={Factors[factor]}
-                                    factors={this.props.factors} capstats={this.props.capstats}
-                                    offhand={this.props.offhand * 5} key={factor} />))}
+        </Paper>
+    );
+};
+
+// Export ConditionalSection for use in Optimizer.js
+export const ConditionalSection = ({ condition, title, items, itemdata, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem }) => {
+    // Default to collapsed (hidden)
+    const [expanded, setExpanded] = useState(false);
+
+    const filteredItems = useMemo(() => {
+        if (!expanded) return []; // optimization: don't calculate if closed
+        return items
+            .filter(id => condition(id) && itemdata[id].level !== undefined)
+            .map(id => (
+                <TargetItem
+                    item={itemdata[id]}
+                    lockable={false}
+                    handleClickItem={handleEquipItem}
+                    handleCtrlClickItem={handleCtrlClickItem}
+                    handleShiftClickItem={handleShiftClickItem}
+                    handleRightClickItem={(itemId) => handleRightClickItem(itemId, false)}
+                    handleDropItem={handleDropItem}
+                    key={id}
+                />
+            ));
+    }, [items, itemdata, condition, expanded, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem]);
+
+    // Calculate count even if collapsed to show in header
+    const count = useMemo(() => {
+        return items.filter(id => condition(id) && itemdata[id].level !== undefined).length;
+    }, [items, itemdata, condition]);
+
+    if (count === 0) return null;
+
+    return (
+        <Grid item xs={12}>
+            <Paper sx={{ p: 1, border: '1px solid', borderColor: 'divider' }}>
+                <Box
+                    onClick={() => setExpanded(!expanded)}
+                    sx={{
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        p: 0.5
+                    }}
+                >
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                        {title}
+                        <Typography component="span" variant="caption" sx={{ ml: 1, px: 1, py: 0.5, bgcolor: 'action.selected', borderRadius: 1 }}>
+                            {count}
+                        </Typography>
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        {expanded ? '▼' : '►'}
+                    </Typography>
+                </Box>
+                {expanded && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1.5, pt: 1.5, borderTop: '1px dashed', borderColor: 'divider' }}>
+                        {filteredItems}
+                    </Box>
+                )}
+            </Paper>
+        </Grid>
+    );
+};
+
+const EquipTable = (props) => {
+    const { viewMode = 'full' } = props;
+
+    // Keep heavy data calculation memoized
+    const itemdata = useMemo(() =>
+        cubeBaseItemData(props.itemdata, props.cubestats, props.basestats),
+        [props.itemdata, props.cubestats, props.basestats]
+    );
+
+    const equip = props.equip;
+    const savedequip = props.savedequip[props.savedidx];
+
+    const loadoutURIs = useMemo(() => ({
+        current: equip2url(equip, itemdata),
+        saved: equip2url(savedequip, itemdata)
+    }), [equip, savedequip, itemdata]);
+
+    const renderCurrent = () => (
+        <Grid item xs={12}>
+            <Paper elevation={2} sx={{ p: 2, border: '1px solid', borderColor: 'primary.light' }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center' }}>
+                    ⚔️ Current Equipment (In Use)
+                </Typography>
+
+                <EquipmentSection
+                    equip={equip}
+                    prefix=""
+                    itemdata={itemdata}
+                    group={props.group}
+                    locked={props.locked}
+                    handleClickItem={props.handleClickItem}
+                    handleCtrlClickItem={props.handleCtrlClickItem}
+                    handleShiftClickItem={(itemId) => props.handleEditItem(itemId, -1)}
+                    handleRightClickItem={props.handleRightClickItem}
+                    handleDropItem={props.handleDropItem}
+                    lockable={true}
+                />
+            </Paper>
+        </Grid>
+    );
+
+    const renderSaved = () => (
+        <>
+            <Grid item xs={12}>
+                <Paper elevation={2} sx={{ p: 2, mb: 1, border: '1px solid', borderColor: 'primary.light' }}>
+
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center' }}>
+                        💾 Saved Loadout
+                    </Typography>
+
+                    <EquipmentSection
+                        equip={savedequip}
+                        prefix=""
+                        itemdata={itemdata}
+                        group={props.group}
+                        locked={props.locked}
+                        handleClickItem={props.handleEquipItem}
+                        handleCtrlClickItem={props.handleCtrlClickItem}
+                        handleShiftClickItem={() => { }}
+                        handleRightClickItem={props.handleRightClickItem}
+                        handleDropItem={props.handleDropItem}
+                        lockable={false}
+                    />
+
+                    {/* Save Buttons & Controls */}
+                    <Box sx={{ mt: 2, mb: 2 }}>
+                        <SaveButtons
+                            {...props}
+                            loadoutURI={loadoutURIs.current}
+                            saveURI={loadoutURIs.saved}
+                        />
+                    </Box>
+
+                    {/* Stats Comparison */}
+                    <Box sx={{ mt: 2 }}>
+                        <Paper variant="outlined" sx={{ p: 1, cursor: 'pointer' }} onClick={() => props.handleSettings('compactbonus', !props.compactbonus)}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Gear stats (Saved vs. Current)</Typography>
+                            <Box sx={{ mt: 1 }}>
+                                {Object.getOwnPropertyNames(Factors).map((factor) => (
+                                    (factor === 'NONE' || factor === 'DELETE' || factor === 'INSERT')
+                                        ? <div key={factor} />
+                                        : <BonusLine
+                                            key={factor}
+                                            itemdata={itemdata}
+                                            equip={equip}
+                                            savedequip={savedequip}
+                                            compactbonus={props.compactbonus}
+                                            factor={Factors[factor]}
+                                            factors={props.factors}
+                                            capstats={props.capstats}
+                                            offhand={props.offhand * 5}
+                                        />
+                                ))}
+                            </Box>
+                        </Paper>
                     </Box>
                 </Paper>
             </Grid>
-        );
-        this.render_conditional(id => this.itemdata[id].level !== 100, 'Not maxed', buffer, this.props.handleCtrlClickItem, (itemId) => this.props.handleEditItem(itemId, -1));
-        this.render_conditional(id => this.itemdata[id].disable, 'Disabled', buffer, this.props.handleCtrlClickItem, (itemId) => this.props.handleEditItem(itemId, -1));
-        return (
-            <Box sx={{ width: '100%', height: '72vh', margin: 'auto', overflowY: 'auto', p: 1 }}>
-                <Grid container spacing={1}>
-                    {buffer}
-                </Grid>
-            </Box>
-        );
-    }
-}
+        </>
+    );
+
+    return (
+        <Box sx={{ width: '100%', height: '72vh', margin: 'auto', overflowY: 'auto', p: 1, ...props.sx }}>
+            <Grid container spacing={2}>
+                {(viewMode === 'full' || viewMode === 'left') && renderCurrent()}
+                {(viewMode === 'full') && (
+                    <Grid item xs={12}>
+                        <Divider sx={{ my: 0.5, borderBottomWidth: 3, borderColor: 'divider', opacity: 0.5 }} />
+                    </Grid>
+                )}
+                {(viewMode === 'full' || viewMode === 'right') && renderSaved()}
+            </Grid>
+        </Box>
+    );
+};
+
+export default EquipTable;

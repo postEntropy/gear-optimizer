@@ -101,6 +101,7 @@ export function cleanState(state, skipSaving = false) {
         ];
     }
     // remove non-existing factors
+    /*
     const tmpFactors = Object.getOwnPropertyNames(Factors);
     state.factors = state.factors.map(name => {
         if (!tmpFactors.includes(name)) {
@@ -108,6 +109,7 @@ export function cleanState(state, skipSaving = false) {
         }
         return name;
     });
+    */
     // clean no existing loadouts
     for (let idx = 0; idx < 3; idx++) {
         let name = ['ngu', 'hack', 'wish'][idx] + 'stats';

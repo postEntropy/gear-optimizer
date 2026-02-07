@@ -33,7 +33,7 @@ const SaveForm = (props) => {
             size="small"
             hiddenLabel
         >
-            {savedequip.map((save, idx) => {
+            {(savedequip || []).map((save, idx) => {
                 let tmpname = save.name === undefined
                     ? 'Slot with no name'
                     : save.name;

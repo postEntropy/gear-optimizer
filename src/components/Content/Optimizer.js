@@ -13,7 +13,7 @@ import { LOOTIES, PENDANTS } from '../../assets/Items';
 
 import { default as Crement } from '../Crement/Crement';
 import { default as ItemTable } from '../ItemTable/ItemTable';
-import { default as EquipTable } from '../ItemTable/EquipTable';
+import EquipTable, { ConditionalSection } from '../ItemTable/EquipTable';
 import { default as OptimizeButton } from '../OptimizeButton/OptimizeButton';
 import { default as FactorForm } from '../FactorForm/FactorForm';
 import { default as ItemForm } from '../ItemForm/ItemForm';
@@ -35,7 +35,9 @@ class Optimizer extends Component {
         super(props);
         this.state = {
             isReady: false,
-            syncStatus: 'disconnected'
+            isReady: false,
+            syncStatus: 'disconnected',
+            inventoryCollapsed: true
         };
         this.fresh = true;
         this.handleChange = this.handleChange.bind(this);
@@ -146,6 +148,7 @@ class Optimizer extends Component {
                                 locked={this.props.locked}
                                 offhand={this.props.offhand}
                                 syncStatus={this.state.syncStatus}
+                                optimizedEquip={this.props.optimizedEquip}
                             />
                         </Grid>
 
@@ -314,10 +317,16 @@ class Optimizer extends Component {
                         </Grid>
 
                         {/* Equipment List Row */}
+                        {/* Equipment List Row - REFACTORED */}
+                        {/* Left Column: Current Equipment + Inventory + Other Sections */}
                         <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 2 }}>
-                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block' }}>Current Equipment</Typography>
-                                <EquipTable {...this.props} group={'slot'} type='equip'
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <EquipTable
+                                    {...this.props}
+                                    group={'slot'}
+                                    type='equip'
+                                    viewMode='left'
+                                    sx={{ height: 'auto', p: 0 }}
                                     handleClickItem={this.props.handleUnequipItem}
                                     handleDropItem={this.props.handleDropEquipItem}
                                     handleCtrlClickItem={this.props.handleDisableItem}
@@ -325,21 +334,103 @@ class Optimizer extends Component {
                                         itemId: itemId,
                                         lockable: lockable,
                                         on: true
-                                    })} />
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 2 }}>
-                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block' }}>Inventory / Available</Typography>
-                                <ItemTable {...this.props} maxtitan={maxtitan} group={'zone'} type='items'
-                                    handleClickItem={this.props.handleEquipItem}
+                                    })}
+                                />
+
+                                {/* Inventory - Collapsible - Styled to match ConditionalSection */}
+                                <Paper sx={{ p: 1, border: '1px solid', borderColor: 'divider' }}>
+                                    <Box
+                                        onClick={() => this.setState(prev => ({ inventoryCollapsed: !prev.inventoryCollapsed }))}
+                                        sx={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            p: 0.5
+                                        }}
+                                    >
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                                            Inventory / Available
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                            {this.state.inventoryCollapsed ? '▼' : '▲'}
+                                        </Typography>
+                                    </Box>
+
+                                    {!this.state.inventoryCollapsed && (
+                                        <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px dashed', borderColor: 'divider' }}>
+                                            <ItemTable
+                                                {...this.props}
+                                                maxtitan={maxtitan}
+                                                group={'zone'}
+                                                type='items'
+                                                handleClickItem={this.props.handleEquipItem}
+                                                handleCtrlClickItem={this.props.handleDisableItem}
+                                                handleRightClickItem={(itemId) => this.props.handleToggleModal('edit item', {
+                                                    itemId: itemId,
+                                                    lockable: false,
+                                                    on: true
+                                                })}
+                                            />
+                                        </Box>
+                                    )}
+                                </Paper>
+
+                                {/* Conditional Sections - Filtered Items */}
+                                <ConditionalSection
+                                    condition={id => this.itemdata[id].level !== 100}
+                                    title="Not maxed"
+                                    items={this.props.items}
+                                    itemdata={this.itemdata}
+                                    handleEquipItem={this.props.handleEquipItem}
                                     handleCtrlClickItem={this.props.handleDisableItem}
+                                    handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
                                     handleRightClickItem={(itemId) => this.props.handleToggleModal('edit item', {
                                         itemId: itemId,
                                         lockable: false,
                                         on: true
-                                    })} />
-                            </Paper>
+                                    })}
+                                    handleDropItem={this.props.handleDropEquipItem}
+                                />
+
+                                <ConditionalSection
+                                    condition={id => this.itemdata[id].disable}
+                                    title="Disabled Items"
+                                    items={this.props.items}
+                                    itemdata={this.itemdata}
+                                    handleEquipItem={this.props.handleEquipItem}
+                                    handleCtrlClickItem={this.props.handleDisableItem}
+                                    handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
+                                    handleRightClickItem={(itemId) => this.props.handleToggleModal('edit item', {
+                                        itemId: itemId,
+                                        lockable: false,
+                                        on: true
+                                    })}
+                                    handleDropItem={this.props.handleDropEquipItem}
+                                />
+                            </Box>
+                        </Grid>
+
+                        {/* Right Column: Saved Loadouts */}
+                        <Grid item xs={12} md={6}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                {/* Saved Loadouts Section */}
+                                <EquipTable
+                                    {...this.props}
+                                    group={'slot'}
+                                    type='equip'
+                                    viewMode='right'
+                                    sx={{ height: 'auto', p: 0 }}
+                                    handleClickItem={this.props.handleUnequipItem} // Passed but unused by Saved section (uses handleEquipItem from props)
+                                    handleDropItem={this.props.handleDropEquipItem}
+                                    handleCtrlClickItem={this.props.handleDisableItem}
+                                    handleRightClickItem={(itemId, lockable) => this.props.handleToggleModal('edit item', {
+                                        itemId: itemId,
+                                        lockable: lockable,
+                                        on: true
+                                    })}
+                                />
+                            </Box>
                         </Grid>
                     </Grid>
 

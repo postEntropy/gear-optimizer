@@ -73,16 +73,13 @@ class SaveButtons extends Component {
                 </Stack>
 
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ mb: 1 }}>
-                    <Button variant="contained" onClick={this.props.handleSaveSlot} size="small">Save</Button>
+                    <Button variant="contained" onClick={this.props.handleSaveSlot} size="small">Save Current Equipment</Button>
                     <Button variant="contained" onClick={this.props.handleLoadSlot} size="small">Load</Button>
                     <Button variant="contained" color="error" onClick={() => {
                         if (window.confirm('Are you sure you wish to delete this saved loadout?')) {
                             this.props.handleDeleteSlot()
                         }
                     }} size="small">Delete</Button>
-                    <Button variant="outlined" onClick={this.props.handleToggleSaved} size="small">
-                        {this.props.showsaved ? 'Hide' : 'Show'}
-                    </Button>
                     <Button variant="outlined" onClick={this.props.handleLoadFactors} size="small" disabled={this.props.savedequip[this.props.savedidx].factors === undefined}>
                         {this.props.savedequip[this.props.savedidx].factors === undefined ? 'No Priorities Saved...' : 'Load Priorities'}
                     </Button>

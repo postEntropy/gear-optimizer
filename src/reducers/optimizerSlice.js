@@ -60,6 +60,7 @@ const INITIAL_STATE = {
     items: ITEMS.names,
     offhand: offhand,
     equip: ItemNameContainer(accslots, offhand),
+    optimizedEquip: null,
     locked: {},
     lastequip: ItemNameContainer(accslots, offhand),
     savedequip: [ItemNameContainer(accslots, offhand)],
@@ -245,6 +246,7 @@ const INITIAL_STATE = {
         lastUpdate: null,
         updateCount: 0
     },
+    syncEquip: true,
     version: '2.0.0'
 };
 
@@ -588,6 +590,7 @@ const optimizerSlice = createSlice({
                 if (!state.running) return;
                 // console.log('worker finished')
                 state.equip = action.payload.equip;
+                state.optimizedEquip = action.payload.equip;
                 state.lastequip = state.equip;
                 state.running = false;
             })
@@ -625,6 +628,14 @@ const optimizerSlice = createSlice({
                         name: state.savedequip[state.savedidx].name
                     };
                     state.savedequip[state.savedidx] = newSave;
+
+                    // If we just saved to the last slot (which was "New Slot"), create a new empty slot
+                    if (state.savedidx === state.savedequip.length - 1) {
+                        state.savedequip.push({
+                            ...ItemNameContainer(state.equip.accessory.length, state.offhand),
+                        });
+                        state.maxsavedidx++;
+                    }
                 }
             })
             .addCase(LOAD_SLOT, (state) => {

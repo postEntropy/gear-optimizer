@@ -88,6 +88,7 @@ const App = () => {
         highlightBest: state.highlightBest,
         version: state.version,
         loaded: state.loaded,
+        optimizedEquip: state.optimizedEquip,
     }), [state]);
 
     // Actions
@@ -142,7 +143,7 @@ const App = () => {
 
     // Debounced save
     const saveState = (currentState) => {
-        if (currentState && document.cookie.includes('accepts-cookies=true')) {
+        if (currentState) {
             window.localStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
                 ...currentState,
                 loaded: false

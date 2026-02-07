@@ -57,10 +57,13 @@ const hudStyles = {
     })
 };
 
-const Paperdoll = ({ equip, itemdata, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, locked, offhand, syncStatus = 'disconnected' }) => {
+const Paperdoll = ({ equip, optimizedEquip, itemdata, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, locked, offhand, syncStatus = 'disconnected' }) => {
+
+    // Use optimizedEquip for display if available, otherwise fallback to current equip
+    const displayEquip = optimizedEquip || equip;
 
     const renderSlot = (slotType, index = 0, label = '') => {
-        const itemId = equip[slotType][index];
+        const itemId = displayEquip[slotType][index];
         const item = itemdata[itemId];
         const isActive = !!(item && !item.empty);
 
@@ -114,7 +117,7 @@ const Paperdoll = ({ equip, itemdata, handleClickItem, handleCtrlClickItem, hand
             </Box>
 
             <Typography variant="overline" sx={{ letterSpacing: 6, fontWeight: 900, color: 'primary.main', mb: 4, opacity: 0.8 }}>
-                GEAR DIAGNOSTICS
+                GEAR OPTIMIZER
             </Typography>
 
             <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
@@ -157,7 +160,7 @@ const Paperdoll = ({ equip, itemdata, handleClickItem, handleCtrlClickItem, hand
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5 }}>
                     <Typography variant="caption" sx={{ color: 'primary.main', opacity: 0.6, fontSize: '0.55rem', mb: 1, pl: 1 }}>AUGMENTS</Typography>
                     <Grid container columns={3} spacing={1} sx={{ width: 210 }}>
-                        {equip[Slot.ACCESSORY[0]].map((_, idx) => (
+                        {displayEquip[Slot.ACCESSORY[0]].map((_, idx) => (
                             <Grid item xs={1} key={`acc-${idx}`}>
                                 {renderSlot(Slot.ACCESSORY[0], idx, `A${idx + 1}`)}
                             </Grid>
