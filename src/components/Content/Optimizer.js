@@ -35,7 +35,6 @@ class Optimizer extends Component {
         super(props);
         this.state = {
             isReady: false,
-            isReady: false,
             syncStatus: 'disconnected',
             inventoryCollapsed: true
         };
