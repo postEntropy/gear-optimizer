@@ -187,19 +187,39 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
         let augdata = data.challenges
         nac = augdata.noAugsChallenge.curCompletions
         lsc = augdata.laserSwordChallenge.curCompletions
-        dispatch(Settings("augstats", { ...optimizerState.augstats, lsc: lsc, nac: nac, ecap: energyCap }))
+        dispatch(Settings("augstats", { ...stateRef.current.augstats, lsc: lsc, nac: nac, ecap: energyCap }))
     }
 
+    const stateRef = useRef(optimizerState);
+    React.useEffect(() => {
+        stateRef.current = optimizerState;
+    }, [optimizerState]);
+
     const updateHackTab = (data) => {
-        let hacks = data.hacks.hacks;
+        if (!data || !data.hacks || !data.hacks.hacks) return;
 
+        // Use the ref to get the absolute LATEST state, avoiding closure bugs
+        const currentHackstats = stateRef.current.hackstats;
 
+        console.log("🛠️ updateHackTab called. Current rpow:", currentHackstats.rpow, "Current rcap:", currentHackstats.rcap);
 
-        // Deep copy hackstats to avoid mutating read-only Redux state
-        let newState = JSON.parse(JSON.stringify(optimizerState.hackstats));
-        for (let i = 0; i < newState.hacks.length; i++) {
-            newState.hacks[i].level = hacks[i].level
-        }
+        // Create a clean new state based on CURRENT hackstats
+        // We ONLY update the levels, keeping rpow, rcap, and hackspeed as they are
+        let newHacks = currentHackstats.hacks.map((h, i) => {
+            const importedHack = data.hacks.hacks[i];
+            return {
+                ...h,
+                level: importedHack ? importedHack.level : h.level
+            };
+        });
+
+        const newState = {
+            ...currentHackstats,
+            hacks: newHacks
+        };
+
+        // Explicitly ensuring we don't accidentally merge anything else
+        console.log("📤 Dispatching hackstats. rpow should be:", newState.rpow);
         dispatch(Settings("hackstats", newState));
     }
 
@@ -296,7 +316,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
             mngus.push(temp)
         }
 
-        let newState = JSON.parse(JSON.stringify(optimizerState.ngustats));
+        let newState = JSON.parse(JSON.stringify(stateRef.current.ngustats));
 
         newState.quirk.e2n = data.beastQuest.quirkLevel[14] > 0
         newState.quirk.s2e = data.beastQuest.quirkLevel[89] > 0
@@ -365,8 +385,8 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
     const applyData = (data) => {
 
         let newItemData = {};
-        Object.keys(optimizerState.itemdata).forEach(key => {
-            const item = optimizerState.itemdata[key];
+        Object.keys(stateRef.current.itemdata).forEach(key => {
+            const item = stateRef.current.itemdata[key];
             newItemData[key] = Object.assign(Object.create(Object.getPrototypeOf(item)), item);
         });
 
@@ -441,7 +461,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
                         dispatch(Settings("liveSync", {
                             status: 'connected',
                             lastUpdate: Date.now(),
-                            updateCount: (optimizerState.liveSync?.updateCount || 0) + 1
+                            updateCount: (stateRef.current.liveSync?.updateCount || 0) + 1
                         }));
 
                         applyData(data);

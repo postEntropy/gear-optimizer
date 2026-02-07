@@ -32,7 +32,6 @@ class HackComponent extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.requestSort = this.requestSort.bind(this);
-        this.handleLockSpeed = this.handleLockSpeed.bind(this);
     }
 
     componentDidMount() {
@@ -64,12 +63,6 @@ class HackComponent extends Component {
         event.preventDefault();
     }
 
-    handleLockSpeed(event) {
-        this.props.handleSettings('hackstats', {
-            ...this.props.hackstats,
-            lockSpeed: event.target.checked
-        });
-    }
 
     handleChange(event, name, idx = -1) {
         let val = event.target ? event.target.value : event.value;
@@ -80,8 +73,6 @@ class HackComponent extends Component {
         let hackstats = {
             ...this.props.hackstats
         };
-        const hhidx = 13;
-        const hackhacklevel = hackstats.hacks[hhidx].level;
 
         if (idx < 0) {
             hackstats = {
@@ -138,22 +129,6 @@ class HackComponent extends Component {
             };
         }
 
-        // update hack speed if not locked
-        if (!hackstats.lockSpeed && name !== 'hackspeed') {
-            let hackOptimizer = new Hack(this.props);
-            const oldBonus = hackOptimizer.bonus(hackhacklevel, hhidx);
-            hackOptimizer = new Hack({
-                ...this.props,
-                hackstats: hackstats
-            });
-            const newBonus = hackOptimizer.bonus(hackstats.hacks[hhidx].level, hhidx);
-            if (oldBonus > 0) {
-                hackstats = {
-                    ...hackstats,
-                    hackspeed: hackstats.hackspeed * newBonus / oldBonus
-                };
-            }
-        }
 
         this.props.handleSettings('hackstats', hackstats);
     }
@@ -281,10 +256,7 @@ class HackComponent extends Component {
                                             onChange={(e) => this.handleChange(e, 'hackspeed')} onFocus={this.handleFocus}
                                             type="number" fullWidth inputProps={{ step: "any" }} />
                                     </Grid>
-                                    <Grid item xs={6} sm={4}>
-                                        <FormControlLabel control={<Switch checked={this.props.hackstats.lockSpeed} onChange={this.handleLockSpeed} color="primary" />} label="Lock Hack 13 Speed" />
-                                    </Grid>
-                                    <Grid item xs={12} sm={4}>
+                                    <Grid item xs={12} sm={12}>
                                         <FormControlLabel
                                             control={
                                                 <Switch

@@ -2,10 +2,9 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../Downloads/gear-optimizer-master"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "gear-optimizer-material"
+	}
 }
