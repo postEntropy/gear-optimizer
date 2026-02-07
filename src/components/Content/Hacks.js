@@ -19,6 +19,40 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import HackGraph from '../NGUGraph/HackGraph';
 import HackComparisonGraph from '../NGUGraph/HackComparisonGraph';
 
+const DebouncedTextField = ({ value, onChange, ...props }) => {
+    const [localValue, setLocalValue] = React.useState(value);
+
+    // Update local state when prop value changes (e.g. from Redux update or initial load)
+    React.useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+
+    const handleChange = (e) => {
+        setLocalValue(e.target.value);
+    };
+
+    // Debounce the onChange prop call
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            if (localValue !== value) {
+                onChange(localValue);
+            }
+        }, 500); // 500ms delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [localValue, onChange, value]);
+
+    return (
+        <TextField
+            {...props}
+            value={localValue}
+            onChange={handleChange}
+        />
+    );
+};
+
 class HackComponent extends Component {
     constructor(props) {
         super(props);
@@ -242,19 +276,37 @@ class HackComponent extends Component {
                             <Paper sx={{ p: 2 }} elevation={3}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={6} sm={4}>
-                                        <TextField label="R power" value={this.props.hackstats['rpow']}
-                                            onChange={(e) => this.handleChange(e, 'rpow')} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                        <DebouncedTextField
+                                            label="R power"
+                                            value={this.props.hackstats['rpow']}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'rpow')}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                        />
                                     </Grid>
                                     <Grid item xs={6} sm={4}>
-                                        <TextField label="R cap" value={this.props.hackstats['rcap']}
-                                            onChange={(e) => this.handleChange(e, 'rcap')} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                        <DebouncedTextField
+                                            label="R cap"
+                                            value={this.props.hackstats['rcap']}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'rcap')}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                        />
                                     </Grid>
                                     <Grid item xs={6} sm={4}>
-                                        <TextField label="Hack speed" value={this.props.hackstats.hackspeed}
-                                            onChange={(e) => this.handleChange(e, 'hackspeed')} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }} />
+                                        <DebouncedTextField
+                                            label="Hack speed"
+                                            value={this.props.hackstats.hackspeed}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'hackspeed')}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                        />
                                     </Grid>
                                     <Grid item xs={12} sm={12}>
                                         <FormControlLabel

@@ -21,6 +21,41 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Collapse from '@mui/material/Collapse';
 
+const DebouncedTextField = ({ value, onChange, formatter, ...props }) => {
+    const [localValue, setLocalValue] = React.useState(value);
+
+    // Update local state when prop value changes (e.g. from Redux update or initial load)
+    React.useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+
+    const handleChange = (e) => {
+        setLocalValue(e.target.value);
+    };
+
+    // Debounce the onChange prop call
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            if (localValue !== value) {
+                onChange(localValue);
+            }
+        }, 500); // 500ms delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [localValue, onChange, value]);
+
+    return (
+        <TextField
+            {...props}
+            value={localValue}
+            onChange={handleChange}
+            helperText={formatter ? formatter(localValue) : props.helperText}
+        />
+    );
+};
+
 const formatValue = (val, isPercent = true) => {
     if (val === '' || val === undefined || val === null || isNaN(val)) return '';
     let num = Number(val);
@@ -172,30 +207,52 @@ class NGUComponent extends Component {
                             <Paper sx={{ p: 2 }} elevation={3}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={6} sm={3}>
-                                        <TextField label="Energy cap" value={energy.cap}
-                                            onChange={(e) => this.handleChange(e, 'cap', -1, 0)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatValue(energy.cap, false)}
+                                        <DebouncedTextField
+                                            label="Energy cap"
+                                            value={energy.cap}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'cap', -1, 0)}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                            formatter={(val) => formatValue(val, false)}
                                         />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
-                                        <TextField label="Energy NGU speed" value={energy.nguspeed}
-                                            onChange={(e) => this.handleChange(e, 'nguspeed', -1, 0)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatValue(energy.nguspeed, true)} />
-                                    </Grid>
-                                    <Grid item xs={6} sm={3}>
-                                        <TextField label="Magic cap" value={magic.cap}
-                                            onChange={(e) => this.handleChange(e, 'cap', -1, 1)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatValue(magic.cap, false)}
+                                        <DebouncedTextField
+                                            label="Energy NGU speed"
+                                            value={energy.nguspeed}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'nguspeed', -1, 0)}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                            formatter={(val) => formatValue(val, true)}
                                         />
                                     </Grid>
                                     <Grid item xs={6} sm={3}>
-                                        <TextField label="Magic NGU speed" value={magic.nguspeed}
-                                            onChange={(e) => this.handleChange(e, 'nguspeed', -1, 1)} onFocus={this.handleFocus}
-                                            type="number" fullWidth inputProps={{ step: "any" }}
-                                            helperText={formatValue(magic.nguspeed, true)} />
+                                        <DebouncedTextField
+                                            label="Magic cap"
+                                            value={magic.cap}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'cap', -1, 1)}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                            formatter={(val) => formatValue(val, false)}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} sm={3}>
+                                        <DebouncedTextField
+                                            label="Magic NGU speed"
+                                            value={magic.nguspeed}
+                                            onChange={(val) => this.handleChange({ target: { value: val } }, 'nguspeed', -1, 1)}
+                                            onFocus={this.handleFocus}
+                                            type="number"
+                                            fullWidth
+                                            inputProps={{ step: "any" }}
+                                            formatter={(val) => formatValue(val, true)}
+                                        />
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
