@@ -397,7 +397,6 @@ const AppLayout = (props) => {
                             isNGUs={isNGUs}
                             isHacks={isHacks}
                             isWishes={isWishes}
-                            isWishes={isWishes}
                             isHistory={isHistory}
                             isPerks={isPerks}
                             props={props}
