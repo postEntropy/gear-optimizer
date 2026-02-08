@@ -1,0 +1,1858 @@
+[
+  {
+    "id": 0,
+    "name": "The Newbie Energy Perk",
+    "description": "Gain 3 Energy Power and 3 Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c5/The_Newbie_Energy_Perk.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 1,
+    "name": "The Newbie Magic Perk",
+    "description": "Gain 1 Magic Power, 1 Magic Bar, and 10k Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/6e/The_Newbie_Magic_Perk.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 2,
+    "name": "The Newbie Adventure Perk",
+    "description": "Gain a flat +100 Power and Toughness for Adventure now, and a +10% bonus for all eternity!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/75/The_Newbie_Adventure_Perk.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 3,
+    "name": "The Newbie Drop Chance Perk",
+    "description": "Gain a permanent 10% multiplier to your Drop Chance!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c5/The_Newbie_Drop_Chance_Perk.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 4,
+    "name": "The Newbie Stat Perk",
+    "description": "Gain a permanent 100% multiplier to your Attack and Defense!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/62/The_Newbie_Stat_Perk.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 5,
+    "name": "Stat Boost for Rich Perks I",
+    "description": "Each level increases your base Attack/Defense by 10%. You rich perk, you.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/cf/Stat_Boost_for_Rich_Perks_I.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 6,
+    "name": "Generic Energy Power Perk I",
+    "description": "Each level grants +1% bonus multiplier to your Energy Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b3/Generic_Energy_Power_Perk_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 7,
+    "name": "Generic Energy Bar Perk I",
+    "description": "Each level grants +1% bonus multiplier to your Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e2/Generic_Energy_Bar_Perk_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 8,
+    "name": "Generic Energy Cap Perk I",
+    "description": "Each level grants +1% bonus multiplier to your Energy Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d2/Generic_Energy_Cap_Perk_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 9,
+    "name": "Generic Magic Power Perk I",
+    "description": "Each level grants +1% bonus multiplier to your Magic Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/6a/Generic_Magic_Power_Perk_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 10,
+    "name": "Generic Magic Bar Perk I",
+    "description": "Each level grants +1% bonus multiplier to your Magic Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/97/Generic_Magic_Bar_Perk_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 11,
+    "name": "Generic Magic Cap Perk I",
+    "description": "Each level grants +1% bonus multiplier to your Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8a/Generic_Magic_Cap_Perk_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 12,
+    "name": "Boosted Boosts I",
+    "description": "Yo dawg I heard you like boosts, so this perk will boost the power of all applied boosts by 2.5% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/44/Boosted_Boosts_I.png/revision/latest",
+    "cap": 60,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 13,
+    "name": "Faster NGU Energy",
+    "description": "Raises the Speed of Energy-based NGU's by 2.5% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/84/Faster_NGU_Energy.png/revision/latest",
+    "cap": 20,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 14,
+    "name": "Faster NGU Magic",
+    "description": "Raises the Speed of Magic-based NGU's by 2.5% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/1d/Faster_NGU_Magic.png/revision/latest",
+    "cap": 20,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 15,
+    "name": "Double Basic Training",
+    "description": "Every time a Basic Training bar fills, you will gain TWO levels instead of one! This means faster access to Advanced Training as well as gaining Attack and Defense faster!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/ae/Double_Basic_Training.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 16,
+    "name": "Quicker Power Fruit Beta Activation",
+    "description": "The Fruit of Power Beta's bonus will automatically turn on after 30 minutes, and without having to eat the fruit! Nifty.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/bb/Quick_Power_Fruit_Beta_Activation.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 17,
+    "name": "Quicker Fruit of Numbers Bonus Activation",
+    "description": "The Fruit of Numbers' bonus will automatically turn on after 30 minutes, and without having to eat the fruit! Nifty.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/48/Quicker_Fruit_of_Numbers_Bonus_Activation.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 18,
+    "name": "Instant Advanced Training Levels!",
+    "description": "At the start of every rebirth, Advanced Training will immediately be given an extra level! These levels affect your stats before the menu is even unlocked, like some sorta weird time paradox.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/1d/Instant_Advanced_Training_Levels.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 19,
+    "name": "\"Fruit of Knowledge sucks, 1/5\"",
+    "description": "Fruit of Knowledge yields 3x more EXP! There, now it's better.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/82/5.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 20,
+    "name": "\"Fruit of Knowledge STILL sucks, 1/5\"",
+    "description": "Fruit of Knowledge yields ANOTHER 3x EXP! Sheesh, will this satisfy you finally?",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8b/5-0.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 21,
+    "name": "Five O'Clock Shadow",
+    "description": "The time factor for Beard trimming conversion will grow faster with this fancy perk! The time factor will reach its maximum 1 hour sooner per level, to a minimum of 12 hours. This means more trimmings in less time!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b9/Five_O%27Clock_Shadow.png/revision/latest",
+    "cap": 12,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 22,
+    "name": "Wandoos Lover",
+    "description": "Gain +2 to your total OS level for each level in this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f6/Wandoos_Lover.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 23,
+    "name": "Golden Showers",
+    "description": "This perk grants a +5% multiplier to all gold drops in Adventure!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/39/Golden_Shower.png/revision/latest",
+    "cap": 200,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 24,
+    "name": "I Want Your Seeds ;)",
+    "description": "This perk grants a +5% multiplier to all seed earnings!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/96/I_want_your_Seeds.png/revision/latest",
+    "cap": 20,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 25,
+    "name": "The Loot Goblin's Blessing",
+    "description": "Gain the blessings of a fat green loot goblin! With each level of this perk you gain a 1% chance that any item dropped at lvl 1 or higher gains +1 level! This stacks with the Gaudy Set Bonus.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/27/The_Loot_Goblin%27s_Blessing.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 26,
+    "name": "Improved Cube Boosting!",
+    "description": "With this perk, boosts going into the cube convert at a 2% rate instead of 1%! Yaaaaaaay!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/36/Improved_Cube_Boosting.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 27,
+    "name": "Daycare Kitty's Blessing I",
+    "description": "Make the Daycare kitty even happier, and she'll grow your daycare items 1% faster per level! :)",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/01/Daycare_Kitty%27s_Blessing_I.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 28,
+    "name": "Daycare Kitty's Blessing II",
+    "description": "Make the Daycare kitty even MORE happier, and she'll grow your daycare items an additional 1% faster per level! :) :)",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/64/Daycare_Kitty%27s_Blessing_II.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 29,
+    "name": "You'll Really Want This",
+    "description": "This perk awards a FREE accessory slot, pure and simple.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/38/You%27ll_Really_Want_This.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 30,
+    "name": "What a Crappy Perk",
+    "description": "This perk grants a tiny, tiny chance that the Pissed Off Dudes in the ITOPOD drop poop. It also works offline!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/26/What_a_Crappy_Perk.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 31,
+    "name": "More Inventory Space I",
+    "description": "Gain an extra Inventory Space for each level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f0/More_Inventory_Space_I.png/revision/latest",
+    "cap": 12,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 32,
+    "name": "More Inventory Space II",
+    "description": "Gain an extra Inventory Space for each level of this perk! Why does it cost 5x as much as the other perk? Listen kid, inventory space is a hot commodity right now, it's just business.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/88/More_Inventory_Space_II.png/revision/latest",
+    "cap": 12,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 33,
+    "name": "Boosted Boosts II",
+    "description": "Let's boost the boost to boosts some more, shall we? Each level of this perk adds a 2% stacking bonus to the total power of any applied boost!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/56/Boosted_Boosts_II.png/revision/latest",
+    "cap": 60,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 34,
+    "name": "Bonus Titan EXP!",
+    "description": "You like getting EXP from Titans? For each level of this perk, the first 3 kills of each titan, each rebirth will grant +50% extra EXP! WTF does this mean? For example: level 2 of this perk means the first 6 kills of each titan grants the 50% EXP bonus, every rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/42/Bonus_Titan_EXP.png/revision/latest",
+    "cap": 3,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 35,
+    "name": "Bonus Boss Exp!",
+    "description": "You also like getting EXP from defeating Bosses? Well alright! This perk will grant a stacking +2% bonus to exp dropped by bosses 24 and on!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e7/Bonus_Boss_EXP.png/revision/latest",
+    "cap": 25,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 36,
+    "name": "Advanced Training Level Bank I",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/01/Adv_Training_Level_Bank_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 37,
+    "name": "Advanced Training Level Bank II",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5e/Adv_Training_Level_Bank_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 38,
+    "name": "Advanced Training Level Bank III",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c2/Adv_Training_Level_Bank_III.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 39,
+    "name": "Advanced Training Level Bank IV",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/2e/Adv_Training_Level_Bank_IV.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 40,
+    "name": "Advanced Training Level Bank V",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Advanced Training when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/76/Adv_Training_Level_Bank_V.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 41,
+    "name": "Time Machine Level Bank I",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Time Machine when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b2/Time_Machine_Level_Bank_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 42,
+    "name": "Time Machine Level Bank II",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Time Machine when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/92/Time_Machine_Level_Bank_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 43,
+    "name": "Time Machine Level Bank III",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Time Machine when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f9/Time_Machine_Level_Bank_III.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 44,
+    "name": "Time Machine Level Bank IV",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Time Machine when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/dd/Time_Machine_Level_Bank_IV.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 45,
+    "name": "Time Machine Level Bank V",
+    "description": "Each level in this perk saves 1% (rounded down) of your levels gained in Time Machine when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b8/Time_Machine_Level_Bank_V.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 46,
+    "name": "Beard Temp Level Bank I",
+    "description": "Each level in this perk saves 1% (rounded down) of the temp Beard Levels you've gained when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/18/Beard_Temp_Level_Bank_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 47,
+    "name": "Beard Temp Level Bank II",
+    "description": "Each level in this perk saves 1% (rounded down) of the temp Beard Levels you've gained when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/75/Beard_Temp_Level_Bank_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 48,
+    "name": "Beard Temp Level Bank III",
+    "description": "Each level in this perk saves 1% (rounded down) of the temp Beard Levels you've gained when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/35/Beard_Temp_Level_Bank_III.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 49,
+    "name": "Beard Temp Level Bank IV",
+    "description": "Each level in this perk saves 1% (rounded down) of the temp Beard Levels you've gained when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/4e/Beard_Temp_Level_Bank_IV.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 50,
+    "name": "Beard Temp Level Bank V",
+    "description": "Each level in this perk saves 1% (rounded down) of the temp Beard Levels you've gained when you rebirth, saving it for the next rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0f/Beard_Temp_Level_Bank_V.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 51,
+    "name": "The First Harvest's The Best",
+    "description": "Each level in this perk will grant a +10% bonus to the first eaten or harvested fruit for all fruits each rebirth!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/72/The_First_Harvest%27s_The_Best.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 52,
+    "name": "A Digger Slot!",
+    "description": "Unlock an additional Digger Slot for the Gold Diggers Feature!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/df/A_Digger_Slot.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 53,
+    "name": "Ooh, Another Digger Slot!",
+    "description": "Unlock yet another Digger Slot for the Gold Diggers Feature!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/df/A_Digger_Slot.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 54,
+    "name": "Stat Boost for Rich Perks II",
+    "description": "For the truly Richest of Jerks. Gain +1% Attack/Defence per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/13/Stat_Boost_for_Rich_Perks_II.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 55,
+    "name": "Adventure Boost For Rich Perks I",
+    "description": "For the truly Richest of Jerks. Gain +0.1% to Adventure Stats per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/53/Adventure_Boost_For_Rich_Perks_I.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 56,
+    "name": "Macguffin Daycare!",
+    "description": "With this perk, the Daycare Kitty can use her power of happiness to improve your ancient cosmic artifacts! c:",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/38/MacGuffin_Daycare.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 57,
+    "name": "Generic Energy Power Perk II",
+    "description": "Each level grants +1% bonus multiplier to your Energy Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/1e/Generic_Energy_Power_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 58,
+    "name": "Generic Energy Bar Perk II",
+    "description": "Each level grants +1% bonus multiplier to your Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/22/Generic_Energy_Bar_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 59,
+    "name": "Generic Energy Cap Perk II",
+    "description": "Each level grants +1% bonus multiplier to your Energy Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/64/Generic_Energy_Cap_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 60,
+    "name": "Generic Magic Power Perk II",
+    "description": "Each level grants +1% bonus multiplier to your Magic Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/50/Generic_Magic_Power_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 61,
+    "name": "Generic Magic Bar Perk II",
+    "description": "Each level grants +1% bonus multiplier to your Magic Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/32/Generic_Magic_Bar_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 62,
+    "name": "Generic Magic Cap Perk II",
+    "description": "Each level grants +1% bonus multiplier to your Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f7/Generic_Magic_Cap_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 63,
+    "name": "Faster NGU Energy II",
+    "description": "Raises the Speed of Energy-based NGU's by 2% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/01/Faster_NGU_Energy_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 64,
+    "name": "Faster NGU Magic II",
+    "description": "Raises the Speed of Magic-based NGU's by 2% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/cf/Faster_NGU_Magic_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 65,
+    "name": "Improved Macguffin Drops I",
+    "description": "Improve the base level of all MacGuffin drops by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/9f/Improved_MacGuffin_Drops_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 66,
+    "name": "A MacGuffin Slot!",
+    "description": "Gain an additional MacGuffin Slot!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/55/A_MacGuffin_Slot.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 67,
+    "name": "Another MacGuffin Slot!",
+    "description": "Gain another additional MacGuffin Slot!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/55/A_MacGuffin_Slot.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 68,
+    "name": "MacGuffin ITOPOD Drops!",
+    "description": "This will unlock MacGuffin drops in the ITOPOD! Every 5000 kills, you'll obtain a random MacGuffin!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f4/MacGuffin_ITOPOD_Drops.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 69,
+    "name": "Improved MacGuffin ITOPOD Drops I",
+    "description": "Reduce the number of kills per MacGuffin drop in the ITOPOD by 20%!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/cc/Improved_MacGuffin_ITOPOD_Drops_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 70,
+    "name": "Improved MacGuffin ITOPOD Drops II",
+    "description": "Reduce the number of kills per MacGuffin drop in the ITOPOD by another 25%!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e9/Improved_MacGuffin_ITOPOD_Drops_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 71,
+    "name": "Improved MacGuffin ITOPOD Drops III",
+    "description": "Reduce the number of kills per MacGuffin drop in the ITOPOD by another 25%!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/ab/Improved_MacGuffin_ITOPOD_Drops_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 72,
+    "name": "Blood Macguffin α Spell!",
+    "description": "Unlocks the Blood Macguffin α Spell, which can raise the level of a random equipped Macguffin!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/20/Blood_MacGuffin_alpha_Spell.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 73,
+    "name": "Blood Macguffin β Spell!",
+    "description": "Unlocks the Blood Macguffin β Spell, which can raise the level of ALL equipped Macguffins!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/00/Blood_MacGuffin_beta_Spell.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 74,
+    "name": "Generic Energy Power Perk III",
+    "description": "Each level grants +0.3% bonus multiplier to your Energy Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/3d/Generic_Energy_Power_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 75,
+    "name": "Generic Energy Bar Perk III",
+    "description": "Each level grants +0.3% bonus multiplier to your Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/a3/Generic_Energy_Bar_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 76,
+    "name": "Generic Energy Cap Perk III",
+    "description": "Each level grants +0.3% bonus multiplier to your Energy Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0e/Generic_Energy_Cap_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 77,
+    "name": "Generic Magic Power Perk III",
+    "description": "Each level grants +0.3% bonus multiplier to your Magic Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/96/Generic_Magic_Power_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 78,
+    "name": "Generic Magic Bar Perk III",
+    "description": "Each level grants +0.3% bonus multiplier to your Magic Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/15/Generic_Magic_Bar_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 79,
+    "name": "Generic Magic Cap Perk III",
+    "description": "Each level grants +0.3% bonus multiplier to your Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/08/Generic_Magic_Cap_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 80,
+    "name": "Faster NGU Energy III",
+    "description": "Raises the Speed of Energy-based NGU's by 0.3% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d2/Faster_NGU_Energy_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 81,
+    "name": "Faster NGU Magic III",
+    "description": "Raises the Speed of Magic-based NGU's by 0.3% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/21/Faster_NGU_Magic_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 82,
+    "name": "Stat Boost for Rich Perks III",
+    "description": "For the really, truly Richest of Jerks. Gain +1% to Attack/Defence per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/97/Stat_Boost_for_Rich_Perks_III.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 83,
+    "name": "Adventure Boost For Rich Perks II",
+    "description": "For the really, truly Richest of Jerks. Gain +0.1% to Adventure stats per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/2f/Adventure_Boost_For_Rich_Perks_II.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 84,
+    "name": "\"Iron Pill Also Sucks 1/5\"",
+    "description": "Iron Pill yields +5x more stats per level of this perk, up to 26x at level 5!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/87/Iron_Pill_Also_Sucks.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 85,
+    "name": "\"Iron Pill Still Sucks 1/5\"",
+    "description": "Iron Pill yields +1x more stats per level of this perk, up to 4x at level 3!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/3b/Iron_Pill_Still_Sucks.png/revision/latest",
+    "cap": 3,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 86,
+    "name": "Daycare Slot! c:",
+    "description": "Make the Daycare Kitty even happier-er-er-est-er and get a new Daycare Slot!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5b/Daycare_Slot.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 87,
+    "name": "Not So Minor Anymore",
+    "description": "The base Minor Quest reward modifier is increased by 2 with this perk! Normally this value is 10.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/34/Not_So_Minor_Anymore.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 88,
+    "name": "Another MacGuffin Slot!",
+    "description": "Gain an additional MacGuffin Slot! What were you expecting, a yacht?",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/55/A_MacGuffin_Slot.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 89,
+    "name": "Better QP Rewards!",
+    "description": "Each level in this Perk will improve QP reward by 0.2%!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/27/Better_QP_Rewards.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 90,
+    "name": "Improved Quest Looting",
+    "description": "Each level in this Perk will improve the drop chance for Quest Items by 0.5%",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c0/Improved_Quest_Looting.png/revision/latest",
+    "cap": 30,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 91,
+    "name": "Advanced Gooder Idle Questing",
+    "description": "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0a/Advanced_Gooder_Idle_Questing.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 92,
+    "name": "Even More Advanced Gooder Idle Questing",
+    "description": "This perk will reduce the speed divider placed on Idle Questing by another 1! Normally, this divider is 8.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/bf/Even_More_Advanced_Gooder_Idle_Questing.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 93,
+    "name": "SPAWN FASTER DAMMIT",
+    "description": "Each level of this perk reduces normal enemy respawn times by 0.1%.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/40/SPAWN_FASTER_DAMMIT.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 94,
+    "name": "The Fibonacci Perk",
+    "description": "A very special perk: When the level of this perk reaches the next number in the Fibonacci sequence, you get a new secret perk!  (Until it inevitably gets spoiled on the Discord or Wiki)",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/02/The_Fibonacci_Perk.png/revision/latest",
+    "cap": 1597,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 95,
+    "name": "Generic Resource 3 Power Perk I",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/42/Generic_Resource_3_Power_Perk_I.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 96,
+    "name": "Generic Resource 3 Bar Perk I",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0b/Generic_Resource_3_Bar_Perk_I.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 97,
+    "name": "Generic Resource 3 Cap Perk I",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/70/Generic_Resource_3_Cap_Perk_I.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 98,
+    "name": "Generic Resource 3 Power Perk II",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/31/Generic_Resource_3_Power_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 99,
+    "name": "Generic Resource 3 Bar Perk II",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/1e/Generic_Resource_3_Bar_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 100,
+    "name": "Generic Resource 3 Cap Perk II",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0c/Generic_Resource_3_Cap_Perk_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 101,
+    "name": "Generic Resource 3 Power Perk III",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0d/Generic_Resource_3_Power_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 102,
+    "name": "Generic Resource 3 Bar Perk III",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c4/Generic_Resource_3_Bar_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 103,
+    "name": "Generic Resource 3 Cap Perk III",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/41/Generic_Resource_3_Cap_Perk_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 104,
+    "name": "Truly Idle Questing",
+    "description": "With this Perk, Idle Quests will automatically be handed in, and a new Quest started!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/db/Truly_Idle_Questing.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 105,
+    "name": "Gooder Idle Questing",
+    "description": "This perk will reduce the speed divider placed on Idle Questing by 2! Normally, this divider is 8.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/6a/Gooder_Idle_Questing.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 106,
+    "name": "Another Gooder Idle Questing",
+    "description": "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/ad/Another_Gooder_Idle_Questing.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 107,
+    "name": "Boosted Boosts III",
+    "description": "Boostception is here. Each level of this perk adds a 2% stacking bonus to the total boost power of any applied boost!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8b/Boosted_Boosts_III.png/revision/latest",
+    "cap": 60,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 108,
+    "name": "Faster Wishes I",
+    "description": "So you just got WIshes and hate how slow they are. Each level of this perk will grant 0.2% wish speed to help alleviate that issue.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/25/Faster_Wishes_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 109,
+    "name": "Minimum Wish Time Reduction I",
+    "description": "Got your resources pumped into Wishes so fast, the Fairies can't work any faster? This perk will whip them into shape! Each level reduces the minimum wish completion time by 24 seconds. This time is normally 4 hours.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/1d/Minimum_Wish_Time_Reduction_I.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 110,
+    "name": "Minimum Wish Time Reduction II",
+    "description": "With this perk,you can work wishes so efficiently that all the labour can be done by a single Australian man in record time! Reduces the minimum wish timer by an additional 24 seconds per level of this perk.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/68/Minimum_Wish_Time_Reduction_II.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 111,
+    "name": "An Inventory Merge Slot",
+    "description": "Convert a slot in your inventory into an inventory Automerge Slot! This slot will be triggered by the Automerge function - handy for levelling up gear automatically!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/52/An_Inventory_Merge_Slot.png/revision/latest/scale-to-width-down/46",
+    "cap": 1,
+    "difficulty": "Normal"
+  },
+  {
+    "id": 112,
+    "name": "Another Inventory Merge Slot",
+    "description": "Unlock another Inventory Automerge Slot!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/ab/Another_Inventory_Merge_Slot.png/revision/latest/scale-to-width-down/46",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 113,
+    "name": "Adventure Hack Milestone Reduces I",
+    "description": "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/ee/Adventure_Hack_Milestone_Reduces_I.png/revision/latest/scale-to-width-down/46",
+    "cap": 5,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 114,
+    "name": "Blood Hack Milestone Reduces I",
+    "description": "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e5/Blood_Hack_Milestone_Reduces_I.png/revision/latest/scale-to-width-down/46",
+    "cap": 5,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 115,
+    "name": "Daycare Hack Milestone Reduces I",
+    "description": "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/69/Daycare_Hack_Milestone_Reduces_I.png/revision/latest/scale-to-width-down/46",
+    "cap": 5,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 116,
+    "name": "Generic Energy Power Perk IV",
+    "description": "Each level grants +0.2% bonus multiplier to your Energy Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5e/Generic_Energy_Power_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 117,
+    "name": "Generic Energy Bar Perk IV",
+    "description": "Each level grants +0.2% bonus multiplier to your Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/55/Generic_Energy_Bar_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 118,
+    "name": "Generic Energy Cap Perk IV",
+    "description": "Each level grants +0.2% bonus multiplier to your Energy Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/71/Generic_Energy_Cap_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 119,
+    "name": "Generic Magic Power Perk IV",
+    "description": "Each level grants +0.2% bonus multiplier to your Magic Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/de/Generic_Magic_Power_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 120,
+    "name": "Generic Magic Bar Perk IV",
+    "description": "Each level grants +0.2% bonus multiplier to your Magic Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f7/Generic_Magic_Bar_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 121,
+    "name": "Generic Magic Cap Perk IV",
+    "description": "Each level grants +0.2% bonus multiplier to your Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/2a/Generic_Magic_Cap_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 122,
+    "name": "Generic Resource 3 Power Perk IV",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/71/Generic_Resource_3_Power_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 123,
+    "name": "Generic Resource 3 Bar Perk IV",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/40/Generic_Resource_3_Bar_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 124,
+    "name": "Generic Resource 3 Cap Perk IV",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f9/Generic_Resource_3_Cap_Perk_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 125,
+    "name": "Welcome to Evil Difficulty",
+    "description": "Evil Difficulty kicking your ass? There there, buddy. Take this perk and receive a +200% buff to Attack/Defense and 50% Drop Chance bonus. It'll be okay.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c4/Welcome_to_Evil_Difficulty.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 126,
+    "name": "Generic Energy Power Perk V",
+    "description": "Each level grants +0.2% bonus multiplier to your Energy Power! Why is it lower? Because in Sadistic Difficulty I don't give a crap about you!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d4/Generic_Energy_Power_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 127,
+    "name": "Generic Energy Bar Perk V",
+    "description": "Each level grants +0.1% bonus multiplier to your Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/72/Generic_Energy_Bar_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 128,
+    "name": "Generic Energy Cap Perk V",
+    "description": "Each level grants +0.1% bonus multiplier to your Energy Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d4/Generic_Energy_Cap_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 129,
+    "name": "Generic Magic Power Perk V",
+    "description": "Each level grants +0.2% bonus multiplier to your Magic Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/72/Generic_Magic_Power_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 130,
+    "name": "Generic Magic Bar Perk V",
+    "description": "Each level grants +0.1% bonus multiplier to your Magic Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f5/Generic_Magic_Bar_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 131,
+    "name": "Generic Magic Cap Perk V",
+    "description": "Each level grants +0.1% bonus multiplier to your Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f2/Generic_Magic_Cap_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 132,
+    "name": "Generic Resource 3 Power Perk V",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d4/Generic_Resource_3_Power_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 133,
+    "name": "Generic Resource 3 Bar Perk V",
+    "description": "Each level grants +0.5% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/99/Generic_Resource_3_Bar_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 134,
+    "name": "Generic Resource 3 Cap Perk V",
+    "description": "Each level grants +0.5% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/7f/Generic_Resource_3_Cap_Perk_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 135,
+    "name": "Generic Energy Power Perk VI",
+    "description": "Each level grants +0.2% bonus multiplier to your Energy Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/7b/Generic_Energy_Power_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 136,
+    "name": "Generic Energy Bar Perk VI",
+    "description": "Each level grants +0.1% bonus multiplier to your Energy Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b2/Generic_Energy_Bar_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 137,
+    "name": "Generic Energy Cap Perk VI",
+    "description": "Each level grants +0.1% bonus multiplier to your Energy Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/7a/Generic_Energy_Cap_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 138,
+    "name": "Generic Magic Power Perk VI",
+    "description": "Each level grants +0.2% bonus multiplier to your Magic Power!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/ce/Generic_Magic_Power_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 139,
+    "name": "Generic Magic Bar Perk VI",
+    "description": "Each level grants +0.1% bonus multiplier to your Magic Bars!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/72/Generic_Magic_Bar_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 140,
+    "name": "Generic Magic Cap Perk VI",
+    "description": "Each level grants +0.1% bonus multiplier to your Magic Cap!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/6a/Generic_Magic_Cap_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 141,
+    "name": "Generic Resource 3 Power Perk VI",
+    "description": "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/66/Generic_Resource_3_Power_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 142,
+    "name": "Generic Resource 3 Bar Perk VI",
+    "description": "Each level grants +0.5% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5a/Generic_Resource_3_Bar_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 143,
+    "name": "Generic Resource 3 Cap Perk VI",
+    "description": "Each level grants +0.5% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/68/Generic_Resource_3_Cap_Perk_VI.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 144,
+    "name": "Welcome to Sadistic Difficulty",
+    "description": "Getting your ass kicked by Sadistic? Maybe this will help. Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f0/Welcome_to_Sadistic_Difficulty.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 145,
+    "name": "Bonus Quest Handin Progess I",
+    "description": "You can now hand in higher level Quest Items for added progress. The formula is 1 + (level/10) progress, rounded down.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/a0/Bonus_Quest_Handin_Progess_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 146,
+    "name": "Bonus Quest Handin Progess II",
+    "description": "Reduce the level ratio for higher level Quest handins by 1 per level of this Perk! Originally the formula is 1 + (level/10), rounded down.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0a/Bonus_Quest_Handin_Progess_II.png/revision/latest",
+    "cap": 2,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 147,
+    "name": "Improved Major Quest QP Rewards",
+    "description": "Each level adds + 1 to Major Quests' Base QP! Normally this is 50.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/39/Improved_Major_Quest_QP_Rewards.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 148,
+    "name": "Improved Minor Quest QP Rewards",
+    "description": "Each level adds + 1 to Minor Quests' Base QP! Normally this is 10.",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e7/Improved_Minor_Quest_QP_Rewards.png/revision/latest",
+    "cap": 2,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 149,
+    "name": "Stat Boost for rich Perks IV",
+    "description": "For the really, truly Richest of Jerks. Gain +1% to Attack/Defence per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0b/Stat_Boost_for_rich_Perks_IV.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 150,
+    "name": "Adventure Boost For Rich Perks III",
+    "description": "For the really, truly Richest of Jerks. Gain +0.05% to Adventure stats per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b2/Adventure_Boost_For_Rich_Perks_III.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 151,
+    "name": "Stat Boost for rich Perks V",
+    "description": "For the really, really truly Richest of Jerks. Gain +1% to Attack/Defence per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/21/Stat_Boost_for_rich_Perks_V.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 152,
+    "name": "Adventure Boost For Rich Perks IV",
+    "description": "For the really, really truly Richest of Jerks. Gain +0.05% to Adventure stats per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/58/Adventure_Boost_For_Rich_Perks_IV.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 153,
+    "name": "Stat Boost for rich Perks VI",
+    "description": "For the really, really, really, truly Richest of Jerks. Gain +1% to Attack/Defence per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/44/Stat_Boost_for_rich_Perks_VI.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 154,
+    "name": "Adventure Boost For Rich Perks V",
+    "description": "For the really, really, really, truly Richest of Jerks. Gain +0.05% to Adventure stats per level of this perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/fd/Adventure_Boost_For_Rich_Perks_V.png/revision/latest",
+    "cap": 1000,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 155,
+    "name": "Faster Wishes II",
+    "description": "Each level of this perk will add +0.1% to wish speed!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f0/Faster_Wishes_II.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 156,
+    "name": "Faster Wishes III",
+    "description": "Each level of this perk will add +0.1% to wish speed!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d1/Faster_Wishes_III.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 157,
+    "name": "Improved Sadistic Boss Multiplier I",
+    "description": "Each level of this perk adds +0.0005 to the Sadistic Boss Multiplier. Originally this value is 1.20. A tiny change in this number has a huge difference!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/45/Improved_Sadistic_Boss_Multiplier_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 158,
+    "name": "Improved Sadistic Boss Multiplier II",
+    "description": "Each level of this perk adds another +0.0005 to the Sadistic Boss Multiplier. Originally this value is 1.20. A tiny change in this number has a huge difference!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/0b/Improved_Sadistic_Boss_Multiplier_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 159,
+    "name": "Faster Wishes IV",
+    "description": "Each level of this perk will add +0.1% to wish speed!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/11/Faster_Wishes_IV.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 160,
+    "name": "Faster Wishes V",
+    "description": "Each level of this perk will add +0.1% to wish speed!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/07/Faster_Wishes_V.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 161,
+    "name": "Augment Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c1/Augment_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 162,
+    "name": "Gold Drop Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/a9/Gold_Drop_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 163,
+    "name": "Wishes Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/91/Wishes_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 164,
+    "name": "A/D Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/26/A-D_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 165,
+    "name": "Magic NGU Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/80/Magic_NGU_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 166,
+    "name": "TM Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/37/TM_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 167,
+    "name": "QP Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8a/QP_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 168,
+    "name": "Daycare Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/1c/Daycare_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 169,
+    "name": "Energy NGU Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/ce/Energy_NGU_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 170,
+    "name": "Drop Chance Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/92/Drop_Chance_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 171,
+    "name": "Wandoos Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/7e/Wandoos_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 172,
+    "name": "Adventure Stats Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/62/Adventure_Stats_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 173,
+    "name": "Hacks Card Tier Up I",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/25/Hacks_Card_Tier_Up_I.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 174,
+    "name": "Augment Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/9e/Augment_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 175,
+    "name": "Gold Drop Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/11/Gold_Drop_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 176,
+    "name": "Wishes Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/06/Wishes_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 177,
+    "name": "A/D Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/88/A-D_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 178,
+    "name": "Magic NGU Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/c9/Magic_NGU_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 179,
+    "name": "TM Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/ab/TM_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 180,
+    "name": "QP Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/7f/QP_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 181,
+    "name": "Daycare Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/ac/Daycare_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 182,
+    "name": "Energy NGU Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/ba/Energy_NGU_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 183,
+    "name": "Drop Chance Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8a/Drop_Chance_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 184,
+    "name": "Wandoos Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/57/Wandoos_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 185,
+    "name": "Adventure Stats Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/cd/Adventure_Stats_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 186,
+    "name": "Hacks Card Tier Up II",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/44/Hacks_Card_Tier_Up_II.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 187,
+    "name": "Augment Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/bf/Augment_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 188,
+    "name": "Gold Drop Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/c/cc/Gold_Drop_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 189,
+    "name": "Wishes Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d0/Wishes_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 190,
+    "name": "A/D Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/24/A-D_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 191,
+    "name": "Magic NGU Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/2f/Magic_NGU_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 192,
+    "name": "TM Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/6e/TM_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 193,
+    "name": "QP Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5c/QP_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 194,
+    "name": "Daycare Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/42/Daycare_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 195,
+    "name": "Energy NGU Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/04/Energy_NGU_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 196,
+    "name": "Drop Chance Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b5/Drop_Chance_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 197,
+    "name": "Wandoos Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/36/Wandoos_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 198,
+    "name": "Adventure Stats Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/28/Adventure_Stats_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 199,
+    "name": "Hacks Card Tier Up III",
+    "description": "This perk will raise the Tier of all cards with this bonus type by 1!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/4/4b/Hacks_Card_Tier_Up_III.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 200,
+    "name": "Faster Card Generation I",
+    "description": "Increase Card Generation Speed by 0.5% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8b/Faster_Card_Generation_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 201,
+    "name": "Faster Mayo Generation I",
+    "description": "Increase Mayo Generation Speed by 0.5% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5f/Faster_Mayo_Generation_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 202,
+    "name": "Faster Card Generation II",
+    "description": "Increase Card Generation Speed by 0.4% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/d/d8/Faster_Card_Generation_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 203,
+    "name": "Faster Mayo Generation II",
+    "description": "Increase Mayo Generation Speed by 0.4% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/61/Faster_Mayo_Generation_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 204,
+    "name": "Faster Card Generation III",
+    "description": "Increase Card Generation Speed by 0.3% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/f7/Faster_Card_Generation_III.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 205,
+    "name": "Faster Mayo Generation III",
+    "description": "Increase Mayo Generation Speed by 0.3% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/34/Faster_Mayo_Generation_III.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 206,
+    "name": "Faster Card Generation IV",
+    "description": "Increase Card Generation Speed by 0.3% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e3/Faster_Card_Generation_IV.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 207,
+    "name": "Faster Mayo Generation IV",
+    "description": "Increase Mayo Generation Speed by 0.3% for each level of this Perk!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/3/36/Faster_Mayo_Generation_IV.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 208,
+    "name": "Bigger Deck Size I",
+    "description": "This Perk increases your max Deck size by 1 per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/bf/Bigger_Deck_Size_I.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 209,
+    "name": "Bigger Deck Size II",
+    "description": "This Perk increases your max Deck size by an additional 1 per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/8/8f/Bigger_Deck_Size_II.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 210,
+    "name": "Bigger Deck Size III",
+    "description": "This Perk increases your max Deck size by an additional 1 per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/7b/Bigger_Deck_Size_III.png/revision/latest",
+    "cap": 5,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 211,
+    "name": "Extra Mayo Generator!",
+    "description": "This Perk grants an extra Mayo Generator Slot! There's also a 2% Mayo Speed bonus for no reason!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/9/90/Extra_Mayo_Generator%21.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 212,
+    "name": "Better Tags I",
+    "description": "This Perk improves the effects of tagging by 0.05% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/63/Better_Tags_I.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Evil"
+  },
+  {
+    "id": 213,
+    "name": "Better Tags II",
+    "description": "This Perk improves the effects of tagging by 0.04% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/ef/Better_Tags_II.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 214,
+    "name": "Better Tags III",
+    "description": "This Perk improves the effects of tagging by 0.04% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/e6/Better_Tags_III.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 215,
+    "name": "Better Tags IV",
+    "description": "This Perk improves the effects of tagging by 0.04% per level!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/6d/Better_Tags_IV.png/revision/latest",
+    "cap": 10,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 216,
+    "name": "Card Recycling: Card Spawn",
+    "description": "With this Card Recycling Perk, we'll chuck your yeeted cards into a Blendomatic 5000, which somehow advances your card spawn timer by 10%! If you recycle a BIG CHONKER, the timer for your BIG CHONKER card will advance by 25%!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/1/13/Card_Recycling-Card_Spawn.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 217,
+    "name": "Drop Chance Hack Milestone Reducer I",
+    "description": "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/b/b5/Drop_Chance_Hack_Milestone_Reducer_I.png/revision/latest",
+    "cap": 4,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 218,
+    "name": "Augments Hack Milestone Reducer I",
+    "description": "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/a/a8/Augments_Hack_Milestone_Reducer_I.png/revision/latest",
+    "cap": 2,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 219,
+    "name": "Magic NGU Hack Milestone Reducer I",
+    "description": "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/2d/Magic_NGU_Hack_Milestone_Reducer_I.png/revision/latest",
+    "cap": 3,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 220,
+    "name": "The Final Generic Energy Power Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Power per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5d/The_Final_Generic_Energy_Power_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 221,
+    "name": "The Final Generic Energy Bar Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Bars per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/51/The_Final_Generic_Energy_Bar_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 222,
+    "name": "The Final Generic Energy Cap Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Cap per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/7/75/The_Final_Generic_Energy_Cap_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 223,
+    "name": "The Final Generic Magic Power Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Power per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/5/5a/The_Final_Generic_Magic_Power_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 224,
+    "name": "The Final Generic Magic Bar Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Bars per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/2e/The_Final_Generic_Magic_Bar_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 225,
+    "name": "The Final Generic Magic Cap Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Cap per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/68/Finalmcap.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 226,
+    "name": "The Final Generic Resource 3 Power Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Power per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/09/The_Final_Generic_Resource_3_Power_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 227,
+    "name": "The Final Generic Resource 3 Bar Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Bars per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/2/25/The_Final_Generic_Resource_3_Bar_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 228,
+    "name": "The Final Generic Resource 3 Cap Perk",
+    "description": "Eh, just go nuts with this one. Gain 1% Cap per level",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/e/ec/The_Final_Generic_Resource_3_Cap_Perk.png/revision/latest",
+    "cap": 100,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 229,
+    "name": "Boosted Boosts IV",
+    "description": "Each level of this perk adds a 1% stacking bonus to the total boost power of any applied boost!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/0/07/Boosted_Boosts_IV.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 230,
+    "name": "Boosted Boosts V",
+    "description": "Each level of this perk adds another 1% stacking bonus to the total boost power of any applied boost!",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/6/68/Boosted_Boosts_V.png/revision/latest",
+    "cap": 50,
+    "difficulty": "Sadistic"
+  },
+  {
+    "id": 231,
+    "name": "ERROR",
+    "description": "NGU.EXE HAS ENCOUNTERED AN ERROR AND MUST CLOSE",
+    "src": "https://static.wikia.nocookie.net/nguadventure/images/f/fe/ERROR.png/revision/latest",
+    "cap": 1,
+    "difficulty": "Sadistic"
+  }
+]

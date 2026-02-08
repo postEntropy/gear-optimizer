@@ -410,7 +410,28 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
         updateNgus(data)
         updateAugmentTab(data)
         updateHackTab(data)
+
+        updatePerkTab(data)
         updateEquipped(data)
+    }
+
+    const updatePerkTab = (data) => {
+        if (data && data.adventure && data.adventure.itopod && data.adventure.itopod.perkLevel) {
+            const perkLevel = data.adventure.itopod.perkLevel;
+            dispatch(Settings("adventure", {
+                itopod: {
+                    perkLevel: perkLevel
+                }
+            }));
+        } else if (data && data.itopod && data.itopod.perkLevel) {
+            // Support for potentially flattened structure or diferent save versions
+            const perkLevel = data.itopod.perkLevel;
+            dispatch(Settings("adventure", {
+                itopod: {
+                    perkLevel: perkLevel
+                }
+            }));
+        }
     }
 
     // Initialize liveSyncEnabled from persisted state or default to true

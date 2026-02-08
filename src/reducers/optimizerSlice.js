@@ -247,6 +247,11 @@ const INITIAL_STATE = {
         updateCount: 0
     },
     syncEquip: true,
+    adventure: {
+        itopod: {
+            perkLevel: []
+        }
+    },
     version: '2.0.0'
 };
 

@@ -34,7 +34,8 @@ import {
     History, // Rebirth History
     ChevronLeft,
 
-    ChevronRight
+    ChevronRight,
+    CardGiftcard // Perks
 } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
 
@@ -51,6 +52,7 @@ import NGUComponent from '../Content/NGUs';
 import HackComponent from '../Content/Hacks';
 import WishComponent from '../Content/Wishes';
 import HistoryComponent from '../Content/History';
+import PerksComponent from '../Perks/Perks';
 // import AboutComponent from '../About/About';
 
 
@@ -179,7 +181,7 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
 });
 
 // ISOLATED Page Content to prevent re-renders when sidebar toggles
-const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, props, loadoutParams, visited, fadeAnimation }) => {
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, props, loadoutParams, visited, fadeAnimation }) => {
     return (
         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto' }}>
             <Box sx={{ display: isOptimizer ? 'block' : 'none', ...fadeAnimation }}>
@@ -199,6 +201,9 @@ const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWis
             </Box>
             <Box sx={{ display: isHistory ? 'block' : 'none', ...fadeAnimation }}>
                 {(visited.history || isHistory) && <HistoryComponent {...props} className='app_body' />}
+            </Box>
+            <Box sx={{ display: isPerks ? 'block' : 'none', ...fadeAnimation }}>
+                {(visited.perks || isPerks) && <PerksComponent {...props} className='app_body' />}
             </Box>
         </Box>
     );
@@ -249,6 +254,7 @@ const AppLayout = (props) => {
     const isHacks = path.startsWith('/hacks');
     const isWishes = path.startsWith('/wishes');
     const isHistory = path.startsWith('/history');
+    const isPerks = path.startsWith('/perks');
 
     const [visited, setVisited] = React.useState({
         optimizer: true,
@@ -256,7 +262,8 @@ const AppLayout = (props) => {
         ngus: false,
         hacks: false,
         wishes: false,
-        history: false
+        history: false,
+        perks: false
     });
 
     React.useEffect(() => {
@@ -265,7 +272,8 @@ const AppLayout = (props) => {
         if (isHacks && !visited.hacks) setVisited(v => ({ ...v, hacks: true }));
         if (isWishes && !visited.wishes) setVisited(v => ({ ...v, wishes: true }));
         if (isHistory && !visited.history) setVisited(v => ({ ...v, history: true }));
-    }, [isAugment, isNGUs, isHacks, isWishes, isHistory, visited]);
+        if (isPerks && !visited.perks) setVisited(v => ({ ...v, perks: true }));
+    }, [isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, visited]);
 
 
     const currentDrawerWidth = open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH;
@@ -351,6 +359,7 @@ const AppLayout = (props) => {
                             <NavItem open={open} to="/ngus" label="NGUs" icon={<FlashOn />} isActive={location.pathname.startsWith('/ngus')} />
                             <NavItem open={open} to="/hacks" label="Hacks" icon={<Code />} isActive={location.pathname.startsWith('/hacks')} />
                             <NavItem open={open} to="/wishes" label="Wishes" icon={<Star />} isActive={location.pathname.startsWith('/wishes')} />
+                            <NavItem open={open} to="/perks" label="Perks" icon={<CardGiftcard />} isActive={location.pathname.startsWith('/perks')} />
                             <NavItem open={open} to="/history" label="History" icon={<History />} isActive={location.pathname.startsWith('/history')} />
                         </List>
 
@@ -388,7 +397,9 @@ const AppLayout = (props) => {
                             isNGUs={isNGUs}
                             isHacks={isHacks}
                             isWishes={isWishes}
+                            isWishes={isWishes}
                             isHistory={isHistory}
+                            isPerks={isPerks}
                             props={props}
                             loadoutParams={loadoutParams}
                             visited={visited}

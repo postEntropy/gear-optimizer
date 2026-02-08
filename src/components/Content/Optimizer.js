@@ -443,8 +443,8 @@ class Optimizer extends Component {
                             <ItemForm {...this.props} closeEditModal={this.closeEditModal} />
                         </DialogContent>
                     </Dialog>
-                </Box>
-            </DndProvider>
+                </Box >
+            </DndProvider >
         );
     };
 }
