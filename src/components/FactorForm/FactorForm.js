@@ -44,11 +44,11 @@ const FactorForm = (props) => {
     const accslots = equip.accessory.length;
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
             <Typography variant="caption" sx={{ fontWeight: 900, opacity: 0.3, width: '20px' }}>
                 #{idx + 1}
             </Typography>
-            <FormControl size="small" sx={{ width: 200 }}>
+            <FormControl size="small" sx={{ flexGrow: 1, minWidth: 180 }}>
                 <Select
                     value={factorKey}
                     onChange={handleChange}
@@ -147,6 +147,7 @@ const FactorForm = (props) => {
             </FormControl>
             <Box>
                 <Crement
+                    size='small'
                     header='slots'
                     value={maxslots[idx]}
                     name={['maxslots', idx]}

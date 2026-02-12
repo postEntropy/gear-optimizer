@@ -22,8 +22,27 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("Live Sync Mod Loaded (v12)! Waiting for browser...");
+            Logger.LogInfo("Live Sync Mod Loaded (v1.1)! Waiting for browser...");
         }
+
+        void Update() {
+            if (Character == null) return;
+            // Timer logic for 30s sync
+            if (Time.unscaledTime - _lastSyncTime >= 30f) {
+                _lastSyncTime = Time.unscaledTime;
+                try {
+                    // Reflection to access importExport if needed, or direct access if public
+                    // Assuming Character.importExport is accessible
+                    // We trigger the data collection manually
+                    var data = Character.importExport.gameStateToData();
+                    BroadcastData(data);
+                } catch (Exception e) {
+                    Logger.LogError("Error in LiveSync Update: " + e.Message);
+                }
+            }
+        }
+
+        private float _lastSyncTime = 0f;
 
         void StartServer() {
             try {
@@ -95,10 +114,6 @@ namespace NGULiveSync {
     [HarmonyPatch(typeof(ImportExport), "gameStateToData")]
     public static class Patch_Save {
         static void Postfix(PlayerData __result) {
-            LiveSyncPlugin.BroadcastData(__result);
-        }
-    }
-}
             LiveSyncPlugin.BroadcastData(__result);
         }
     }

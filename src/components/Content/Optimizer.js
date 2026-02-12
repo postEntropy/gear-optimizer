@@ -279,7 +279,7 @@ class Optimizer extends Component {
                                             </Box>
                                             <Grid container spacing={1}>
                                                 {[...this.props.factors.keys()].map((idx) => (
-                                                    <Grid item xs={12} sm={6} lg={4} key={'factorform' + idx}>
+                                                    <Grid item xs={12} md={12} lg={6} key={'factorform' + idx}>
                                                         <FactorForm {...this.props} idx={idx} />
                                                     </Grid>
                                                 ))}

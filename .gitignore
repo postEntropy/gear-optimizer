@@ -68,5 +68,5 @@ licenses.json
 # debug
 /src/assets/debug/
 
-compile_mod.ps1
+# compile_mod.ps1
 ngu-sync-bridge.js
