@@ -35,7 +35,7 @@ export const TargetItem = (props) => {
 }
 
 const Item = (props) => {
-    const { item, className, idx, locked: lockedProp, lockable } = props;
+    const { item, className, idx, locked: lockedProp, lockable, isEquipped } = props;
 
     // Tooltip content generation
     const tooltipContent = useMemo(() => {
@@ -67,6 +67,9 @@ const Item = (props) => {
     const isLocked = lockable && getLock(item ? item.slot[0] : '', idx, lockedProp);
     if (isLocked) {
         classNames += ' lock-item'
+    }
+    if (isEquipped) {
+        classNames += ' equipped-item'
     }
     if (item === undefined) {
         // Should typically not happen if item is required, but existing code handled it

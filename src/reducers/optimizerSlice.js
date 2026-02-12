@@ -594,9 +594,9 @@ const optimizerSlice = createSlice({
             .addCase(OPTIMIZE_GEAR, (state, action) => {
                 if (!state.running) return;
                 // console.log('worker finished')
-                state.equip = action.payload.equip;
+                // state.equip = action.payload.equip; // Do not overwrite current equip
                 state.optimizedEquip = action.payload.equip;
-                state.lastequip = state.equip;
+                // state.lastequip = state.equip; // Leave lastequip alone too
                 state.running = false;
             })
             .addCase(OPTIMIZE_SAVES, (state, action) => {

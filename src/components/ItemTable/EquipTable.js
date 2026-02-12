@@ -198,7 +198,7 @@ const EquipmentSection = ({ equip, prefix, itemdata, group, locked, handleClickI
 };
 
 // Export ConditionalSection for use in Optimizer.js
-export const ConditionalSection = ({ condition, title, items, itemdata, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem }) => {
+export const ConditionalSection = ({ condition, title, items, itemdata, equip, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem }) => {
     // Default to collapsed (hidden)
     const [expanded, setExpanded] = useState(false);
 
@@ -206,19 +206,29 @@ export const ConditionalSection = ({ condition, title, items, itemdata, handleEq
         if (!expanded) return []; // optimization: don't calculate if closed
         return items
             .filter(id => condition(id) && itemdata[id].level !== undefined)
-            .map(id => (
-                <TargetItem
-                    item={itemdata[id]}
-                    lockable={false}
-                    handleClickItem={handleEquipItem}
-                    handleCtrlClickItem={handleCtrlClickItem}
-                    handleShiftClickItem={handleShiftClickItem}
-                    handleRightClickItem={(itemId) => handleRightClickItem(itemId, false)}
-                    handleDropItem={handleDropItem}
-                    key={id}
-                />
-            ));
-    }, [items, itemdata, condition, expanded, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem]);
+            .map(id => {
+                const item = itemdata[id];
+                // Check if item is currently equipped
+                let isEquipped = false;
+                if (equip && equip[item.slot[0]]) {
+                    isEquipped = equip[item.slot[0]].includes(id);
+                }
+
+                return (
+                    <TargetItem
+                        item={item}
+                        lockable={false}
+                        isEquipped={isEquipped}
+                        handleClickItem={handleEquipItem}
+                        handleCtrlClickItem={handleCtrlClickItem}
+                        handleShiftClickItem={handleShiftClickItem}
+                        handleRightClickItem={(itemId) => handleRightClickItem(itemId, false)}
+                        handleDropItem={handleDropItem}
+                        key={id}
+                    />
+                );
+            });
+    }, [items, itemdata, equip, condition, expanded, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem]);
 
     // Calculate count even if collapsed to show in header
     const count = useMemo(() => {

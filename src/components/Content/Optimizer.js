@@ -130,190 +130,198 @@ class Optimizer extends Component {
             <DndProvider backend={HTML5Backend}>
                 <Box className={this.props.className} sx={{ flexGrow: 1, p: 2 }}>
                     <Grid container spacing={2}>
-                        {/* Main HUD & Control Bar */}
-                        <Grid item xs={12} md={8}>
-                            <Paperdoll
-                                equip={this.props.equip}
-                                itemdata={this.itemdata}
-                                handleClickItem={this.props.handleUnequipItem}
-                                handleCtrlClickItem={this.props.handleDisableItem}
-                                handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
-                                handleRightClickItem={(itemId, lockable) => this.props.handleToggleModal('edit item', {
-                                    itemId: itemId,
-                                    lockable: lockable,
-                                    on: true
-                                })}
-                                handleDropItem={this.props.handleDropEquipItem}
-                                locked={this.props.locked}
-                                offhand={this.props.offhand}
-                                syncStatus={this.state.syncStatus}
-                                optimizedEquip={this.props.optimizedEquip}
-                            />
-                        </Grid>
+                        <Grid item xs={12}>
+                            <Grid container spacing={2}>
+                                {/* Left Column: Paperdoll & Data Integration */}
+                                <Grid item xs={12} md="auto" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    <Paperdoll
+                                        equip={this.props.equip}
+                                        itemdata={this.itemdata}
+                                        handleClickItem={this.props.handleUnequipItem}
+                                        handleCtrlClickItem={this.props.handleDisableItem}
+                                        handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
+                                        handleRightClickItem={(itemId, lockable) => this.props.handleToggleModal('edit item', {
+                                            itemId: itemId,
+                                            lockable: lockable,
+                                            on: true
+                                        })}
+                                        handleDropItem={this.props.handleDropEquipItem}
+                                        locked={this.props.locked}
+                                        offhand={this.props.offhand}
+                                        syncStatus={this.state.syncStatus}
+                                        optimizedEquip={this.props.optimizedEquip}
+                                    />
 
-                        <Grid item xs={12} md={4}>
-                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <Box>
-                                    <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
-                                        DATA INTEGRATION
-                                    </Typography>
-                                    <ImportSaveForm onSyncStatusChange={(status) => this.setState({ syncStatus: status })}>
-                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(8, 3, 5, 12)} sx={{ py: 0.5 }}>
-                                            T8 Preset
-                                        </Button>
-                                        <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(11, 6, 8, 15)} sx={{ py: 0.5 }}>
-                                            T11 Preset
-                                        </Button>
-                                        <ResetItemsButton />
-                                    </ImportSaveForm>
-                                </Box>
-
-                                <Box>
-                                    <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
-                                        ZONE CONFIGURATION
-                                    </Typography>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Crement header='Highest zone' value={zone[0]} name='zone'
-                                            handleClick={this.props.handleCrement} min={2} max={maxzone} />
-                                        {this.props.zone > 20 && (
-                                            <Crement header={maxtitan[0] + ' version'} value={this.props.titanversion}
-                                                name='titanversion' handleClick={this.props.handleCrement} min={1} max={4} />
-                                        )}
-                                        <Crement header='Highest looty' value={looty} name='looty'
-                                            handleClick={this.props.handleCrement} min={-1} max={LOOTIES.length - 1} />
-                                        <Crement header='Highest pendant' value={pendant} name='pendant'
-                                            handleClick={this.props.handleCrement} min={-1} max={PENDANTS.length - 1} />
-                                        <Box sx={{ display: 'flex', gap: 1 }}>
-                                            <Box sx={{ flex: 1 }}>
-                                                <Crement header='Acc slots' value={accslots} name='accslots'
-                                                    handleClick={this.props.handleCrement} min={0} max={100} />
+                                    {/* Data Integration (Below Paperdoll) */}
+                                    <Paper sx={{ p: 1.5, width: '100%' }}>
+                                        <Typography variant="overline" sx={{ fontWeight: 'bold', display: 'block', color: 'primary.main', letterSpacing: 1.5, lineHeight: 1, mb: 1 }}>
+                                            DATA INTEGRATION
+                                        </Typography>
+                                        <ImportSaveForm onSyncStatusChange={(status) => this.setState({ syncStatus: status })}>
+                                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                                <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(8, 3, 5, 12)} sx={{ py: 0.5, px: 1, minWidth: 0 }}>
+                                                    T8
+                                                </Button>
+                                                <Button variant="outlined" size="small" onClick={() => this.props.handleGo2Titan(11, 6, 8, 15)} sx={{ py: 0.5, px: 1, minWidth: 0 }}>
+                                                    T11
+                                                </Button>
+                                                <ResetItemsButton />
                                             </Box>
-                                            {this.props.zone > 27 && (
-                                                <Box sx={{ flex: 1 }}>
-                                                    <Crement header='Offhand' value={this.props.offhand * 5 + '%'}
-                                                        name='offhand' handleClick={this.props.handleCrement} min={0} max={20} />
-                                                </Box>
-                                            )}
-                                        </Box>
-                                    </Box>
-                                </Box>
-                            </Paper>
-                        </Grid>
+                                        </ImportSaveForm>
+                                    </Paper>
 
-                        {/* Settings Section */}
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
-                                    TACTICAL PROCESSOR
-                                </Typography>
-                                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                                    <OptimizeButton text={'Gear'} running={this.props.running}
-                                        abort={this.props.handleTerminate}
-                                        optimize={this.props.handleOptimizeGear} />
-                                </Box>
-                                <Grid container spacing={1}>
-                                    {[...this.props.factors.keys()].map((idx) => (
-                                        <Grid item xs={12} sm={6} key={'factorform' + idx}>
-                                            <FactorForm {...this.props} idx={idx} />
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </Paper>
-                        </Grid>
-
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                                <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 2, display: 'block' }}>Stats Modifiers</Typography>
-                                <Table size="small">
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell>Allow disabled items</TableCell>
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={this.props.ignoreDisabled}
-                                                    onChange={() => this.props.handleSettings('ignoreDisabled', !this.props.ignoreDisabled)}
-                                                />
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>P/T input</TableCell>
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={this.props.basestats.modifiers}
-                                                    onChange={(e) => this.props.handleSettings('basestats', {
-                                                        ...this.props.basestats,
-                                                        modifiers: !this.props.basestats.modifiers
-                                                    })}
-                                                />
-                                            </TableCell>
-                                        </TableRow>
-                                        {((this.props.basestats.modifiers) ? ['power', 'toughness'] : []).map((statname) => (
-                                            <TableRow key={statname}>
-                                                <TableCell>{'Base ' + statname.charAt(0).toUpperCase() + statname.slice(1)}</TableCell>
-                                                <TableCell>
-                                                    <TextField
-                                                        hiddenLabel size="small"
-                                                        type="number"
-                                                        value={this.props.basestats[statname]}
-                                                        onFocus={this.handleFocus}
-                                                        onChange={(e) => this.handleChange(e, ['base', statname])}
-                                                        inputProps={{ step: "any" }}
-                                                        sx={{ width: '10ch' }}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                        {((this.props.basestats.modifiers) ? ['power', 'toughness', 'tier'] : ['tier']).map((statname) => (
-                                            <TableRow key={statname}>
-                                                <TableCell>{'Cube ' + statname.charAt(0).toUpperCase() + statname.slice(1)}</TableCell>
-                                                <TableCell>
-                                                    <TextField
-                                                        hiddenLabel size="small"
-                                                        type="number"
-                                                        value={this.props.cubestats[statname]}
-                                                        onFocus={this.handleFocus}
-                                                        onChange={(e) => this.handleChange(e, ['cube', statname])}
-                                                        inputProps={{ step: "any" }}
-                                                        sx={{ width: '10ch' }}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                        <TableRow>
-                                            <TableCell>Hardcap input</TableCell>
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={this.props.capstats.modifiers}
-                                                    onChange={(e) => this.props.handleSettings('capstats', {
-                                                        ...this.props.capstats,
-                                                        modifiers: !this.props.capstats.modifiers
-                                                    })}
-                                                />
-                                            </TableCell>
-                                        </TableRow>
-                                        {this.props.capstats.modifiers && Object.getOwnPropertyNames(this.props.capstats).map((statname) => {
-                                            if (statname.slice(0, 4) !== 'Nude') return null;
-                                            return (
-                                                <TableRow key={statname}>
-                                                    <TableCell>{statname}</TableCell>
-                                                    <TableCell>
-                                                        <TextField
-                                                            hiddenLabel size="small"
-                                                            type="number"
-                                                            value={this.props.capstats[statname]}
-                                                            onFocus={this.handleFocus}
-                                                            onChange={(e) => this.handleChange(e, ['cap', statname])}
-                                                            inputProps={{ step: "any" }}
-                                                            sx={{ width: '10ch' }}
+                                    {/* Stats Modifiers (Below Data Integration) */}
+                                    <Paper sx={{ p: 2, width: '100%', overflow: 'auto' }}>
+                                        <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 2, display: 'block' }}>Stats Modifiers</Typography>
+                                        <Table size="small">
+                                            <TableBody>
+                                                <TableRow>
+                                                    <TableCell>Allow disabled items</TableCell>
+                                                    <TableCell padding="checkbox">
+                                                        <Checkbox
+                                                            checked={this.props.ignoreDisabled}
+                                                            onChange={() => this.props.handleSettings('ignoreDisabled', !this.props.ignoreDisabled)}
                                                         />
                                                     </TableCell>
                                                 </TableRow>
-                                            );
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </Paper>
+                                                <TableRow>
+                                                    <TableCell>P/T input</TableCell>
+                                                    <TableCell padding="checkbox">
+                                                        <Checkbox
+                                                            checked={this.props.basestats.modifiers}
+                                                            onChange={(e) => this.props.handleSettings('basestats', {
+                                                                ...this.props.basestats,
+                                                                modifiers: !this.props.basestats.modifiers
+                                                            })}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                                {((this.props.basestats.modifiers) ? ['power', 'toughness'] : []).map((statname) => (
+                                                    <TableRow key={statname}>
+                                                        <TableCell>{'Base ' + statname.charAt(0).toUpperCase() + statname.slice(1)}</TableCell>
+                                                        <TableCell>
+                                                            <TextField
+                                                                hiddenLabel size="small"
+                                                                type="number"
+                                                                value={this.props.basestats[statname]}
+                                                                onFocus={this.handleFocus}
+                                                                onChange={(e) => this.handleChange(e, ['base', statname])}
+                                                                inputProps={{ step: "any" }}
+                                                                sx={{ width: '10ch' }}
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                                {((this.props.basestats.modifiers) ? ['power', 'toughness', 'tier'] : ['tier']).map((statname) => (
+                                                    <TableRow key={statname}>
+                                                        <TableCell>{'Cube ' + statname.charAt(0).toUpperCase() + statname.slice(1)}</TableCell>
+                                                        <TableCell>
+                                                            <TextField
+                                                                hiddenLabel size="small"
+                                                                type="number"
+                                                                value={this.props.cubestats[statname]}
+                                                                onFocus={this.handleFocus}
+                                                                onChange={(e) => this.handleChange(e, ['cube', statname])}
+                                                                inputProps={{ step: "any" }}
+                                                                sx={{ width: '10ch' }}
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                                <TableRow>
+                                                    <TableCell>Hardcap input</TableCell>
+                                                    <TableCell padding="checkbox">
+                                                        <Checkbox
+                                                            checked={this.props.capstats.modifiers}
+                                                            onChange={(e) => this.props.handleSettings('capstats', {
+                                                                ...this.props.capstats,
+                                                                modifiers: !this.props.capstats.modifiers
+                                                            })}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                                {this.props.capstats.modifiers && Object.getOwnPropertyNames(this.props.capstats).map((statname) => {
+                                                    if (statname.slice(0, 4) !== 'Nude') return null;
+                                                    return (
+                                                        <TableRow key={statname}>
+                                                            <TableCell>{statname}</TableCell>
+                                                            <TableCell>
+                                                                <TextField
+                                                                    hiddenLabel size="small"
+                                                                    type="number"
+                                                                    value={this.props.capstats[statname]}
+                                                                    onFocus={this.handleFocus}
+                                                                    onChange={(e) => this.handleChange(e, ['cap', statname])}
+                                                                    inputProps={{ step: "any" }}
+                                                                    sx={{ width: '10ch' }}
+                                                                />
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                })}
+                                            </TableBody>
+                                        </Table>
+                                    </Paper>
+                                </Grid>
+
+                                {/* Right Column: Tactical Processor & Zone Config */}
+                                <Grid item xs={12} md>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
+                                        {/* Tactical Processor (Top Right) */}
+                                        <Paper sx={{ p: 2, overflow: 'auto' }}>
+                                            <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5 }}>
+                                                TACTICAL PROCESSOR
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                                                <OptimizeButton text={'Gear'} running={this.props.running}
+                                                    abort={this.props.handleTerminate}
+                                                    optimize={this.props.handleOptimizeGear} />
+                                            </Box>
+                                            <Grid container spacing={1}>
+                                                {[...this.props.factors.keys()].map((idx) => (
+                                                    <Grid item xs={12} sm={6} lg={4} key={'factorform' + idx}>
+                                                        <FactorForm {...this.props} idx={idx} />
+                                                    </Grid>
+                                                ))}
+                                            </Grid>
+                                        </Paper>
+
+                                        {/* Zone Configuration (Below Tactical Processor) */}
+                                        <Paper sx={{ p: 2, flexGrow: 1 }}>
+                                            <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 1, display: 'block', color: 'primary.main', letterSpacing: 1.5, lineHeight: 1 }}>
+                                                ZONE CONFIGURATION
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                <Crement header='Highest zone' value={zone[0]} name='zone'
+                                                    handleClick={this.props.handleCrement} min={2} max={maxzone} />
+                                                {this.props.zone > 20 && (
+                                                    <Crement header={maxtitan[0] + ' version'} value={this.props.titanversion}
+                                                        name='titanversion' handleClick={this.props.handleCrement} min={1} max={4} />
+                                                )}
+                                                <Crement header='Highest looty' value={looty} name='looty'
+                                                    handleClick={this.props.handleCrement} min={-1} max={LOOTIES.length - 1} />
+                                                <Crement header='Highest pendant' value={pendant} name='pendant'
+                                                    handleClick={this.props.handleCrement} min={-1} max={PENDANTS.length - 1} />
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                    <Box sx={{ flex: 1 }}>
+                                                        <Crement header='Acc slots' value={accslots} name='accslots'
+                                                            handleClick={this.props.handleCrement} min={0} max={100} />
+                                                    </Box>
+                                                    {this.props.zone > 27 && (
+                                                        <Box sx={{ flex: 1 }}>
+                                                            <Crement header='Offhand' value={this.props.offhand * 5 + '%'}
+                                                                name='offhand' handleClick={this.props.handleCrement} min={0} max={20} />
+                                                        </Box>
+                                                    )}
+                                                </Box>
+                                            </Box>
+                                        </Paper>
+                                    </Box>
+                                </Grid>
+                            </Grid>
                         </Grid>
+
+
 
                         {/* Equipment List Row */}
                         {/* Equipment List Row - REFACTORED */}
@@ -381,6 +389,7 @@ class Optimizer extends Component {
                                     title="Not maxed"
                                     items={this.props.items}
                                     itemdata={this.itemdata}
+                                    equip={this.props.equip}
                                     handleEquipItem={this.props.handleEquipItem}
                                     handleCtrlClickItem={this.props.handleDisableItem}
                                     handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}
@@ -397,6 +406,7 @@ class Optimizer extends Component {
                                     title="Disabled Items"
                                     items={this.props.items}
                                     itemdata={this.itemdata}
+                                    equip={this.props.equip}
                                     handleEquipItem={this.props.handleEquipItem}
                                     handleCtrlClickItem={this.props.handleDisableItem}
                                     handleShiftClickItem={(itemId) => this.props.handleEditItem(itemId, -1)}

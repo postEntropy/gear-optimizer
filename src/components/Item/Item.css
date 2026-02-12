@@ -12,6 +12,13 @@
     outline-offset: -2px;
 }
 
+.equipped-item {
+    outline: 2px solid #00e676;
+    outline-offset: -2px;
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0, 230, 118, 0.6);
+}
+
 .item-container {
     display: inline-block;
 }

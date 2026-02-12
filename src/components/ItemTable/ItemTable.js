@@ -66,6 +66,7 @@ const ItemTable = (props) => {
         compactitemlist,
         showunused,
         savedequip,
+        equip,
         hidden,
         handleDisableZone,
         handleSettings,
@@ -150,11 +151,18 @@ const ItemTable = (props) => {
                 if (isUsed) className = '';
             }
 
+            // Check if item is currently equipped
+            let isEquipped = false;
+            if (equip && equip[item.slot[0]]) {
+                isEquipped = equip[item.slot[0]].includes(id);
+            }
+
             if (allowed_zone(itemdata, limits, id) && !(compactitemlist && item.disable)) {
                 localbuffer.push(
                     <SourceItem
                         className={className}
                         item={item}
+                        isEquipped={isEquipped}
                         handleClickItem={handleClickItem}
                         handleCtrlClickItem={handleCtrlClickItem}
                         handleShiftClickItem={(itemId) => handleEditItem(itemId, -1)}
@@ -170,7 +178,7 @@ const ItemTable = (props) => {
         flushBuffer(compactitemlist ? Infinity : lastZoneId, compactitemlist ? 'Items' : lastGroupName);
 
         return buffer;
-    }, [items, itemdata, groupBy, compactitemlist, showunused, savedequip, hidden, limits]);
+    }, [items, itemdata, groupBy, compactitemlist, showunused, savedequip, equip, hidden, limits]);
 
     return (
         <Box sx={{ width: '100%', height: '72vh', margin: 'auto', overflowY: 'auto', p: 1 }}>
