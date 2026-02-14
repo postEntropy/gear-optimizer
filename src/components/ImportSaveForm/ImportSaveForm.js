@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, Tooltip, Switch, FormControlLabel, Typography, Dialog, DialogContent } from '@mui/material';
+import { Box, Button, Tooltip, Switch, FormControlLabel, Typography, Dialog, DialogContent, alpha } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Crement } from '../../actions/Crement';
 import { MassUpdate } from '../../actions/MassUpdateItems';
@@ -55,7 +55,7 @@ const normalZones = [
     [7, 3],
 ];
 
-const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) => {
+const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, minimal = false, label = "Import" }) => {
     const dispatch = useDispatch();
 
     const optimizerState = useSelector(state => state.optimizer);
@@ -571,6 +571,35 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
         }
     }
 
+
+    if (minimal) {
+        return (
+            <Box>
+                <input ref={inputElem} style={{ display: "none" }} type='file' id='savefileloader'
+                    multiple onChange={e => handleFilePick(e)} />
+                <Tooltip title="Bulk import rebirth save files to populate history" arrow>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<UploadFileIcon />}
+                        onClick={() => inputElem.current.click()}
+                        sx={{
+                            borderRadius: '12px',
+                            fontWeight: 700,
+                            textTransform: 'none',
+                            px: 3,
+                            boxShadow: (theme) => `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`,
+                            '&:hover': {
+                                boxShadow: (theme) => `0 6px 20px ${alpha(theme.palette.primary.main, 0.6)}`,
+                            }
+                        }}
+                    >
+                        {label}
+                    </Button>
+                </Tooltip>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 0.5 }}>

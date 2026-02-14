@@ -87,7 +87,7 @@ const HistoryTable = ({ history }) => {
     const [order, setOrder] = useState('desc');
     const [orderBy, setOrderBy] = useState('timestamp');
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -96,9 +96,7 @@ const HistoryTable = ({ history }) => {
     };
 
     const handleSelectAllClick = (event) => {
-        // Implementation for mass delete or compare selection (limit 2 usually)
-        // For now, let's just ignore select all for compare mode or restrict it.
-        // Or select all for 'Delete' action ?
+        // Mass selection logic
     };
 
     const handleChangePage = (event, newPage) => {
@@ -159,14 +157,6 @@ const HistoryTable = ({ history }) => {
                     History Log
                 </Typography>
                 <Box>
-                    <Tooltip title="Compare Mode">
-                        <IconButton
-                            color={isCompareMode ? 'primary' : 'default'}
-                            onClick={() => setIsCompareMode(!isCompareMode)}
-                        >
-                            <CompareArrows />
-                        </IconButton>
-                    </Tooltip>
                     <Tooltip title="Filter List">
                         <IconButton>
                             <FilterList />

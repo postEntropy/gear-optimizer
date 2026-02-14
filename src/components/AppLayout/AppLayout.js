@@ -158,53 +158,78 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
                 anchorEl={anchorEl}
                 open={colorMenuOpen}
                 onClose={handleColorMenuClose}
-                PaperProps={{ sx: { borderRadius: 3, mt: 1 } }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                        mt: 1,
+                        minWidth: 220,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        backgroundImage: 'none'
+                    }
+                }}
             >
-                {Object.values(THEME_COLORS).map((color) => (
-                    <MenuItem
-                        key={color.key}
-                        onClick={() => {
-                            changeColor(color.key);
-                            handleColorMenuClose();
-                        }}
-                        selected={selectedColorKey === color.key}
-                    >
-                        <ListItemIcon>
-                            <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: color.main, border: '1px solid', borderColor: 'divider' }} />
-                        </ListItemIcon>
-                        <ListItemText>{color.name}</ListItemText>
-                    </MenuItem>
-                ))}
+                <Box sx={{ px: 2, py: 1, bgcolor: 'action.hover' }}>
+                    <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+                        Theme Colors
+                    </Typography>
+                </Box>
+                <Divider />
+                {Object.values(THEME_COLORS).map((color) => {
+                    const isSelected = selectedColorKey === color.key;
+                    return (
+                        <MenuItem
+                            key={color.key}
+                            onClick={() => {
+                                changeColor(color.key);
+                                handleColorMenuClose();
+                            }}
+                            selected={isSelected}
+                            sx={{
+                                py: 1.2,
+                                px: 2,
+                                gap: 2,
+                                '&.Mui-selected': {
+                                    bgcolor: alpha(color.main, 0.12),
+                                    '&:hover': { bgcolor: alpha(color.main, 0.2) }
+                                }
+                            }}
+                        >
+                            <Box sx={{
+                                width: 18,
+                                height: 18,
+                                borderRadius: 1.5,
+                                bgcolor: color.main,
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                flexShrink: 0
+                            }} />
+                            <ListItemText
+                                primary={color.name}
+                                primaryTypographyProps={{
+                                    fontWeight: isSelected ? 700 : 400,
+                                    fontSize: '0.85rem'
+                                }}
+                            />
+                        </MenuItem>
+                    );
+                })}
             </Menu>
         </>
     );
 });
 
-// ISOLATED Page Content to prevent re-renders when sidebar toggles
-const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, props, loadoutParams, visited, fadeAnimation }) => {
+// IMPROVED Page Content: Unmount inactive pages for performance
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, props, loadoutParams, fadeAnimation }) => {
     return (
-        <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto' }}>
-            <Box sx={{ display: isOptimizer ? 'block' : 'none', ...fadeAnimation }}>
-                <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />
-            </Box>
-            <Box sx={{ display: isAugment ? 'block' : 'none', ...fadeAnimation }}>
-                {(visited.augment || isAugment) && <Augment {...props} className='app_body' />}
-            </Box>
-            <Box sx={{ display: isNGUs ? 'block' : 'none', ...fadeAnimation }}>
-                {(visited.ngus || isNGUs) && <NGUComponent {...props} className='app_body' />}
-            </Box>
-            <Box sx={{ display: isHacks ? 'block' : 'none', ...fadeAnimation }}>
-                {(visited.hacks || isHacks) && <HackComponent {...props} className='app_body' />}
-            </Box>
-            <Box sx={{ display: isWishes ? 'block' : 'none', ...fadeAnimation }}>
-                {(visited.wishes || isWishes) && <WishComponent {...props} className='app_body' />}
-            </Box>
-            <Box sx={{ display: isHistory ? 'block' : 'none', ...fadeAnimation }}>
-                {(visited.history || isHistory) && <HistoryComponent {...props} className='app_body' />}
-            </Box>
-            <Box sx={{ display: isPerks ? 'block' : 'none', ...fadeAnimation }}>
-                {(visited.perks || isPerks) && <PerksComponent {...props} className='app_body' />}
-            </Box>
+        <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto', ...fadeAnimation }}>
+            {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
+            {isAugment && <Augment {...props} className='app_body' />}
+            {isNGUs && <NGUComponent {...props} className='app_body' />}
+            {isHacks && <HackComponent {...props} className='app_body' />}
+            {isWishes && <WishComponent {...props} className='app_body' />}
+            {isHistory && <HistoryComponent {...props} className='app_body' />}
+            {isPerks && <PerksComponent {...props} className='app_body' />}
         </Box>
     );
 });
@@ -217,7 +242,7 @@ const AppLayout = (props) => {
     });
     const [selectedColorKey, setSelectedColorKey] = React.useState(() => {
         const saved = localStorage.getItem('theme-color-key');
-        return saved && THEME_COLORS[saved] ? saved : 'GREEN';
+        return saved && THEME_COLORS[saved] ? saved : 'NOVA';
     });
 
     const [open, setOpen] = React.useState(true);
@@ -256,24 +281,7 @@ const AppLayout = (props) => {
     const isHistory = path.startsWith('/history');
     const isPerks = path.startsWith('/perks');
 
-    const [visited, setVisited] = React.useState({
-        optimizer: true,
-        augment: false,
-        ngus: false,
-        hacks: false,
-        wishes: false,
-        history: false,
-        perks: false
-    });
 
-    React.useEffect(() => {
-        if (isAugment && !visited.augment) setVisited(v => ({ ...v, augment: true }));
-        if (isNGUs && !visited.ngus) setVisited(v => ({ ...v, ngus: true }));
-        if (isHacks && !visited.hacks) setVisited(v => ({ ...v, hacks: true }));
-        if (isWishes && !visited.wishes) setVisited(v => ({ ...v, wishes: true }));
-        if (isHistory && !visited.history) setVisited(v => ({ ...v, history: true }));
-        if (isPerks && !visited.perks) setVisited(v => ({ ...v, perks: true }));
-    }, [isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, visited]);
 
 
     const currentDrawerWidth = open ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH;
@@ -307,9 +315,12 @@ const AppLayout = (props) => {
                                     duration: theme.transitions.duration.shorter,
                                 }),
                                 overflowX: 'hidden',
-                                borderRight: 'none',
-                                backdropFilter: 'blur(10px)',
-                                background: (theme) => theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.5) : alpha('#fff', 0.8),
+                                borderRight: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
+                                backdropFilter: 'blur(12px)',
+                                boxShadow: theme.palette.mode === 'dark'
+                                    ? '10px 0 30px -10px rgba(0,0,0,0.6)'
+                                    : '10px 0 30px -10px rgba(0,0,0,0.08)',
+                                background: (theme) => theme.palette.mode === 'dark' ? alpha(theme.palette.background.paper, 0.6) : alpha('#fff', 0.85),
                             },
                         }}
                     >
@@ -401,7 +412,6 @@ const AppLayout = (props) => {
                             isPerks={isPerks}
                             props={props}
                             loadoutParams={loadoutParams}
-                            visited={visited}
                             fadeAnimation={fadeAnimation}
                         />
                     </Box>

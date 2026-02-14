@@ -8,8 +8,7 @@ export const HistoryProvider = ({ children }) => {
     const [chartMode, setChartMode] = useState('absolute'); // 'absolute' | 'relative' | 'stacked'
     const [showR3, setShowR3] = useState(false);
 
-    // Interaction State
-    const [activeSeries, setActiveSeries] = useState(null);
+    // Interaction State - Global settings only
     const [hiddenSeries, setHiddenSeries] = useState(new Set());
 
     // Compare Mode State
@@ -30,7 +29,6 @@ export const HistoryProvider = ({ children }) => {
             setSelectedSaves(prev => prev.filter(s => s.timestamp !== save.timestamp));
         } else {
             if (selectedSaves.length >= 2) {
-                // Replace the oldest selection or just warn? Let's generic approach: remove first, add new
                 setSelectedSaves(prev => [prev[1], save]);
             } else {
                 setSelectedSaves(prev => [...prev, save]);
@@ -42,7 +40,6 @@ export const HistoryProvider = ({ children }) => {
         timeRange, setTimeRange,
         chartMode, setChartMode,
         showR3, setShowR3,
-        activeSeries, setActiveSeries,
         hiddenSeries, toggleSeries,
         isCompareMode, setIsCompareMode,
         selectedSaves, toggleSaveSelection,

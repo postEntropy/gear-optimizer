@@ -74,9 +74,12 @@ const INITIAL_STATE = {
     maxslots: [
         Infinity, Infinity
     ],
-    editItem: [
-        false, undefined, undefined, undefined
-    ],
+    editItem: {
+        on: false,
+        itemId: undefined,
+        level: undefined,
+        lockable: undefined
+    },
     running: false,
     zone: maxZone,
     looty: 0,
@@ -268,6 +271,34 @@ const optimizerSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(TOGGLE_MODAL, (state, action) => {
+                const data = action.payload.data;
+                if (action.payload.name === 'edit item') {
+                    const item = state.itemdata[data.itemId];
+                    state.editItem = {
+                        on: data.on,
+                        itemId: data.itemId,
+                        level: item ? item.level : undefined,
+                        lockable: data.lockable
+                    };
+                }
+            })
+            .addCase(EDIT_ITEM, (state, action) => {
+                const { itemId, level } = action.payload;
+                if (isNaN(level) || level < 0 || level > 100) return;
+
+                const actualLevel = level === -1
+                    ? (state.itemdata[itemId].level === 100 ? 0 : 100)
+                    : level;
+
+                // Update item level in state
+                if (state.itemdata[itemId]) {
+                    update_level(state.itemdata[itemId], actualLevel);
+                }
+
+                // Update modal state too
+                state.editItem.level = actualLevel;
+            })
             .addCase(AUGMENT, (state, action) => {
                 if (!state.running) return;
                 // console.log('worker finished')

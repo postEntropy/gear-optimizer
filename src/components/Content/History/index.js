@@ -9,6 +9,7 @@ import ResourceChart from './Charts/ResourceChart';
 import StackedAreaChart from './Charts/StackedAreaChart';
 import HistoryTable from './HistoryTable';
 import { History as HistoryIcon, Analytics, FlashOn, AutoFixHigh, Code } from '@mui/icons-material';
+import ImportSaveForm from '../../ImportSaveForm/ImportSaveForm';
 
 // Inner layout component to access Context
 const DashboardLayout = () => {
@@ -44,15 +45,7 @@ const DashboardLayout = () => {
                     </Typography>
 
                     <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                        <Button
-                            variant="contained"
-                            size="large"
-                            startIcon={<HistoryIcon />}
-                            onClick={() => document.getElementById('savefileloader')?.click()}
-                            sx={{ borderRadius: 3, px: 4, fontWeight: 700 }}
-                        >
-                            Import Rebirth Saves
-                        </Button>
+                        <ImportSaveForm minimal={true} label="Import Rebirth saves" />
                     </Box>
 
                     <Typography variant="caption" display="block" sx={{ mt: 4, opacity: 0.6 }}>
@@ -84,47 +77,51 @@ const DashboardLayout = () => {
                     </Box>
                     <Box>
                         <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -0.5 }}>
-                            Analytics Command Center
+                            Progression Analytics
                         </Typography>
                         <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Deep dive into your NGU Idle progression metrics
+                            Comprehensive overview of your journey and growth
                         </Typography>
                     </Box>
                 </Box>
 
-                {/* Time Range Selector */}
-                <Box sx={{
-                    display: 'flex',
-                    bgcolor: alpha(theme.palette.background.paper, 0.5),
-                    p: 0.5,
-                    borderRadius: 3,
-                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                    backdropFilter: 'blur(10px)'
-                }}>
-                    {[
-                        { label: '7D', value: 7 },
-                        { label: '30D', value: 30 },
-                        { label: '90D', value: 90 },
-                        { label: 'ALL', value: 0 }
-                    ].map((range) => (
-                        <Button
-                            key={range.label}
-                            size="small"
-                            onClick={() => setTimeRange(range.value)}
-                            sx={{
-                                minWidth: 60,
-                                borderRadius: 2.5,
-                                fontWeight: 700,
-                                color: timeRange === range.value ? 'primary.contrastText' : 'text.secondary',
-                                bgcolor: timeRange === range.value ? 'primary.main' : 'transparent',
-                                '&:hover': {
-                                    bgcolor: timeRange === range.value ? 'primary.dark' : alpha(theme.palette.primary.main, 0.1),
-                                }
-                            }}
-                        >
-                            {range.label}
-                        </Button>
-                    ))}
+                {/* Actions & Time Range */}
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <ImportSaveForm minimal={true} label="Import Rebirths" />
+
+                    <Box sx={{
+                        display: 'flex',
+                        bgcolor: alpha(theme.palette.background.paper, 0.5),
+                        p: 0.5,
+                        borderRadius: 3,
+                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        backdropFilter: 'blur(10px)'
+                    }}>
+                        {[
+                            { label: '7D', value: 7 },
+                            { label: '30D', value: 30 },
+                            { label: '90D', value: 90 },
+                            { label: 'ALL', value: 0 }
+                        ].map((range) => (
+                            <Button
+                                key={range.label}
+                                size="small"
+                                onClick={() => setTimeRange(range.value)}
+                                sx={{
+                                    minWidth: 60,
+                                    borderRadius: 2.5,
+                                    fontWeight: 700,
+                                    color: timeRange === range.value ? 'primary.contrastText' : 'text.secondary',
+                                    bgcolor: timeRange === range.value ? 'primary.main' : 'transparent',
+                                    '&:hover': {
+                                        bgcolor: timeRange === range.value ? 'primary.dark' : alpha(theme.palette.primary.main, 0.1),
+                                    }
+                                }}
+                            >
+                                {range.label}
+                            </Button>
+                        ))}
+                    </Box>
                 </Box>
             </Box>
 

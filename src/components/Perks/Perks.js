@@ -3,15 +3,24 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import {
     Box, Typography, Grid, Card, CardContent, LinearProgress, Tooltip,
-    InputAdornment, TextField, Paper, ToggleButton, ToggleButtonGroup
+    InputAdornment, TextField, Paper, ToggleButton, ToggleButtonGroup,
+    Select, MenuItem, FormControl, InputLabel, IconButton, alpha
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import SortIcon from '@mui/icons-material/Sort';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import perkData from '../../assets/perks.json';
 
 const Perks = () => {
     const perkLevels = useSelector(state => state.optimizer.adventure?.itopod?.perkLevel) || [];
     const [searchTerm, setSearchTerm] = React.useState('');
     const [difficultyFilter, setDifficultyFilter] = React.useState('All');
+    const [sortBy, setSortBy] = React.useState('id');
+    const [sortOrder, setSortOrder] = React.useState('asc');
+    const [hideMaxed, setHideMaxed] = React.useState(false);
 
     // Mapping levels to static data
     const perks = perkData.map(p => {
@@ -33,15 +42,37 @@ const Perks = () => {
         }
     };
 
+    const difficultyOrder = { 'Normal': 0, 'Evil': 1, 'Sadistic': 2 };
+
     const filteredPerks = perks
         .filter(p => {
             const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesDifficulty = difficultyFilter === 'All' || p.difficulty === difficultyFilter;
-            return matchesSearch && matchesDifficulty;
+            const matchesHideMaxed = !hideMaxed || !p.isMaxed;
+            return matchesSearch && matchesDifficulty && matchesHideMaxed;
         })
         .sort((a, b) => {
-            if (a.isMaxed === b.isMaxed) return 0;
-            return a.isMaxed ? 1 : -1;
+            let comparison = 0;
+            switch (sortBy) {
+                case 'name':
+                    comparison = a.name.localeCompare(b.name);
+                    break;
+                case 'level':
+                    comparison = a.level - b.level;
+                    break;
+                case 'percentage':
+                    comparison = a.percentage - b.percentage;
+                    break;
+                case 'difficulty':
+                    comparison = difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+                    break;
+                case 'maxed':
+                    comparison = a.isMaxed === b.isMaxed ? 0 : (a.isMaxed ? 1 : -1);
+                    break;
+                default: // id
+                    comparison = a.id - b.id;
+            }
+            return sortOrder === 'asc' ? comparison : -comparison;
         });
 
     const handleDifficultyChange = (event, newDifficulty) => {
@@ -75,6 +106,68 @@ const Perks = () => {
                         <ToggleButton value="Sadistic" sx={{ px: 2, color: getDifficultyColor('Sadistic') }}>Sadistic</ToggleButton>
                     </ToggleButtonGroup>
 
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel id="perk-sort-label">Sort By</InputLabel>
+                        <Select
+                            labelId="perk-sort-label"
+                            value={sortBy}
+                            label="Sort By"
+                            onChange={(e) => setSortBy(e.target.value)}
+                            sx={{ height: 35 }}
+                        >
+                            <MenuItem value="id">ID</MenuItem>
+                            <MenuItem value="name">Name</MenuItem>
+                            <MenuItem value="level">Level</MenuItem>
+                            <MenuItem value="percentage">% Complete</MenuItem>
+                            <MenuItem value="difficulty">Difficulty</MenuItem>
+                            <MenuItem value="maxed">Maxed Status</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <IconButton
+                        size="small"
+                        onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                        sx={{
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            height: 35,
+                            width: 35,
+                            bgcolor: 'action.hover'
+                        }}
+                    >
+                        {sortOrder === 'asc' ? <ArrowUpwardIcon fontSize="small" /> : <ArrowDownwardIcon fontSize="small" />}
+                    </IconButton>
+
+                    <ToggleButton
+                        size="small"
+                        value="check"
+                        selected={hideMaxed}
+                        onChange={() => setHideMaxed(!hideMaxed)}
+                        sx={{
+                            height: 35,
+                            px: 1.5,
+                            gap: 1,
+                            borderRadius: 1,
+                            textTransform: 'none',
+                            fontWeight: 700,
+                            border: '1px solid',
+                            borderColor: hideMaxed ? 'success.main' : 'divider',
+                            color: hideMaxed ? 'success.main' : 'text.secondary',
+                            bgcolor: hideMaxed ? (theme) => alpha(theme.palette.success.main, 0.1) : 'transparent',
+                            '&.Mui-selected': {
+                                bgcolor: (theme) => alpha(theme.palette.success.main, 0.15),
+                                color: 'success.main',
+                                '&:hover': {
+                                    bgcolor: (theme) => alpha(theme.palette.success.main, 0.2),
+                                }
+                            }
+                        }}
+                    >
+                        {hideMaxed ? <CheckCircleIcon fontSize="small" /> : <CheckCircleOutlineIcon fontSize="small" />}
+                        Hide Maxed
+                    </ToggleButton>
+
                     <TextField
                         size="small"
                         placeholder="Search perks..."
@@ -90,7 +183,7 @@ const Perks = () => {
                             sx: {
                                 borderRadius: 1,
                                 height: 35,
-                                width: { xs: '100%', sm: 200 }
+                                width: { xs: '100%', sm: 150 }
                             }
                         }}
                     />
@@ -187,7 +280,7 @@ const Perks = () => {
                     </Grid>
                 ))}
             </Grid>
-        </Paper>
+        </Paper >
     );
 };
 

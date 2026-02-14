@@ -1,16 +1,16 @@
 import React from 'react';
 import { Button, TextField, Box, Stack, Typography } from '@mui/material';
-import { getLock, getSlot } from '../../util'
+import { getLock, getSlot } from '../../utils/items' // Updated import to utils/items
 
 class LockButton extends React.Component {
     render() {
-        const id = this.props.editItem[1];
-        const lockable = this.props.editItem[3];
-        if (!lockable || this.props.itemdata[id].empty) {
+        const { itemId, lockable } = this.props.editItem;
+        if (!lockable || this.props.itemdata[itemId].empty) {
             return <></>
         }
-        const slot = getSlot(id, this.props.itemdata);
-        const idx = this.props.equip[slot[0]].indexOf(id);
+        const slot = getSlot(itemId, this.props.itemdata);
+        const idx = this.props.equip[slot[0]].indexOf(itemId);
+        // getLock expects raw locked object, check updated import
         const locked = getLock(slot[0], idx, this.props.locked);
         return <Button variant="outlined" onClick={() => this.props.handleLockItem(!locked, slot[0], idx)}>{
             locked
@@ -24,7 +24,7 @@ export default class ItemForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: this.props.editItem[2]
+            value: this.props.editItem.level // Formerly editItem[2]
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -32,7 +32,7 @@ export default class ItemForm extends React.Component {
     }
 
     handleSubmit(event) {
-        this.props.handleEditItem(this.props.editItem[1], this.state.value)
+        this.props.handleEditItem(this.props.editItem.itemId, this.state.value)
         event.preventDefault();
         this.props.closeEditModal();
     }
@@ -58,7 +58,7 @@ export default class ItemForm extends React.Component {
     }
 
     render() {
-        const item = this.props.itemdata[this.props.editItem[1]];
+        const item = this.props.itemdata[this.props.editItem.itemId];
         let able = 'Disable';
         if (item !== undefined && item.disable) {
             able = 'Enable'
@@ -81,7 +81,7 @@ export default class ItemForm extends React.Component {
                 />
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                     <Button type="submit" variant="contained">Update</Button>
-                    <Button variant="outlined" color={able === 'Disable' ? 'error' : 'success'} onClick={() => this.props.handleDisableItem(this.props.editItem[1])}>
+                    <Button variant="outlined" color={able === 'Disable' ? 'error' : 'success'} onClick={() => this.props.handleDisableItem(this.props.editItem.itemId)}>
                         {able}
                     </Button>
                     <LockButton {...this.props} />

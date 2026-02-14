@@ -8,7 +8,8 @@ import ChartContainer from '../Components/ChartContainer';
 
 const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 }) => {
     const theme = useTheme();
-    const { timeRange, activeSeries, setActiveSeries } = useHistoryContext();
+    const [activeSeries, setActiveSeries] = React.useState(null);
+    const { timeRange, hiddenSeries, toggleSeries } = useHistoryContext();
     const { filteredData, rawHistory } = useHistoryData(timeRange);
 
     // Identify which series have data
@@ -130,22 +131,26 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                         <Tooltip content={<CustomTooltip />} />
 
                         {visibleSeries.map(({ name, i }) => {
-                            const key = `${prefix}_${i}`;
+                            const seriesKey = `${prefix}_${i}`;
+                            const isHidden = hiddenSeries.has(seriesKey);
+                            if (isHidden) return null;
+
                             // Use a better distribution of hues for high counts (Hacks have ~15)
                             const hue = (i * (360 / Math.max(visibleSeries.length, 1))) % 360;
                             const fillColor = `hsl(${hue}, 70%, 45%)`;
 
                             return (
                                 <Area
-                                    key={key}
+                                    key={seriesKey}
                                     type="monotone"
-                                    dataKey={key}
+                                    dataKey={seriesKey}
                                     name={name}
                                     stackId="1"
                                     stroke={fillColor}
                                     fill={fillColor}
-                                    fillOpacity={0.5}
-                                    strokeWidth={1}
+                                    fillOpacity={activeSeries ? (activeSeries === seriesKey ? 0.8 : 0.1) : 0.5}
+                                    strokeOpacity={activeSeries ? (activeSeries === seriesKey ? 1 : 0.2) : 1}
+                                    strokeWidth={activeSeries === seriesKey ? 2 : 1}
                                     activeDot={{ r: 4, strokeWidth: 0 }}
                                 />
                             );
@@ -164,6 +169,8 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                     px: 2
                 }}>
                     {visibleSeries.map(({ name, i }) => {
+                        const seriesKey = `${prefix}_${i}`;
+                        const isHidden = hiddenSeries.has(seriesKey);
                         const hue = (i * (360 / Math.max(visibleSeries.length, 1))) % 360;
                         const colorCode = `hsl(${hue}, 70%, 45%)`;
                         return (
@@ -173,20 +180,43 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: 0.8,
-                                    opacity: activeSeries && activeSeries !== `${prefix}_${i}` ? 0.4 : 1,
-                                    transition: 'all 0.2s',
-                                    cursor: 'default',
-                                    bgcolor: alpha(colorCode, 0.05),
-                                    px: 1,
-                                    py: 0.3,
-                                    borderRadius: 1,
-                                    border: `1px solid ${alpha(colorCode, 0.1)}`
+                                    opacity: isHidden ? 0.3 : (activeSeries && activeSeries !== seriesKey ? 0.6 : 1),
+                                    transition: 'all 0.15s ease-out',
+                                    cursor: 'pointer',
+                                    bgcolor: isHidden ? 'transparent' : alpha(colorCode, 0.08),
+                                    px: 1.2,
+                                    py: 0.5,
+                                    borderRadius: 1.5,
+                                    border: `1px solid ${isHidden ? alpha(theme.palette.divider, 0.2) : alpha(colorCode, 0.3)}`,
+                                    userSelect: 'none',
+                                    '&:hover': {
+                                        bgcolor: alpha(colorCode, 0.15),
+                                        transform: 'translateY(-1px)',
+                                        boxShadow: `0 2px 4px ${alpha(colorCode, 0.2)}`
+                                    },
+                                    '&:active': {
+                                        transform: 'scale(0.95)'
+                                    }
                                 }}
-                                onMouseEnter={() => setActiveSeries(`${prefix}_${i}`)}
+                                onClick={() => toggleSeries(seriesKey)}
+                                onMouseEnter={() => !isHidden && setActiveSeries(seriesKey)}
                                 onMouseLeave={() => setActiveSeries(null)}
                             >
-                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: colorCode }} />
-                                <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: 'text.secondary' }}>
+                                <Box sx={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: '50%',
+                                    bgcolor: isHidden ? theme.palette.action.disabled : colorCode,
+                                    boxShadow: isHidden ? 'none' : `0 0 5px ${alpha(colorCode, 0.5)}`,
+                                    pointerEvents: 'none'
+                                }} />
+                                <Typography sx={{
+                                    fontSize: '0.8rem',
+                                    fontWeight: 800,
+                                    color: isHidden ? 'text.disabled' : 'text.primary',
+                                    textDecoration: isHidden ? 'line-through' : 'none',
+                                    pointerEvents: 'none'
+                                }}>
                                     {name}
                                 </Typography>
                             </Box>

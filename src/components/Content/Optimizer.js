@@ -444,7 +444,7 @@ class Optimizer extends Component {
                     </Grid>
 
                     <Dialog
-                        open={this.props.editItem[0]}
+                        open={this.props.editItem?.on || false}
                         onClose={this.closeEditModal}
                         maxWidth="sm"
                         fullWidth

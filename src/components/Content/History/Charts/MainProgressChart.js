@@ -9,7 +9,8 @@ import { TrendingUp, Timeline, ShowChart } from '@mui/icons-material';
 
 const MainProgressChart = () => {
     const theme = useTheme();
-    const { timeRange, setTimeRange, activeSeries, setActiveSeries } = useHistoryContext();
+    const [activeSeries, setActiveSeries] = React.useState(null);
+    const { timeRange, setTimeRange } = useHistoryContext();
     const { filteredData } = useHistoryData(timeRange);
 
     const getClosestSeries = (e) => {

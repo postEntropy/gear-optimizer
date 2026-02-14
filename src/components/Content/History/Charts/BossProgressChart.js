@@ -8,7 +8,8 @@ import { EmojiEvents } from '@mui/icons-material';
 
 const BossProgressChart = () => {
     const theme = useTheme();
-    const { timeRange, activeSeries, setActiveSeries } = useHistoryContext();
+    const [activeSeries, setActiveSeries] = React.useState(null);
+    const { timeRange } = useHistoryContext();
     const { filteredData } = useHistoryData(timeRange);
 
     const getClosestSeries = (e) => {

@@ -9,7 +9,8 @@ import { FlashOn, Science, AutoFixHigh } from '@mui/icons-material';
 
 const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | 'res3'
     const theme = useTheme();
-    const { timeRange, chartMode, setChartMode, activeSeries, setActiveSeries, showR3 } = useHistoryContext();
+    const [activeSeries, setActiveSeries] = React.useState(null);
+    const { timeRange, chartMode, setChartMode, showR3, hiddenSeries, toggleSeries } = useHistoryContext();
     const { filteredData, rawHistory } = useHistoryData(timeRange);
 
     const getClosestSeries = (e) => {
@@ -144,6 +145,8 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                     <LineChart
                         data={filteredData}
                         syncId={type}
+                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                        onMouseLeave={() => setActiveSeries(null)}
                         margin={{ top: 10, right: 30, left: 10, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
@@ -161,22 +164,32 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                             tick={{ dx: -5 }}
                         />
                         <Tooltip content={<CustomTooltip />} />
-                        <Line
-                            type="monotone"
-                            dataKey={config.keys[1]}
-                            name={config.labels[1]}
-                            stroke={config.colors[1]}
-                            strokeWidth={2}
-                            dot={false}
-                        />
-                        <Line
-                            type="monotone"
-                            dataKey={config.keys[2]}
-                            name={config.labels[2]}
-                            stroke={config.colors[2]}
-                            strokeWidth={2}
-                            dot={false}
-                        />
+                        {!hiddenSeries.has(config.keys[1]) && (
+                            <Line
+                                type="monotone"
+                                dataKey={config.keys[1]}
+                                name={config.labels[1]}
+                                stroke={config.colors[1]}
+                                strokeWidth={activeSeries === config.keys[1] ? 4 : 2}
+                                strokeOpacity={activeSeries && activeSeries !== config.keys[1] ? 0.2 : 1}
+                                dot={false}
+                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                style={{ transition: 'all 0.2s' }}
+                            />
+                        )}
+                        {!hiddenSeries.has(config.keys[2]) && (
+                            <Line
+                                type="monotone"
+                                dataKey={config.keys[2]}
+                                name={config.labels[2]}
+                                stroke={config.colors[2]}
+                                strokeWidth={activeSeries === config.keys[2] ? 4 : 2}
+                                strokeOpacity={activeSeries && activeSeries !== config.keys[2] ? 0.2 : 1}
+                                dot={false}
+                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                style={{ transition: 'all 0.2s' }}
+                            />
+                        )}
                     </LineChart>
                 </ResponsiveContainer>
 
@@ -187,6 +200,8 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                     <LineChart
                         data={filteredData}
                         syncId={type}
+                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                        onMouseLeave={() => setActiveSeries(null)}
                         margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
@@ -208,27 +223,77 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                             tick={{ dx: -5 }}
                         />
                         <Tooltip content={<CustomTooltip />} />
-                        <Line
-                            type="monotone"
-                            dataKey={config.keys[0]}
-                            name={config.labels[0]}
-                            stroke={config.colors[0]}
-                            strokeWidth={2}
-                            dot={false}
-                        />
+                        {!hiddenSeries.has(config.keys[0]) && (
+                            <Line
+                                type="monotone"
+                                dataKey={config.keys[0]}
+                                name={config.labels[0]}
+                                stroke={config.colors[0]}
+                                strokeWidth={activeSeries === config.keys[0] ? 4 : 2}
+                                strokeOpacity={activeSeries && activeSeries !== config.keys[0] ? 0.2 : 1}
+                                dot={false}
+                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                style={{ transition: 'all 0.2s' }}
+                            />
+                        )}
                     </LineChart>
                 </ResponsiveContainer>
 
-                {/* Simple Legend */}
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, mt: 2, mb: 1 }}>
-                    {config.labels.map((label, idx) => (
-                        <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: config.colors[idx], boxShadow: `0 0 10px ${alpha(config.colors[idx], 0.3)}` }} />
-                            <Typography variant="caption" sx={{ fontSize: '0.8rem', fontWeight: 700, color: 'text.primary' }}>
-                                {label}
-                            </Typography>
-                        </Box>
-                    ))}
+                {/* Interactive Legend */}
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2, mb: 1, flexWrap: 'wrap' }}>
+                    {config.labels.map((label, idx) => {
+                        const seriesKey = config.keys[idx];
+                        const isHidden = hiddenSeries.has(seriesKey);
+                        const colorCode = config.colors[idx];
+                        return (
+                            <Box
+                                key={label}
+                                onClick={() => toggleSeries(seriesKey)}
+                                onMouseEnter={() => !isHidden && setActiveSeries(seriesKey)}
+                                onMouseLeave={() => setActiveSeries(null)}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    cursor: 'pointer',
+                                    px: 1.5,
+                                    py: 0.8,
+                                    borderRadius: 1.5,
+                                    bgcolor: isHidden ? 'transparent' : alpha(colorCode, 0.08),
+                                    border: `1px solid ${isHidden ? alpha(theme.palette.divider, 0.2) : alpha(colorCode, 0.3)}`,
+                                    opacity: isHidden ? 0.4 : (activeSeries && activeSeries !== seriesKey ? 0.6 : 1),
+                                    transition: 'all 0.15s ease-out',
+                                    userSelect: 'none',
+                                    '&:hover': {
+                                        bgcolor: alpha(colorCode, 0.15),
+                                        transform: 'translateY(-1px)',
+                                        boxShadow: `0 2px 4px ${alpha(colorCode, 0.2)}`
+                                    },
+                                    '&:active': {
+                                        transform: 'scale(0.95)'
+                                    }
+                                }}
+                            >
+                                <Box sx={{
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: '50%',
+                                    bgcolor: isHidden ? theme.palette.action.disabled : colorCode,
+                                    boxShadow: isHidden ? 'none' : `0 0 8px ${alpha(colorCode, 0.5)}`,
+                                    pointerEvents: 'none'
+                                }} />
+                                <Typography variant="caption" sx={{
+                                    fontSize: '0.85rem',
+                                    fontWeight: 800,
+                                    color: isHidden ? 'text.disabled' : 'text.primary',
+                                    textDecoration: isHidden ? 'line-through' : 'none',
+                                    pointerEvents: 'none'
+                                }}>
+                                    {label}
+                                </Typography>
+                            </Box>
+                        );
+                    })}
                 </Box>
             </Box>
         </ChartContainer>
