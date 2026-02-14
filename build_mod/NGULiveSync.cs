@@ -9,7 +9,7 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace NGULiveSync {
-    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.1.0")]
+    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.1.1")]
     public class LiveSyncPlugin : BaseUnityPlugin {
         private static HttpListener _listener;
         private static List<HttpListenerResponse> _clients = new List<HttpListenerResponse>();
@@ -22,12 +22,13 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("Live Sync Mod Loaded (v1.1.0)! Waiting for browser...");
+            Logger.LogInfo("Live Sync Mod Loaded (v1.1.1)! Waiting for browser...");
         }
 
         void Update() {
-            if (Character == null || Character.importExport == null) return;
-
+            // Se o personagem ou componentes essenciais não existem, nem tenta.
+            if (Character == null || Character.importExport == null || Character.inventory == null) return;
+            
             // Only proceed if someone is actually listening
             bool hasClients;
             lock (_clients) { hasClients = _clients.Count > 0; }
@@ -37,11 +38,13 @@ namespace NGULiveSync {
             if (Time.unscaledTime - _lastSyncTime >= 30f) {
                 _lastSyncTime = Time.unscaledTime;
                 try {
+                    // gameStateToData já faz as verificações internas de segurança, 
+                    // mas envolve acessar muitos objetos, então envolvemos em Try/Catch.
                     var data = Character.importExport.gameStateToData();
                     if (data != null) BroadcastData(data);
                 } catch (Exception e) {
-                    // Only log if it's not a expected transient error during startup
-                    Logger.LogError("Error in LiveSync Update: " + e.Message);
+                    // Logamos o erro completo para saber exatamente ONDE falhou
+                    Logger.LogError("Error in LiveSync Update: " + e.ToString());
                 }
             }
         }
