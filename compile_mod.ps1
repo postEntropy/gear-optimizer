@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Continue"
 
-Write-Host "--- NGU Live Sync Compiler v12 (Code Cleanup) ---"
+Write-Host "--- NGU Live Sync Compiler 1.1 ---"
 
 # Caminhos
 $managed = "C:\PROGRA~2\steam\steamapps\common\NGU Idle\NGUIdle_Data\Managed"
@@ -37,7 +37,7 @@ $compileArgs = @("/target:library", "/out:`"$out`"") + $refs + "`"$csFile`""
 Start-Process -FilePath $csc -ArgumentList $compileArgs -Wait -NoNewWindow
 
 if (Test-Path $out) {
-    Write-Host "✅ SUCESSO! DLL v12 gerada." -ForegroundColor Green
+    Write-Host "✅ SUCESSO! DLL v1.1.0 gerada." -ForegroundColor Green
     Copy-Item $json -Destination (Join-Path (Get-Location) "public\Newtonsoft.Json.dll") -Force
     Write-Host "Copied Newtonsoft.Json.dll to public folder." -ForegroundColor Gray
 }

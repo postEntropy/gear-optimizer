@@ -9,7 +9,7 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace NGULiveSync {
-    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.0.0")]
+    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.1.0")]
     public class LiveSyncPlugin : BaseUnityPlugin {
         private static HttpListener _listener;
         private static List<HttpListenerResponse> _clients = new List<HttpListenerResponse>();
@@ -22,21 +22,25 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("Live Sync Mod Loaded (v1.1)! Waiting for browser...");
+            Logger.LogInfo("Live Sync Mod Loaded (v1.1.0)! Waiting for browser...");
         }
 
         void Update() {
-            if (Character == null) return;
+            if (Character == null || Character.importExport == null) return;
+
+            // Only proceed if someone is actually listening
+            bool hasClients;
+            lock (_clients) { hasClients = _clients.Count > 0; }
+            if (!hasClients) return;
+
             // Timer logic for 30s sync
             if (Time.unscaledTime - _lastSyncTime >= 30f) {
                 _lastSyncTime = Time.unscaledTime;
                 try {
-                    // Reflection to access importExport if needed, or direct access if public
-                    // Assuming Character.importExport is accessible
-                    // We trigger the data collection manually
                     var data = Character.importExport.gameStateToData();
-                    BroadcastData(data);
+                    if (data != null) BroadcastData(data);
                 } catch (Exception e) {
+                    // Only log if it's not a expected transient error during startup
                     Logger.LogError("Error in LiveSync Update: " + e.Message);
                 }
             }

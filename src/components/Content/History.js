@@ -31,7 +31,9 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
-    Link
+    Link,
+    Switch,
+    FormControlLabel
 } from '@mui/material';
 import {
     History as HistoryIcon,
@@ -97,12 +99,135 @@ const HistoryEntry = ({ entry, previous, index }) => {
     );
 };
 
-const History = ({ handleClearHistory }) => {
+const History = ({ handleClearHistory, handleSettings, showR3History, historyChartMode = 'absolute' }) => {
     const history = useSelector(state => state.optimizer.history);
     const theme = useTheme();
     const [timeRange, setTimeRange] = useState(30); // Default to 30 days
     const deferredTimeRange = useDeferredValue(timeRange); // Defer expensive recalculations
     const [clearDialogOpen, setClearDialogOpen] = useState(false);
+    const [activeSeries, setActiveSeries] = useState(null);
+    const [hiddenSeries, setHiddenSeries] = useState(new Set());
+
+    const toggleSeries = (dataKey) => {
+        setHiddenSeries(prev => {
+            const next = new Set(prev);
+            if (next.has(dataKey)) next.delete(dataKey);
+            else next.add(dataKey);
+            return next;
+        });
+    };
+
+    const isolateSeries = (dataKey) => {
+        // If it's already isolated, show all. Otherwise, isolate this one.
+        setHiddenSeries(prev => {
+            if (prev.size > 0) return new Set();
+
+            // Collect all possible keys for the current chart/context if needed, 
+            // but for simplicity, we'll just track what to exclude.
+            // Actually, let's keep it simple: isolate means hide everything ELSE.
+            // This requires knowing all keys. Let's instead use a "focusedSeries" logic
+            // Or just clear hidden and set everything else to hidden.
+            return prev; // Placeholder, logic handled in components for better context
+        });
+    };
+
+    const handleLegendMouseEnter = (o) => setActiveSeries(o.dataKey);
+    const handleLegendMouseLeave = () => setActiveSeries(null);
+
+    const getClosestSeries = (e) => {
+        if (!e || !e.activePayload || e.activePayload.length === 0) return null;
+        if (e.activePayload.length === 1) return e.activePayload[0].dataKey;
+
+        const mouseY = e.chartY;
+        // Find the series whose Y-coordinate is closest to the mouse
+        let closest = e.activePayload[0];
+        let minDiff = Math.abs((e.activePayload[0].cy || 0) - mouseY);
+
+        for (let i = 1; i < e.activePayload.length; i++) {
+            const p = e.activePayload[i];
+            const diff = Math.abs((p.cy || 0) - mouseY);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = p;
+            }
+        }
+        return closest.dataKey;
+    };
+
+    const activeLineStyle = (key, payload = []) => {
+        const isActive = activeSeries === key;
+        const isAnySeriesInChartActive = activeSeries && payload.some(p => p.dataKey === activeSeries);
+
+        return {
+            strokeWidth: isActive ? 5 : 2,
+            strokeOpacity: isAnySeriesInChartActive ? (isActive ? 1 : 0.15) : 1,
+            filter: isActive ? 'drop-shadow(0 0 3px rgba(255,255,255,0.5))' : 'none',
+            style: { transition: 'stroke-width 0.2s, stroke-opacity 0.2s' }
+        };
+    };
+
+    const RenderLegend = (props) => {
+        const { payload } = props;
+        return (
+            <Box sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 1,
+                justifyContent: 'center',
+                mt: 1,
+                px: 2,
+                maxHeight: 120,
+                overflowY: 'auto',
+                '&::-webkit-scrollbar': {
+                    width: '4px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                    bgcolor: alpha(theme.palette.text.secondary, 0.2),
+                    borderRadius: '4px',
+                }
+            }}>
+                {payload.map((entry, index) => {
+                    const isHidden = hiddenSeries.has(entry.dataKey);
+                    const isActive = activeSeries === entry.dataKey;
+                    return (
+                        <Box
+                            key={`item-${index}`}
+                            onClick={() => toggleSeries(entry.dataKey)}
+                            onMouseEnter={() => handleLegendMouseEnter(entry)}
+                            onMouseLeave={handleLegendMouseLeave}
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                cursor: 'pointer',
+                                px: 1,
+                                py: 0.5,
+                                borderRadius: 1,
+                                border: '1px solid',
+                                borderColor: isActive ? entry.color : 'transparent',
+                                bgcolor: isActive ? alpha(entry.color, 0.1) : (isHidden ? alpha(theme.palette.action.disabled, 0.05) : 'transparent'),
+                                opacity: isHidden ? 0.4 : 1,
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                    bgcolor: alpha(entry.color, 0.15),
+                                    borderColor: entry.color
+                                }
+                            }}
+                        >
+                            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: entry.color }} />
+                            <Typography variant="caption" sx={{
+                                fontWeight: isActive ? 700 : 500,
+                                color: isHidden ? 'text.disabled' : 'text.primary',
+                                userSelect: 'none'
+                            }}>
+                                {entry.value}
+                            </Typography>
+                        </Box>
+                    );
+                })}
+            </Box>
+        );
+    };
 
     const handleClearClick = () => {
         setClearDialogOpen(true);
@@ -189,9 +314,125 @@ const History = ({ handleClearHistory }) => {
         return days;
     }, [history]);
 
-    const nguNames = ['Augments', 'Wandoos', 'Respawn', 'Gold', 'Adventure', 'Power', 'Toughness', 'Yggdrasil', 'Experience'];
-    const magicNguNames = ['Yggdrasil', 'Experience', 'Statistics', 'Hack', 'Wishes', 'QP', 'Time Machine', 'PP', 'Cards'];
-    const hackNames = ['Stats', 'Adventure', 'TM', 'Drop', 'Augment', 'ENGU', 'MNGU', 'Blood', 'Res3', 'PP', 'Cards', 'GP', 'Wishes', 'Speed', 'Quality'];
+    const relativeKeys = [
+        'energyPowerVal', 'magicPowerVal', 'res3PowerVal',
+        'energyCapVal', 'magicCapVal', 'res3CapVal',
+        'energyBarsVal', 'magicBarsVal', 'res3BarsVal',
+        'exp', 'ap'
+    ];
+
+    const relativeChartData = useMemo(() => {
+        if (filteredChartData.length < 2) return filteredChartData;
+        const first = filteredChartData[0];
+        return filteredChartData.map(d => {
+            const newData = { ...d };
+            Object.keys(d).forEach(key => {
+                const isNguHackBeard = key.startsWith('ngu_') || key.startsWith('hack_') || key.startsWith('beard_');
+                const isResource = relativeKeys.includes(key);
+
+                if (isNguHackBeard || isResource) {
+                    const firstVal = first[key] || 0;
+                    // Store absolute value for tooltip
+                    newData[`${key}_abs`] = d[key];
+                    if (firstVal > 0) {
+                        newData[key] = ((d[key] / firstVal) - 1) * 100;
+                    } else {
+                        newData[key] = d[key] > 0 ? 100 : 0;
+                    }
+                }
+            });
+            return newData;
+        });
+    }, [filteredChartData]);
+
+    const chartDataToUse = historyChartMode === 'relative' ? relativeChartData : filteredChartData;
+
+    const CustomTooltip = ({ active, payload, label, mode }) => {
+        if (active && payload && payload.length) {
+            // Sort payload by value descending
+            const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
+
+            return (
+                <Paper
+                    elevation={10}
+                    sx={{
+                        p: 1.5,
+                        bgcolor: alpha(theme.palette.background.paper, 0.95),
+                        backdropFilter: 'blur(4px)',
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        minWidth: 180,
+                        fontSize: '0.75rem'
+                    }}
+                >
+                    <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: 'text.secondary', borderBottom: 1, borderColor: 'divider', pb: 0.5 }}>
+                        {new Date(label).toLocaleString()}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                        {sortedPayload.map((entry, index) => {
+                            const isActive = activeSeries === entry.dataKey;
+                            const isTooltipActive = payload.some(e => e.dataKey === activeSeries);
+                            const absValue = entry.payload[`${entry.dataKey}_abs`] !== undefined ? entry.payload[`${entry.dataKey}_abs`] : entry.value;
+
+                            return (
+                                <Box
+                                    key={index}
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: 2,
+                                        opacity: (activeSeries && isTooltipActive && !isActive) ? 0.2 : 1,
+                                        transform: isActive ? 'scale(1.08)' : 'none',
+                                        transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        bgcolor: isActive ? alpha(entry.color, 0.2) : 'transparent',
+                                        px: isActive ? 1 : 0,
+                                        py: isActive ? 0.5 : 0,
+                                        mx: isActive ? -0.5 : 0,
+                                        borderRadius: 1,
+                                        boxShadow: isActive ? `0 2px 8px ${alpha(entry.color, 0.2)}` : 'none',
+                                        zIndex: isActive ? 2 : 1
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Box sx={{
+                                            width: isActive ? 12 : 8,
+                                            height: isActive ? 12 : 8,
+                                            borderRadius: '50%',
+                                            bgcolor: entry.color,
+                                            boxShadow: isActive ? `0 0 8px ${entry.color}` : 'none'
+                                        }} />
+                                        <Typography variant="caption" sx={{
+                                            fontWeight: isActive ? 900 : 500,
+                                            color: entry.color,
+                                            fontSize: isActive ? '0.85rem' : '0.75rem'
+                                        }}>
+                                            {entry.name}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        {mode === 'relative' && (
+                                            <Typography variant="caption" sx={{ opacity: 0.5, fontSize: '0.65rem', fontWeight: 500 }}>
+                                                ({shorten(absValue)})
+                                            </Typography>
+                                        )}
+                                        <Typography variant="caption" sx={{ fontWeight: 800, fontFamily: 'monospace' }}>
+                                            {mode === 'relative' ? (entry.value > 0 ? '+' : '') + entry.value.toFixed(1) + '%' : shorten(entry.value)}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                </Paper>
+            );
+        }
+        return null;
+    };
+
+    const nguNames = ['Augments', 'Wandoos', 'Respawn', 'Gold', 'Adventure α', 'Power α', 'Drop Chance', 'Magic NGU', 'PP'];
+    const magicNguNames = ['Yggdrasil', 'Exp', 'Power β', 'Number', 'Time Machine', 'Energy NGU', 'Adventure β'];
+    const hackNames = ['Stats', 'Adventure', 'TM', 'Drop', 'Augment', 'ENGU', 'MNGU', 'Blood', 'QP', 'Daycare', 'EXP', 'Number', 'PP', 'Hack', 'Wish'];
 
 
     const visibleEnergyNgus = useMemo(() => {
@@ -223,17 +464,38 @@ const History = ({ handleClearHistory }) => {
                     <HistoryIcon color="primary" fontSize="large" />
                     Rebirth History
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
                     {history && history.length > 0 && (
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<DeleteSweep />}
-                            onClick={handleClearClick}
-                            sx={{ borderRadius: 3 }}
-                        >
-                            Clear History
-                        </Button>
+                        <Tooltip title="Permanently delete all rebirth history entries" arrow>
+                            <Button
+                                variant="outlined"
+                                onClick={handleClearClick}
+                                startIcon={<DeleteSweep sx={{ fontSize: '1.1rem' }} />}
+                                sx={{
+                                    borderRadius: '8px',
+                                    textTransform: 'none',
+                                    fontWeight: 700,
+                                    px: 2,
+                                    py: 0.5,
+                                    minHeight: 36,
+                                    borderColor: alpha(theme.palette.error.main, 0.3),
+                                    color: theme.palette.error.main,
+                                    bgcolor: alpha(theme.palette.error.main, 0.02),
+                                    transition: 'all 0.2s ease',
+                                    '&:hover': {
+                                        borderColor: theme.palette.error.main,
+                                        bgcolor: alpha(theme.palette.error.main, 0.08),
+                                        transform: 'translateY(-1px)',
+                                        boxShadow: `0 4px 12px ${alpha(theme.palette.error.main, 0.1)}`
+                                    },
+                                    '&:active': {
+                                        transform: 'translateY(0)'
+                                    }
+                                }}
+                            >
+                                Clear History
+                            </Button>
+                        </Tooltip>
                     )}
                     <ImportSaveForm hideSwitch />
                 </Box>
@@ -243,20 +505,80 @@ const History = ({ handleClearHistory }) => {
             <Dialog
                 open={clearDialogOpen}
                 onClose={handleClearCancel}
-                PaperProps={{ sx: { borderRadius: 4 } }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
+                        backgroundImage: 'none'
+                    }
+                }}
+                transitionDuration={300}
             >
-                <DialogTitle>Clear All History?</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        This will permanently delete all {history.length} saved entries from your history. This action cannot be undone.
+                <DialogTitle sx={{
+                    textAlign: 'center',
+                    pt: 4,
+                    pb: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 1
+                }}>
+                    <Box sx={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.error.main, 0.1),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 1,
+                        animation: 'shake 0.5s ease-in-out'
+                    }}>
+                        <DeleteSweep sx={{ color: 'error.main', fontSize: 32 }} />
+                    </Box>
+                    <Typography variant="h5" sx={{ fontWeight: 800 }}>Clear History?</Typography>
+                </DialogTitle>
+                <DialogContent sx={{ textAlign: 'center', px: 4 }}>
+                    <DialogContentText sx={{ color: 'text.primary', fontWeight: 500 }}>
+                        This will permanently delete <Typography component="span" sx={{ fontWeight: 800, color: 'error.main' }}>{history.length} entries</Typography>.
+                    </DialogContentText>
+                    <DialogContentText variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                        This action is destructive and cannot be undone. Are you sure you want to proceed?
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={handleClearCancel} sx={{ borderRadius: 2 }}>
-                        Cancel
+                <DialogActions sx={{ p: 4, gap: 1 }}>
+                    <Button
+                        onClick={handleClearCancel}
+                        fullWidth
+                        sx={{
+                            borderRadius: 2,
+                            py: 1.5,
+                            fontWeight: 700,
+                            textTransform: 'none',
+                            color: 'text.secondary',
+                            '&:hover': { bgcolor: alpha(theme.palette.action.active, 0.05) }
+                        }}
+                    >
+                        Keep My Data
                     </Button>
-                    <Button onClick={handleClearConfirm} variant="contained" color="error" sx={{ borderRadius: 2 }}>
-                        Clear All
+                    <Button
+                        onClick={handleClearConfirm}
+                        variant="contained"
+                        fullWidth
+                        color="error"
+                        sx={{
+                            borderRadius: 2,
+                            py: 1.5,
+                            fontWeight: 800,
+                            textTransform: 'none',
+                            boxShadow: `0 8px 16px ${alpha(theme.palette.error.main, 0.3)}`,
+                            '&:hover': {
+                                bgcolor: 'error.dark',
+                                boxShadow: `0 12px 20px ${alpha(theme.palette.error.main, 0.4)}`,
+                            }
+                        }}
+                    >
+                        Yes, Delete Everything
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -443,21 +765,51 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 4 }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Growth Analytics</Typography>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <FilterAlt fontSize="small" color="action" />
-                                        <ToggleButtonGroup
-                                            size="small"
-                                            value={timeRange}
-                                            exclusive
-                                            onChange={(e, v) => v !== null && setTimeRange(v)}
-                                            sx={{ height: 32 }}
-                                        >
-                                            <ToggleButton value={7} sx={{ px: 1.5 }}>7d</ToggleButton>
-                                            <ToggleButton value={10} sx={{ px: 1.5 }}>10d</ToggleButton>
-                                            <ToggleButton value={30} sx={{ px: 1.5 }}>1m</ToggleButton>
-                                            <ToggleButton value={60} sx={{ px: 1.5 }}>2m</ToggleButton>
-                                            <ToggleButton value={0} sx={{ px: 1.5 }}>All</ToggleButton>
-                                        </ToggleButtonGroup>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={showR3History}
+                                                    onChange={(e) => handleSettings('showR3History', e.target.checked)}
+                                                    size="small"
+                                                />
+                                            }
+                                            label={<Typography variant="caption" fontWeight={600}>Show R3</Typography>}
+                                            sx={{ mr: 0 }}
+                                        />
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <ToggleButtonGroup
+                                                size="small"
+                                                value={historyChartMode}
+                                                exclusive
+                                                onChange={(e, val) => val && handleSettings('historyChartMode', val)}
+                                                sx={{ height: 32, mr: 2 }}
+                                            >
+                                                <Tooltip title="Absolute Levels">
+                                                    <ToggleButton value="absolute"><TrendingUp sx={{ fontSize: '1rem' }} /></ToggleButton>
+                                                </Tooltip>
+                                                <Tooltip title="Stacked Volume">
+                                                    <ToggleButton value="stacked"><Science sx={{ fontSize: '1rem' }} /></ToggleButton>
+                                                </Tooltip>
+                                                <Tooltip title="Relative Growth (%)">
+                                                    <ToggleButton value="relative"><CompareArrows sx={{ fontSize: '1rem' }} /></ToggleButton>
+                                                </Tooltip>
+                                            </ToggleButtonGroup>
+                                            <FilterAlt fontSize="small" color="action" />
+                                            <ToggleButtonGroup
+                                                size="small"
+                                                value={timeRange}
+                                                exclusive
+                                                onChange={(e, v) => v !== null && setTimeRange(v)}
+                                                sx={{ height: 32 }}
+                                            >
+                                                <ToggleButton value={7} sx={{ px: 1.5 }}>7d</ToggleButton>
+                                                <ToggleButton value={10} sx={{ px: 1.5 }}>10d</ToggleButton>
+                                                <ToggleButton value={30} sx={{ px: 1.5 }}>1m</ToggleButton>
+                                                <ToggleButton value={60} sx={{ px: 1.5 }}>2m</ToggleButton>
+                                                <ToggleButton value={0} sx={{ px: 1.5 }}>All</ToggleButton>
+                                            </ToggleButtonGroup>
+                                        </Box>
                                     </Box>
                                 </Box>
 
@@ -492,29 +844,45 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 6 }}>
                                 <Typography variant="subtitle1" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>XP Growth</Typography>
                                 <Box sx={{ width: '100%', height: 280, mb: 2 }}>
-                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
-                                        <AreaChart data={filteredChartData}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={chartDataToUse}
+                                            onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                            onMouseLeave={() => setActiveSeries(null)}
+                                        >
                                             <defs>
                                                 <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
                                                     <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={0.8} />
                                                     <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0} />
                                                 </linearGradient>
                                             </defs>
-                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
                                             <XAxis
                                                 dataKey="timestamp"
                                                 type="number"
                                                 domain={['dataMin', 'dataMax']}
                                                 tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                                 fontSize={11}
+                                                style={{ pointerEvents: 'none' }}
                                             />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
-                                            <ChartTooltip
-                                                labelFormatter={(t) => new Date(t).toLocaleString()}
-                                                formatter={(v) => [shorten(v), "XP"]}
-                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
+                                            <YAxis
+                                                domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                                tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                                fontSize={11}
+                                                style={{ pointerEvents: 'none' }}
                                             />
-                                            <Area type="monotone" dataKey="exp" stroke={theme.palette.primary.main} fillOpacity={1} fill="url(#colorExp)" />
+                                            <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                            <Legend content={<RenderLegend />} />
+                                            {!hiddenSeries.has('exp') && (
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="exp"
+                                                    name="Experience"
+                                                    stroke={theme.palette.primary.main}
+                                                    fillOpacity={activeSeries ? (activeSeries === 'exp' ? 1 : 0.2) : 1}
+                                                    fill="url(#colorExp)"
+                                                    strokeWidth={activeSeries === 'exp' ? 4 : 2}
+                                                />
+                                            )}
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </Box>
@@ -526,28 +894,87 @@ const History = ({ handleClearHistory }) => {
                                     <FlashOn color="error" sx={{ fontSize: '1.2rem' }} /> Resource Power History
                                 </Typography>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={filteredChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} />
+                                    <LineChart
+                                        data={chartDataToUse}
+                                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                        onMouseLeave={() => setActiveSeries(null)}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} style={{ pointerEvents: 'none' }} />
                                         <XAxis
                                             dataKey="timestamp"
+                                            domain={['dataMin', 'dataMax']}
                                             tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                             stroke={theme.palette.text.secondary}
                                             fontSize={11}
+                                            padding={{ left: 20, right: 20 }}
+                                            style={{ pointerEvents: 'none' }}
                                         />
                                         <YAxis
-                                            tickFormatter={(v) => shorten(v)}
-                                            stroke={theme.palette.text.secondary}
+                                            yAxisId="energy"
+                                            domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                            tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                            stroke="#4caf50"
                                             fontSize={11}
+                                            style={{ pointerEvents: 'none' }}
                                         />
-                                        <ChartTooltip
-                                            labelFormatter={(t) => new Date(t).toLocaleString()}
-                                            formatter={(v, name) => [shorten(v), name]}
-                                            contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
+                                        <YAxis
+                                            yAxisId="magic"
+                                            orientation="right"
+                                            domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                            tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                            stroke="#2196f3"
+                                            fontSize={11}
+                                            style={{ pointerEvents: 'none' }}
                                         />
-                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                                        <Line type="monotone" dataKey="energyPowerVal" name="Energy Power" stroke="#4caf50" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="magicPowerVal" name="Magic Power" stroke="#2196f3" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="res3PowerVal" name="R3 Power" stroke="#9e9e9e" strokeWidth={2} dot={false} />
+                                        {showR3History && (
+                                            <YAxis
+                                                yAxisId="res3"
+                                                domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                                hide={true}
+                                                style={{ pointerEvents: 'none' }}
+                                            />
+                                        )}
+                                        <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                        <Legend content={<RenderLegend />} />
+                                        {!hiddenSeries.has('energyPowerVal') && (
+                                            <Line
+                                                yAxisId="energy"
+                                                type="monotone"
+                                                dataKey="energyPowerVal"
+                                                name="Energy Power"
+                                                stroke="#4caf50"
+                                                {...activeLineStyle('energyPowerVal', [{ dataKey: 'energyPowerVal' }, { dataKey: 'magicPowerVal' }, { dataKey: 'res3PowerVal' }])}
+                                                dot={activeSeries === 'energyPowerVal' ? { r: 5, fill: '#4caf50' } : { r: 2 }}
+                                                activeDot={{ r: 8, strokeWidth: 0 }}
+                                                onClick={() => toggleSeries('energyPowerVal')}
+                                            />
+                                        )}
+                                        {!hiddenSeries.has('magicPowerVal') && (
+                                            <Line
+                                                yAxisId="magic"
+                                                type="monotone"
+                                                dataKey="magicPowerVal"
+                                                name="Magic Power"
+                                                stroke="#2196f3"
+                                                {...activeLineStyle('magicPowerVal', [{ dataKey: 'energyPowerVal' }, { dataKey: 'magicPowerVal' }, { dataKey: 'res3PowerVal' }])}
+                                                dot={activeSeries === 'magicPowerVal' ? { r: 5, fill: '#2196f3' } : { r: 2 }}
+                                                activeDot={{ r: 8, strokeWidth: 0 }}
+                                                onClick={() => toggleSeries('magicPowerVal')}
+                                            />
+                                        )}
+                                        {showR3History && !hiddenSeries.has('res3PowerVal') && (
+                                            <Line
+                                                yAxisId="res3"
+                                                type="monotone"
+                                                dataKey="res3PowerVal"
+                                                name="R3 Power"
+                                                stroke="#9e9e9e"
+                                                {...activeLineStyle('res3PowerVal', [{ dataKey: 'energyPowerVal' }, { dataKey: 'magicPowerVal' }, { dataKey: 'res3PowerVal' }])}
+                                                dot={activeSeries === 'res3PowerVal' ? { r: 5, fill: '#9e9e9e' } : { r: 2 }}
+                                                activeDot={{ r: 8, strokeWidth: 0 }}
+                                                onClick={() => toggleSeries('res3PowerVal')}
+                                            />
+                                        )}
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Box>
@@ -558,28 +985,87 @@ const History = ({ handleClearHistory }) => {
                                     <AutoFixHigh color="primary" sx={{ fontSize: '1.2rem' }} /> Resource Cap History
                                 </Typography>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={filteredChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} />
+                                    <LineChart
+                                        data={chartDataToUse}
+                                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                        onMouseLeave={() => setActiveSeries(null)}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} style={{ pointerEvents: 'none' }} />
                                         <XAxis
                                             dataKey="timestamp"
+                                            domain={['dataMin', 'dataMax']}
                                             tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                             stroke={theme.palette.text.secondary}
                                             fontSize={11}
+                                            padding={{ left: 20, right: 20 }}
+                                            style={{ pointerEvents: 'none' }}
                                         />
                                         <YAxis
-                                            tickFormatter={(v) => shorten(v)}
-                                            stroke={theme.palette.text.secondary}
+                                            yAxisId="energy"
+                                            domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                            tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                            stroke="#81c784"
                                             fontSize={11}
+                                            style={{ pointerEvents: 'none' }}
                                         />
-                                        <ChartTooltip
-                                            labelFormatter={(t) => new Date(t).toLocaleString()}
-                                            formatter={(v, name) => [shorten(v), name]}
-                                            contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
+                                        <YAxis
+                                            yAxisId="magic"
+                                            orientation="right"
+                                            domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                            tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                            stroke="#64b5f6"
+                                            fontSize={11}
+                                            style={{ pointerEvents: 'none' }}
                                         />
-                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                                        <Line type="monotone" dataKey="energyCapVal" name="Energy Cap" stroke="#81c784" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="magicCapVal" name="Magic Cap" stroke="#64b5f6" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="res3CapVal" name="R3 Cap" stroke="#bdbdbd" strokeWidth={2} dot={false} />
+                                        {showR3History && (
+                                            <YAxis
+                                                yAxisId="res3"
+                                                domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                                hide={true}
+                                                style={{ pointerEvents: 'none' }}
+                                            />
+                                        )}
+                                        <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                        <Legend content={<RenderLegend />} />
+                                        {!hiddenSeries.has('energyCapVal') && (
+                                            <Line
+                                                yAxisId="energy"
+                                                type="monotone"
+                                                dataKey="energyCapVal"
+                                                name="Energy Cap"
+                                                stroke="#81c784"
+                                                strokeWidth={activeSeries === 'energyCapVal' ? 4 : 2}
+                                                strokeOpacity={activeSeries ? (activeSeries === 'energyCapVal' ? 1 : (['energyCapVal', 'magicCapVal', 'res3CapVal'].includes(activeSeries) ? 0.2 : 1)) : 1}
+                                                dot={activeSeries === 'energyCapVal' ? { r: 4 } : { r: 2 }}
+                                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                            />
+                                        )}
+                                        {!hiddenSeries.has('magicCapVal') && (
+                                            <Line
+                                                yAxisId="magic"
+                                                type="monotone"
+                                                dataKey="magicCapVal"
+                                                name="Magic Cap"
+                                                stroke="#64b5f6"
+                                                strokeWidth={activeSeries === 'magicCapVal' ? 4 : 2}
+                                                strokeOpacity={activeSeries ? (activeSeries === 'magicCapVal' ? 1 : (['energyCapVal', 'magicCapVal', 'res3CapVal'].includes(activeSeries) ? 0.2 : 1)) : 1}
+                                                dot={activeSeries === 'magicCapVal' ? { r: 4 } : { r: 2 }}
+                                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                            />
+                                        )}
+                                        {showR3History && !hiddenSeries.has('res3CapVal') && (
+                                            <Line
+                                                yAxisId="res3"
+                                                type="monotone"
+                                                dataKey="res3CapVal"
+                                                name="R3 Cap"
+                                                stroke="#bdbdbd"
+                                                strokeWidth={activeSeries === 'res3CapVal' ? 4 : 2}
+                                                strokeOpacity={activeSeries ? (activeSeries === 'res3CapVal' ? 1 : (['energyCapVal', 'magicCapVal', 'res3CapVal'].includes(activeSeries) ? 0.2 : 1)) : 1}
+                                                dot={activeSeries === 'res3CapVal' ? { r: 4 } : { r: 2 }}
+                                                activeDot={{ r: 6, strokeWidth: 0 }}
+                                            />
+                                        )}
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Box>
@@ -590,28 +1076,81 @@ const History = ({ handleClearHistory }) => {
                                     <Science color="secondary" sx={{ fontSize: '1.2rem' }} /> Resource Bars History
                                 </Typography>
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={filteredChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} />
+                                    <LineChart
+                                        data={filteredChartData}
+                                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                        onMouseLeave={() => setActiveSeries(null)}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} style={{ pointerEvents: 'none' }} />
                                         <XAxis
                                             dataKey="timestamp"
+                                            domain={['dataMin', 'dataMax']}
                                             tickFormatter={(t) => new Date(t).toLocaleDateString()}
                                             stroke={theme.palette.text.secondary}
                                             fontSize={11}
+                                            padding={{ left: 20, right: 20 }}
+                                            style={{ pointerEvents: 'none' }}
                                         />
                                         <YAxis
-                                            tickFormatter={(v) => shorten(v)}
-                                            stroke={theme.palette.text.secondary}
+                                            yAxisId="energy"
+                                            domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                            tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                            stroke="#a5d6a7"
                                             fontSize={11}
+                                            style={{ pointerEvents: 'none' }}
                                         />
-                                        <ChartTooltip
-                                            labelFormatter={(t) => new Date(t).toLocaleString()}
-                                            formatter={(v, name) => [shorten(v), name]}
-                                            contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
+                                        <YAxis
+                                            yAxisId="magic"
+                                            orientation="right"
+                                            domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                            tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                            stroke="#90caf9"
+                                            fontSize={11}
+                                            style={{ pointerEvents: 'none' }}
                                         />
-                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                                        <Line type="monotone" dataKey="energyBarsVal" name="Energy Bars" stroke="#a5d6a7" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="magicBarsVal" name="Magic Bars" stroke="#90caf9" strokeWidth={2} dot={false} />
-                                        <Line type="monotone" dataKey="res3BarsVal" name="R3 Bars" stroke="#e0e0e0" strokeWidth={2} dot={false} />
+                                        {showR3History && (
+                                            <YAxis
+                                                yAxisId="res3"
+                                                domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                                hide={true}
+                                                style={{ pointerEvents: 'none' }}
+                                            />
+                                        )}
+                                        <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                        <Legend content={<RenderLegend />} />
+                                        {!hiddenSeries.has('energyBarsVal') && (
+                                            <Line
+                                                yAxisId="energy"
+                                                type="monotone"
+                                                dataKey="energyBarsVal"
+                                                name="Energy Bars"
+                                                stroke="#a5d6a7"
+                                                {...activeLineStyle('energyBarsVal', [{ dataKey: 'energyBarsVal' }, { dataKey: 'magicBarsVal' }, { dataKey: 'res3BarsVal' }])}
+                                                onClick={() => toggleSeries('energyBarsVal')}
+                                            />
+                                        )}
+                                        {!hiddenSeries.has('magicBarsVal') && (
+                                            <Line
+                                                yAxisId="magic"
+                                                type="monotone"
+                                                dataKey="magicBarsVal"
+                                                name="Magic Bars"
+                                                stroke="#90caf9"
+                                                {...activeLineStyle('magicBarsVal', [{ dataKey: 'energyBarsVal' }, { dataKey: 'magicBarsVal' }, { dataKey: 'res3BarsVal' }])}
+                                                onClick={() => toggleSeries('magicBarsVal')}
+                                            />
+                                        )}
+                                        {showR3History && !hiddenSeries.has('res3BarsVal') && (
+                                            <Line
+                                                yAxisId="res3"
+                                                type="monotone"
+                                                dataKey="res3BarsVal"
+                                                name="R3 Bars"
+                                                stroke="#e0e0e0"
+                                                {...activeLineStyle('res3BarsVal', [{ dataKey: 'energyBarsVal' }, { dataKey: 'magicBarsVal' }, { dataKey: 'res3BarsVal' }])}
+                                                onClick={() => toggleSeries('res3BarsVal')}
+                                            />
+                                        )}
                                     </LineChart>
                                 </ResponsiveContainer>
                             </Box>
@@ -620,27 +1159,69 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 6 }}>
                                 <Typography variant="subtitle1" gutterBottom color="secondary" sx={{ fontWeight: 'bold' }}>Energy NGU Levels</Typography>
                                 <Box sx={{ width: '100%', height: 350 }}>
-                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
-                                        <LineChart data={filteredChartData}>
-                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                                            <XAxis
-                                                dataKey="timestamp"
-                                                type="number"
-                                                domain={['dataMin', 'dataMax']}
-                                                tickFormatter={(t) => new Date(t).toLocaleDateString()}
-                                                fontSize={11}
-                                            />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
-                                            <ChartTooltip
-                                                labelFormatter={(t) => new Date(t).toLocaleString()}
-                                                formatter={(v, name) => [shorten(v), name]}
-                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
-                                            />
-                                            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                                            {visibleEnergyNgus.map(({ name, i }) => (
-                                                <Line key={`e_${i}`} type="monotone" dataKey={`ngu_e_${i}`} name={name} stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`} strokeWidth={1.5} dot={{ r: 2 }} />
-                                            ))}
-                                        </LineChart>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        {historyChartMode === 'stacked' ? (
+                                            <AreaChart
+                                                data={chartDataToUse}
+                                                onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                onMouseLeave={() => setActiveSeries(null)}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
+                                                <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString()} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <YAxis tickFormatter={(v) => shorten(v)} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <ChartTooltip content={<CustomTooltip />} />
+                                                <Legend content={<RenderLegend />} />
+                                                {visibleEnergyNgus.map(({ name, i }) => {
+                                                    const key = `ngu_e_${i}`;
+                                                    if (hiddenSeries.has(key)) return null;
+                                                    const isActive = activeSeries === key;
+                                                    const chartKeys = visibleEnergyNgus.map(v => `ngu_e_${v.i}`);
+                                                    return (
+                                                        <Area
+                                                            key={key}
+                                                            stackId="1"
+                                                            type="monotone"
+                                                            dataKey={key}
+                                                            name={name}
+                                                            stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`}
+                                                            fill={`hsl(${(i * 40) % 360}, 70%, 50%)`}
+                                                            fillOpacity={activeSeries ? (isActive ? 0.9 : 0.1) : 0.6}
+                                                            strokeWidth={isActive ? 3 : 0}
+                                                            style={{ transition: 'all 0.2s ease' }}
+                                                        />
+                                                    );
+                                                })}
+                                            </AreaChart>
+                                        ) : (
+                                            <LineChart
+                                                data={chartDataToUse}
+                                                onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                onMouseLeave={() => setActiveSeries(null)}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
+                                                <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString()} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <YAxis domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']} tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                                <Legend content={<RenderLegend />} />
+                                                {visibleEnergyNgus.map(({ name, i }) => {
+                                                    const key = `ngu_e_${i}`;
+                                                    if (hiddenSeries.has(key)) return null;
+                                                    const chartKeys = visibleEnergyNgus.map(v => `ngu_e_${v.i}`);
+                                                    return (
+                                                        <Line
+                                                            key={key}
+                                                            type="monotone"
+                                                            dataKey={key}
+                                                            name={name}
+                                                            stroke={`hsl(${(i * 40) % 360}, 70%, 50%)`}
+                                                            {...activeLineStyle(key, chartKeys.map(k => ({ dataKey: k })))}
+                                                            dot={activeSeries === key ? { r: 4, fill: `hsl(${(i * 40) % 360}, 70%, 50%)` } : { r: 2 }}
+                                                            activeDot={{ r: 8, strokeWidth: 0 }}
+                                                        />
+                                                    );
+                                                })}
+                                            </LineChart>
+                                        )}
                                     </ResponsiveContainer>
                                 </Box>
                             </Box>
@@ -648,27 +1229,68 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 6 }}>
                                 <Typography variant="subtitle1" gutterBottom color="secondary" sx={{ fontWeight: 'bold' }}>Magic NGU Levels</Typography>
                                 <Box sx={{ width: '100%', height: 350 }}>
-                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
-                                        <LineChart data={filteredChartData}>
-                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                                            <XAxis
-                                                dataKey="timestamp"
-                                                type="number"
-                                                domain={['dataMin', 'dataMax']}
-                                                tickFormatter={(t) => new Date(t).toLocaleDateString()}
-                                                fontSize={11}
-                                            />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
-                                            <ChartTooltip
-                                                labelFormatter={(t) => new Date(t).toLocaleString()}
-                                                formatter={(v, name) => [shorten(v), name]}
-                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
-                                            />
-                                            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                                            {visibleMagicNgus.map(({ name, i }) => (
-                                                <Line key={`m_${i}`} type="monotone" dataKey={`ngu_m_${i}`} name={name} stroke={`hsl(${(i * 40 + 180) % 360}, 70%, 50%)`} strokeWidth={1.5} dot={{ r: 2 }} />
-                                            ))}
-                                        </LineChart>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        {historyChartMode === 'stacked' ? (
+                                            <AreaChart
+                                                data={chartDataToUse}
+                                                onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                onMouseLeave={() => setActiveSeries(null)}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
+                                                <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString()} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <YAxis tickFormatter={(v) => shorten(v)} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <ChartTooltip content={<CustomTooltip />} />
+                                                <Legend content={<RenderLegend />} />
+                                                {visibleMagicNgus.map(({ name, i }) => {
+                                                    const key = `ngu_m_${i}`;
+                                                    if (hiddenSeries.has(key)) return null;
+                                                    const isActive = activeSeries === key;
+                                                    return (
+                                                        <Area
+                                                            key={key}
+                                                            stackId="1"
+                                                            type="monotone"
+                                                            dataKey={key}
+                                                            name={name}
+                                                            stroke={`hsl(${(i * 40 + 180) % 360}, 70%, 50%)`}
+                                                            fill={`hsl(${(i * 40 + 180) % 360}, 70%, 50%)`}
+                                                            fillOpacity={activeSeries ? (isActive ? 0.9 : 0.1) : 0.6}
+                                                            strokeWidth={isActive ? 3 : 0}
+                                                            style={{ transition: 'all 0.2s ease' }}
+                                                        />
+                                                    );
+                                                })}
+                                            </AreaChart>
+                                        ) : (
+                                            <LineChart
+                                                data={chartDataToUse}
+                                                onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                onMouseLeave={() => setActiveSeries(null)}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
+                                                <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString()} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <YAxis domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']} tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                                <Legend content={<RenderLegend />} />
+                                                {visibleMagicNgus.map(({ name, i }) => {
+                                                    const key = `ngu_m_${i}`;
+                                                    if (hiddenSeries.has(key)) return null;
+                                                    const chartKeys = visibleMagicNgus.map(v => `ngu_m_${v.i}`);
+                                                    return (
+                                                        <Line
+                                                            key={key}
+                                                            type="monotone"
+                                                            dataKey={key}
+                                                            name={name}
+                                                            stroke={`hsl(${(i * 40 + 180) % 360}, 70%, 50%)`}
+                                                            {...activeLineStyle(key, chartKeys.map(k => ({ dataKey: k })))}
+                                                            dot={activeSeries === key ? { r: 4, fill: `hsl(${(i * 40 + 180) % 360}, 70%, 50%)` } : { r: 2 }}
+                                                            activeDot={{ r: 8, strokeWidth: 0 }}
+                                                        />
+                                                    );
+                                                })}
+                                            </LineChart>
+                                        )}
                                     </ResponsiveContainer>
                                 </Box>
                             </Box>
@@ -678,27 +1300,69 @@ const History = ({ handleClearHistory }) => {
                             <Box sx={{ mb: 4 }}>
                                 <Typography variant="subtitle1" gutterBottom color="info.main" sx={{ fontWeight: 'bold' }}>Hack Levels</Typography>
                                 <Box sx={{ width: '100%', height: 400 }}>
-                                    <ResponsiveContainer width="100%" height="100%" debounce={1}>
-                                        <LineChart data={filteredChartData}>
-                                            <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                                            <XAxis
-                                                dataKey="timestamp"
-                                                type="number"
-                                                domain={['dataMin', 'dataMax']}
-                                                tickFormatter={(t) => new Date(t).toLocaleDateString()}
-                                                fontSize={11}
-                                            />
-                                            <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} fontSize={11} />
-                                            <ChartTooltip
-                                                labelFormatter={(t) => new Date(t).toLocaleString()}
-                                                formatter={(v, name) => [shorten(v), name]}
-                                                contentStyle={{ borderRadius: 8, border: 'none', boxShadow: theme.shadows[8], fontSize: '0.8rem' }}
-                                            />
-                                            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-                                            {visibleHacks.map(({ name, i }) => (
-                                                <Line key={`h_${i}`} type="monotone" dataKey={`hack_${i}`} name={name} stroke={`hsl(${(i * 24) % 360}, 60%, 45%)`} strokeWidth={1.5} dot={{ r: 2 }} />
-                                            ))}
-                                        </LineChart>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        {historyChartMode === 'stacked' ? (
+                                            <AreaChart
+                                                data={chartDataToUse}
+                                                onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                onMouseLeave={() => setActiveSeries(null)}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
+                                                <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString()} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <YAxis tickFormatter={(v) => shorten(v)} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <ChartTooltip content={<CustomTooltip />} />
+                                                <Legend content={<RenderLegend />} />
+                                                {visibleHacks.map(({ name, i }) => {
+                                                    const key = `hack_${i}`;
+                                                    if (hiddenSeries.has(key)) return null;
+                                                    const isActive = activeSeries === key;
+                                                    return (
+                                                        <Area
+                                                            key={key}
+                                                            stackId="1"
+                                                            type="monotone"
+                                                            dataKey={key}
+                                                            name={name}
+                                                            stroke={`hsl(${(i * 24) % 360}, 60%, 45%)`}
+                                                            fill={`hsl(${(i * 24) % 360}, 60%, 45%)`}
+                                                            fillOpacity={activeSeries ? (isActive ? 0.9 : 0.1) : 0.6}
+                                                            strokeWidth={isActive ? 3 : 0}
+                                                            style={{ transition: 'all 0.2s ease' }}
+                                                        />
+                                                    );
+                                                })}
+                                            </AreaChart>
+                                        ) : (
+                                            <LineChart
+                                                data={chartDataToUse}
+                                                onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                onMouseLeave={() => setActiveSeries(null)}
+                                            >
+                                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
+                                                <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString()} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <YAxis domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']} tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)} fontSize={11} style={{ pointerEvents: 'none' }} />
+                                                <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                                <Legend content={<RenderLegend />} />
+                                                {visibleHacks.map(({ name, i }) => {
+                                                    const key = `hack_${i}`;
+                                                    if (hiddenSeries.has(key)) return null;
+                                                    const chartKeys = visibleHacks.map(v => `hack_${v.i}`);
+                                                    return (
+                                                        <Line
+                                                            key={key}
+                                                            type="monotone"
+                                                            dataKey={key}
+                                                            name={name}
+                                                            stroke={`hsl(${(i * 24) % 360}, 60%, 45%)`}
+                                                            {...activeLineStyle(key, chartKeys.map(k => ({ dataKey: k })))}
+                                                            dot={activeSeries === key ? { r: 4, fill: `hsl(${(i * 24) % 360}, 60%, 45%)` } : { r: 2 }}
+                                                            activeDot={{ r: 8, strokeWidth: 0 }}
+                                                            onClick={() => toggleSeries(key)}
+                                                        />
+                                                    );
+                                                })}
+                                            </LineChart>
+                                        )}
                                     </ResponsiveContainer>
                                 </Box>
                             </Box>
@@ -710,25 +1374,45 @@ const History = ({ handleClearHistory }) => {
                                     <Box sx={{ mb: 8 }}>
                                         <Typography variant="h6" gutterBottom sx={{ color: '#8B4513', fontWeight: 'bold' }}>Beard Progression (Permanent Levels)</Typography>
                                         <Box sx={{ width: '100%', height: 400 }}>
-                                            <ResponsiveContainer width="100%" height="100%" debounce={1}>
-                                                <LineChart data={filteredChartData}>
-                                                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <LineChart
+                                                    data={chartDataToUse}
+                                                    onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
+                                                    onMouseLeave={() => setActiveSeries(null)}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} style={{ pointerEvents: 'none' }} />
                                                     <XAxis
                                                         dataKey="timestamp"
                                                         type="number"
                                                         domain={['dataMin', 'dataMax']}
                                                         tickFormatter={(t) => new Date(t).toLocaleDateString()}
+                                                        style={{ pointerEvents: 'none' }}
                                                     />
-                                                    <YAxis domain={['auto', 'auto']} tickFormatter={(v) => shorten(v)} />
-                                                    <ChartTooltip
-                                                        labelFormatter={(t) => new Date(t).toLocaleString()}
-                                                        formatter={(v, name) => [shorten(v), name]}
-                                                        contentStyle={{ borderRadius: 12, border: 'none', boxShadow: theme.shadows[10] }}
+                                                    <YAxis
+                                                        domain={historyChartMode === 'relative' ? [0, 'auto'] : ['auto', 'auto']}
+                                                        tickFormatter={(v) => historyChartMode === 'relative' ? `${v.toFixed(1)}%` : shorten(v)}
+                                                        style={{ pointerEvents: 'none' }}
                                                     />
-                                                    <Legend />
-                                                    {visibleBeards.map(({ name, i }) => (
-                                                        <Line key={`b_${i}`} type="monotone" dataKey={`beard_${i}`} name={name} stroke={`hsl(${(i * 50 + 30) % 360}, 60%, 50%)`} strokeWidth={2} dot={{ r: 3 }} />
-                                                    ))}
+                                                    <ChartTooltip content={<CustomTooltip mode={historyChartMode} />} />
+                                                    <Legend content={<RenderLegend />} />
+                                                    {visibleBeards.map(({ name, i }) => {
+                                                        const key = `beard_${i}`;
+                                                        if (hiddenSeries.has(key)) return null;
+                                                        const chartKeys = visibleBeards.map(v => `beard_${v.i}`);
+                                                        return (
+                                                            <Line
+                                                                key={key}
+                                                                type="monotone"
+                                                                dataKey={key}
+                                                                name={name}
+                                                                stroke={`hsl(${(i * 50 + 30) % 360}, 60%, 50%)`}
+                                                                {...activeLineStyle(key, chartKeys.map(k => ({ dataKey: k })))}
+                                                                dot={activeSeries === key ? { r: 4, fill: `hsl(${(i * 50 + 30) % 360}, 60%, 50%)` } : { r: 2 }}
+                                                                activeDot={{ r: 8, strokeWidth: 0 }}
+                                                                onClick={() => toggleSeries(key)}
+                                                            />
+                                                        );
+                                                    })}
                                                 </LineChart>
                                             </ResponsiveContainer>
                                         </Box>

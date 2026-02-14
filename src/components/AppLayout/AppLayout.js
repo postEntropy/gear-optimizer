@@ -51,7 +51,7 @@ import Augment from '../Content/Augment';
 import NGUComponent from '../Content/NGUs';
 import HackComponent from '../Content/Hacks';
 import WishComponent from '../Content/Wishes';
-import HistoryComponent from '../Content/History';
+import HistoryComponent from '../Content/History/index';
 import PerksComponent from '../Perks/Perks';
 // import AboutComponent from '../About/About';
 

@@ -86,6 +86,8 @@ const App = () => {
         wishstats: state.wishstats,
         history: state.history,
         highlightBest: state.highlightBest,
+        showR3History: state.showR3History,
+        historyChartMode: state.historyChartMode,
         version: state.version,
         loaded: state.loaded,
         optimizedEquip: state.optimizedEquip,

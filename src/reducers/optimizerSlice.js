@@ -241,6 +241,8 @@ const INITIAL_STATE = {
     },
     history: [],
     highlightBest: false,
+    showR3History: true,
+    historyChartMode: 'absolute', // absolute, stacked, relative
     liveSync: {
         status: 'disconnected',
         lastUpdate: null,

@@ -108,7 +108,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
             highestSadisticBoss: data.highestSadisticBoss || 0,
             nguLevels: (data.NGU?.skills || []).map(s => ({ normal: s.level || 0, evil: s.evilLevel || 0, sadistic: s.sadisticLevel || 0 })),
             magicNguLevels: (data.NGU?.magicSkills || []).map(s => ({ normal: s.level || 0, evil: s.evilLevel || 0, sadistic: s.sadisticLevel || 0 })),
-            hackLevels: (data.hacks?.hacks || []).map(h => h.level || 0),
+            hackLevels: (Array.isArray(data.hacks?.hacks) ? data.hacks.hacks : (data.hacks?.hacks ? Object.values(data.hacks.hacks) : [])).map(h => (typeof h === 'object' ? h.level : h) || 0),
 
             // Resource Stats (Base/Purchased Cap for stable history)
             energyCap: data.energyPurchasedCap || data.baseEnergyCap || data.purchasedEnergyCap || data.capEnergy || 0,
@@ -206,10 +206,11 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children }) =>
         // Create a clean new state based on CURRENT hackstats
         // We ONLY update the levels, keeping rpow, rcap, and hackspeed as they are
         let newHacks = currentHackstats.hacks.map((h, i) => {
-            const importedHack = data.hacks.hacks[i];
+            const importedHacks = Array.isArray(data.hacks?.hacks) ? data.hacks.hacks : (data.hacks?.hacks ? Object.values(data.hacks.hacks) : []);
+            const importedHack = importedHacks[i];
             return {
                 ...h,
-                level: importedHack ? importedHack.level : h.level
+                level: importedHack !== undefined && importedHack !== null ? (typeof importedHack === 'object' ? (importedHack.level || 0) : importedHack) : h.level
             };
         });
 

@@ -70,3 +70,4 @@ licenses.json
 
 # compile_mod.ps1
 ngu-sync-bridge.js
+*.code-workspace
