@@ -40,6 +40,8 @@ import { SAVE_STATE_LOCALSTORAGE } from '../actions/SaveStateLocalStorage';
 import { MASSUPDATE } from '../actions/MassUpdateItems';
 import { DROP_EQUIP_ITEM } from '../actions/DropEquipItem';
 import { RECORD_HISTORY, CLEAR_HISTORY } from '../actions/History';
+import { SCAN_USELESS } from '../actions/ScanUseless';
+export const MASS_DISABLE = 'Mass disable items.';
 
 import { cleanState, fillState, loadState } from './Items'; // Re-use helpers for now
 
@@ -244,6 +246,8 @@ const INITIAL_STATE = {
     },
     history: [],
     highlightBest: false,
+    highlightEquipped: true,
+    showGraphs: true,
     showR3History: true,
     historyChartMode: 'absolute', // absolute, stacked, relative
     liveSync: {
@@ -257,6 +261,9 @@ const INITIAL_STATE = {
             perkLevel: []
         }
     },
+    playerName: 'Player',
+    randomLogoFilterOwned: true,
+    usefulItemIds: null,
     version: '2.0.0'
 };
 
@@ -760,6 +767,18 @@ const optimizerSlice = createSlice({
                     maxslots: hasNoFactors
                         ? state.maxslots
                         : save.maxslots
+                });
+            })
+            .addCase(SCAN_USELESS, (state, action) => {
+                state.usefulItemIds = action.payload.usefulIds;
+                state.running = false;
+            })
+            .addCase(MASS_DISABLE, (state, action) => {
+                const ids = action.payload.ids;
+                ids.forEach(id => {
+                    if (state.itemdata[id]) {
+                        state.itemdata[id].disable = true;
+                    }
                 });
             })
     }

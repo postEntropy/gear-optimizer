@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { shorten, toTime } from '../../../../util';
 
-export const useHistoryData = (timeRange) => {
+export const useHistoryData = (timeRange, customRange) => {
     const history = useSelector(state => state.optimizer.history);
 
     // 1. Sort History (Oldest First for Charts)
@@ -82,9 +82,25 @@ export const useHistoryData = (timeRange) => {
     // 3. Filter by Time Range
     const filteredData = useMemo(() => {
         if (timeRange === 0) return chartData;
-        const cutoff = Date.now() - (timeRange * 24 * 60 * 60 * 1000);
-        return chartData.filter(d => d.timestamp >= cutoff);
-    }, [chartData, timeRange]);
+
+        if (timeRange === 'custom' && customRange) {
+            const { start, end } = customRange;
+            const endLimit = end ? new Date(end).setHours(23, 59, 59, 999) : null;
+            return chartData.filter(d => {
+                const ts = d.timestamp;
+                if (start && ts < start.getTime()) return false;
+                if (endLimit && ts > endLimit) return false;
+                return true;
+            });
+        }
+
+        if (typeof timeRange === 'number' && timeRange > 0) {
+            const cutoff = Date.now() - (timeRange * 24 * 60 * 60 * 1000);
+            return chartData.filter(d => d.timestamp >= cutoff);
+        }
+
+        return chartData;
+    }, [chartData, timeRange, customRange]);
 
     // 4. Calculate Statistics (Best runs, averages)
     const stats = useMemo(() => {

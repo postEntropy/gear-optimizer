@@ -4,7 +4,8 @@ const HistoryContext = createContext();
 
 export const HistoryProvider = ({ children }) => {
     // Filter State
-    const [timeRange, setTimeRange] = useState(30); // Days
+    const [timeRange, setTimeRange] = useState(30); // Days or 'custom'
+    const [customRange, setCustomRange] = useState({ start: null, end: null }); // {start: Date, end: Date}
     const [chartMode, setChartMode] = useState('absolute'); // 'absolute' | 'relative' | 'stacked'
     const [showR3, setShowR3] = useState(false);
 
@@ -36,11 +37,31 @@ export const HistoryProvider = ({ children }) => {
         }
     };
 
+    const isolateSeries = (key, allKeys) => {
+        setHiddenSeries(prev => {
+            const others = allKeys.filter(k => k !== key);
+            const allOthersHidden = others.every(k => prev.has(k));
+            const isCurrentlyOnlyVisible = !prev.has(key) && allOthersHidden;
+
+            const next = new Set(prev);
+            if (isCurrentlyOnlyVisible) {
+                // Reset: Show all in this group
+                allKeys.forEach(k => next.delete(k));
+            } else {
+                // Focus: Hide all others, show this one
+                others.forEach(k => next.add(k));
+                next.delete(key);
+            }
+            return next;
+        });
+    };
+
     const value = {
         timeRange, setTimeRange,
+        customRange, setCustomRange,
         chartMode, setChartMode,
         showR3, setShowR3,
-        hiddenSeries, toggleSeries,
+        hiddenSeries, toggleSeries, isolateSeries,
         isCompareMode, setIsCompareMode,
         selectedSaves, toggleSaveSelection,
         clearSelection: () => setSelectedSaves([])

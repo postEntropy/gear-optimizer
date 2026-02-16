@@ -74,7 +74,8 @@ const ItemTable = (props) => {
         handleClickItem,
         handleCtrlClickItem,
         handleEditItem,
-        handleRightClickItem
+        handleRightClickItem,
+        highlightEquipped
     } = props;
 
     const limits = useMemo(() => get_limits(props), [props.zone, props.titanversion, props.looty, props.pendant]);
@@ -163,6 +164,7 @@ const ItemTable = (props) => {
                         className={className}
                         item={item}
                         isEquipped={isEquipped}
+                        highlightEquipped={highlightEquipped}
                         handleClickItem={handleClickItem}
                         handleCtrlClickItem={handleCtrlClickItem}
                         handleShiftClickItem={(itemId) => handleEditItem(itemId, -1)}

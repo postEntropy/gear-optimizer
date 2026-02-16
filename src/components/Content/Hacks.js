@@ -205,28 +205,20 @@ class HackComponent extends Component {
     }
 
     milestone(data) {
+        const hackidx = data.hackidx;
+        const currentLevel = data.level;
+        const reducer = this.props.hackstats.hacks[hackidx].reducer;
+        const baseGap = Hacks[hackidx][4];
+        const gap = Math.max(1, baseGap - reducer);
+        const levelCap = Hacks[hackidx][5];
+
         if (data.next) {
-            let n = 0;
-            let level = 10;
-            while (level <= data.level) {
-                n++;
-                level = Math.floor((n * 10 + 10) * Math.pow(1.1, n));
-            }
-            let levelCap = Hacks[data.hackidx][5];
-            if (level > levelCap) {
-                return levelCap;
-            }
-            return level;
+            let nextLevel = (Math.floor(currentLevel / gap) + 1) * gap;
+            return Math.min(nextLevel, levelCap);
+        } else {
+            let prevLevel = (Math.ceil(currentLevel / gap) - 1) * gap;
+            return Math.max(0, prevLevel);
         }
-        let n = 0;
-        let level = 10;
-        let prev = 0;
-        while (level < data.level) {
-            n++;
-            prev = level;
-            level = Math.floor((n * 10 + 10) * Math.pow(1.1, n));
-        }
-        return prev;
     }
 
     level(data) {
@@ -329,18 +321,6 @@ class HackComponent extends Component {
                                             type="number"
                                             fullWidth
                                             inputProps={{ step: "any" }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} sm={6}>
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={this.props.highlightBest}
-                                                    onChange={() => this.props.handleSettings('highlightBest', !this.props.highlightBest)}
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="Highlight Best Gain"
                                         />
                                     </Grid>
                                     <Grid item xs={6} sm={6}>
@@ -551,7 +531,7 @@ class HackComponent extends Component {
                                             const isBestGain = this.props.highlightBest && change === maxChange && change > 1;
 
                                             rows.push(
-                                                <TableRow key={pos} sx={isBestGain ? { backgroundColor: 'rgba(76, 175, 80, 0.12) !important' } : {}}>
+                                                <TableRow key={pos} sx={isBestGain ? { backgroundColor: 'rgba(76, 175, 80, 0.25) !important' } : {}}>
                                                     <TableCell padding="checkbox">
                                                         <IconButton
                                                             size="small"
@@ -601,7 +581,7 @@ class HackComponent extends Component {
                                                     <TableCell>{shorten(bonus, 2)}%</TableCell>
                                                     <TableCell sx={isBestGain ? { fontWeight: 'bold' } : {}}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            {isBestGain && <StarIcon sx={{ color: '#FFD700', fontSize: '1.1rem' }} />}
+                                                            {isBestGain && <StarIcon sx={{ color: '#FFB300', fontSize: '1.2rem', filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />}
                                                             ×{shorten(change, 3)}
                                                             {Math.round((change - 1) * 100) !== 0 && (
                                                                 <span style={{ color: 'green', fontWeight: 'bold', marginLeft: 4 }}>
@@ -621,10 +601,16 @@ class HackComponent extends Component {
                                                     <TableCell colSpan={13} sx={{ py: 0, borderBottom: isExpanded ? undefined : 'none' }}>
                                                         <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                                                             <Box sx={{ p: 2 }}>
-                                                                <HackGraph
-                                                                    {...this.props}
-                                                                    hack={{ ...d, name }}
-                                                                />
+                                                                {this.props.showGraphs ? (
+                                                                    <HackGraph
+                                                                        {...this.props}
+                                                                        hack={{ ...d, name }}
+                                                                    />
+                                                                ) : (
+                                                                    <Typography variant="body2" color="text.secondary" align="center">
+                                                                        Graphs are disabled in Settings.
+                                                                    </Typography>
+                                                                )}
                                                             </Box>
                                                         </Collapse>
                                                     </TableCell>
@@ -642,11 +628,13 @@ class HackComponent extends Component {
                                         rows.push(
                                             <TableRow key="summary-chart">
                                                 <TableCell colSpan={13}>
-                                                    <HackComparisonGraph
-                                                        {...this.props}
-                                                        hacksData={data}
-                                                        title="Hacks Efficiency Comparison (24 Hours Projection)"
-                                                    />
+                                                    {this.props.showGraphs && (
+                                                        <HackComparisonGraph
+                                                            {...this.props}
+                                                            hacksData={data}
+                                                            title="Hacks Efficiency Comparison (24 Hours Projection)"
+                                                        />
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         );

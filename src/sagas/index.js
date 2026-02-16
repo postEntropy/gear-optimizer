@@ -5,6 +5,7 @@ import { OPTIMIZE_GEAR, OPTIMIZE_GEAR_ASYNC } from '../actions/OptimizeGear'
 import { OPTIMIZE_SAVES, OPTIMIZE_SAVES_ASYNC } from '../actions/OptimizeSaves'
 import { OPTIMIZING_GEAR } from '../actions/OptimizingGear'
 import { TERMINATE, TERMINATE_ASYNC } from '../actions/Terminate'
+import { SCAN_USELESS, SCAN_USELESS_ASYNC } from '../actions/ScanUseless'
 /* eslint-disable-next-line */
 // import Worker from './optimize.worker'
 
@@ -78,6 +79,26 @@ export function* augmentAsync(action) {
     });
 }
 
+export function* scanUselessAsync(action) {
+    worker = new Worker(new URL('./optimize.worker.js', import.meta.url), { type: 'module' });
+    yield put({
+        type: OPTIMIZING_GEAR,
+        payload: {
+            worker: worker
+        }
+    });
+    const store = yield select();
+    const state = store.optimizer;
+    let usefulIds = yield doOptimize('scanUseless', 'usefulIds', state, worker);
+    yield put({
+        type: SCAN_USELESS,
+        payload: {
+            usefulIds: usefulIds
+        }
+    });
+}
+
+
 export function* terminate() {
     if (worker) {
         worker.terminate();
@@ -101,6 +122,11 @@ export function* watchTerminate() {
     yield takeEvery(TERMINATE_ASYNC, terminate);
 }
 
+export function* watchScanUselessAsync() {
+    yield takeEvery(SCAN_USELESS_ASYNC, scanUselessAsync)
+}
+
+
 export default function* rootSaga() {
-    yield all([watchOptimizeAsync(), watchOptimizeSavesAsync(), watchAugmentAsync(), watchTerminate()]);
+    yield all([watchOptimizeAsync(), watchOptimizeSavesAsync(), watchAugmentAsync(), watchTerminate(), watchScanUselessAsync()]);
 }

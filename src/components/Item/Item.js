@@ -35,7 +35,7 @@ export const TargetItem = (props) => {
 }
 
 const Item = (props) => {
-    const { item, className, idx, locked: lockedProp, lockable, isEquipped } = props;
+    const { item, className, idx, locked: lockedProp, lockable, isEquipped, highlightEquipped = true } = props;
 
     // Tooltip content generation
     const tooltipContent = useMemo(() => {
@@ -68,7 +68,7 @@ const Item = (props) => {
     if (isLocked) {
         classNames += ' lock-item'
     }
-    if (isEquipped) {
+    if (isEquipped && highlightEquipped) {
         classNames += ' equipped-item'
     }
     if (item === undefined) {

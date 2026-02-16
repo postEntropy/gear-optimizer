@@ -198,7 +198,7 @@ const EquipmentSection = ({ equip, prefix, itemdata, group, locked, handleClickI
 };
 
 // Export ConditionalSection for use in Optimizer.js
-export const ConditionalSection = ({ condition, title, items, itemdata, equip, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem }) => {
+export const ConditionalSection = ({ condition, title, items, itemdata, equip, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, highlightEquipped }) => {
     // Default to collapsed (hidden)
     const [expanded, setExpanded] = useState(false);
 
@@ -219,6 +219,7 @@ export const ConditionalSection = ({ condition, title, items, itemdata, equip, h
                         item={item}
                         lockable={false}
                         isEquipped={isEquipped}
+                        highlightEquipped={highlightEquipped}
                         handleClickItem={handleEquipItem}
                         handleCtrlClickItem={handleCtrlClickItem}
                         handleShiftClickItem={handleShiftClickItem}

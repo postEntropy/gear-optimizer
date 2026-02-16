@@ -30,6 +30,8 @@ import { LoadStateLocalStorage } from '../actions/LoadStateLocalStorage';
 import { SaveStateLocalStorage } from '../actions/SaveStateLocalStorage';
 import { DropEquipItem } from '../actions/DropEquipItem';
 import { ClearHistory } from '../actions/History';
+import { ScanUselessAsync } from '../actions/ScanUseless';
+import { MassDisable } from '../actions/MassDisable';
 
 import '../stylesheets/App.css';
 import { LOCALSTORAGE_NAME } from '../constants';
@@ -91,6 +93,11 @@ const App = () => {
         version: state.version,
         loaded: state.loaded,
         optimizedEquip: state.optimizedEquip,
+        playerName: state.playerName,
+        randomLogoFilterOwned: state.randomLogoFilterOwned,
+        highlightEquipped: state.highlightEquipped,
+        showGraphs: state.showGraphs,
+        usefulItemIds: state.usefulItemIds,
     }), [state]);
 
     // Actions
@@ -127,6 +134,8 @@ const App = () => {
         handleSaveStateLocalStorage: (...args) => dispatch(SaveStateLocalStorage(...args)),
         handleLoadStateLocalStorage: (...args) => dispatch(LoadStateLocalStorage(...args)),
         handleClearHistory: (...args) => dispatch(ClearHistory(...args)),
+        handleScanUseless: (...args) => dispatch(ScanUselessAsync(...args)),
+        handleMassDisable: (...args) => dispatch(MassDisable(...args)),
     }), [dispatch]);
 
     // Initial load

@@ -286,18 +286,6 @@ class NGUComponent extends Component {
                                     <Grid item xs={6} sm={4}>
                                         <FormControlLabel control={<Checkbox checked={this.props.ngustats.quirk.s2e} onChange={(e) => this.handleChange(e, 's2e')} />} label="Sadistic -> Evil Quirk" />
                                     </Grid>
-                                    <Grid item xs={12} sm={4}>
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={this.props.highlightBest}
-                                                    onChange={() => this.props.handleSettings('highlightBest', !this.props.highlightBest)}
-                                                    color="primary"
-                                                />
-                                            }
-                                            label="Highlight Best Gain"
-                                        />
-                                    </Grid>
                                 </Grid>
                             </Paper>
                             <ModifierForm {...this.props} name={'ngustats'} e={true} m={true} r={false} />
@@ -411,7 +399,7 @@ class NGUComponent extends Component {
                                             const isBestAny = isBestNormal || isBestEvil || isBestSadistic;
 
                                             return [
-                                                <TableRow key={rowId} sx={isBestAny ? { backgroundColor: 'rgba(76, 175, 80, 0.12) !important' } : {}}>
+                                                <TableRow key={rowId} sx={isBestAny ? { backgroundColor: 'rgba(76, 175, 80, 0.25) !important' } : {}}>
                                                     <TableCell padding="checkbox">
                                                         <IconButton size="small" onClick={() => this.toggleRow(rowId)}>
                                                             {isExpanded ? <ExpandLessIcon fontSize="small" /> : <AccessTimeIcon fontSize="small" />}
@@ -436,19 +424,19 @@ class NGUComponent extends Component {
                                                     <TableCell sx={isBestAny ? { fontWeight: 'bold' } : {}}>{'×' + shorten(bonus * 100) + '%'}</TableCell>
                                                     <TableCell sx={isBestNormal ? { fontWeight: 'bold' } : {}}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            {isBestNormal && <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />}
+                                                            {isBestNormal && <StarIcon sx={{ color: '#FFB300', fontSize: '1.2rem', filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />}
                                                             {shorten(reachable.level.normal)} (×{shorten(reachable.bonus.normal / bonus, 4)}) {Math.round((reachable.bonus.normal / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.normal / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.normal / bonus - 1) * 100)}%)</span>}
                                                         </Box>
                                                     </TableCell>
                                                     <TableCell sx={isBestEvil ? { fontWeight: 'bold' } : {}}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            {isBestEvil && <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />}
+                                                            {isBestEvil && <StarIcon sx={{ color: '#FFB300', fontSize: '1.2rem', filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />}
                                                             {shorten(reachable.level.evil)} (×{shorten(reachable.bonus.evil / bonus, 4)}) {Math.round((reachable.bonus.evil / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.evil / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.evil / bonus - 1) * 100)}%)</span>}
                                                         </Box>
                                                     </TableCell>
                                                     <TableCell sx={isBestSadistic ? { fontWeight: 'bold' } : {}}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            {isBestSadistic && <StarIcon sx={{ color: '#FFD700', fontSize: '1rem' }} />}
+                                                            {isBestSadistic && <StarIcon sx={{ color: '#FFB300', fontSize: '1.2rem', filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />}
                                                             {shorten(reachable.level.sadistic)} (×{shorten(reachable.bonus.sadistic / bonus, 4)}) {Math.round((reachable.bonus.sadistic / bonus - 1) * 100) !== 0 && <span style={{ color: 'green', fontWeight: 'bold' }}>({Math.abs((reachable.bonus.sadistic / bonus - 1) * 100 % 1) > 0.01 ? '~' : ''}{Math.round((reachable.bonus.sadistic / bonus - 1) * 100)}%)</span>}
                                                         </Box>
                                                     </TableCell>
@@ -457,11 +445,17 @@ class NGUComponent extends Component {
                                                     <TableCell colSpan={9} sx={{ py: 0, borderBottom: isExpanded ? undefined : 'none' }}>
                                                         <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                                                             <Box sx={{ p: 2 }}>
-                                                                <NGUTimeline
-                                                                    {...this.props}
-                                                                    ngu={{ ...ngu, levels: stats[pos], pos }}
-                                                                    isMagic={isMagic}
-                                                                />
+                                                                {this.props.showGraphs ? (
+                                                                    <NGUTimeline
+                                                                        {...this.props}
+                                                                        ngu={{ ...ngu, levels: stats[pos], pos }}
+                                                                        isMagic={isMagic}
+                                                                    />
+                                                                ) : (
+                                                                    <Typography variant="body2" color="text.secondary" align="center">
+                                                                        Graphs are disabled in Settings.
+                                                                    </Typography>
+                                                                )}
                                                             </Box>
                                                         </Collapse>
                                                     </TableCell>
@@ -480,14 +474,16 @@ class NGUComponent extends Component {
                                             ...rows.flat(),
                                             <TableRow key={resource + '_summary_chart'}>
                                                 <TableCell colSpan={9} sx={{ p: 0 }}>
-                                                    <Box sx={{ p: 3 }}>
-                                                        <NGUComparisonGraph
-                                                            {...this.props}
-                                                            ngusData={data}
-                                                            isMagic={isMagic}
-                                                            title={`${resource.charAt(0).toUpperCase() + resource.slice(1)} NGUs Comparison`}
-                                                        />
-                                                    </Box>
+                                                    {this.props.showGraphs && (
+                                                        <Box sx={{ p: 3 }}>
+                                                            <NGUComparisonGraph
+                                                                {...this.props}
+                                                                ngusData={data}
+                                                                isMagic={isMagic}
+                                                                title={`${resource.charAt(0).toUpperCase() + resource.slice(1)} NGUs Comparison`}
+                                                            />
+                                                        </Box>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         ];

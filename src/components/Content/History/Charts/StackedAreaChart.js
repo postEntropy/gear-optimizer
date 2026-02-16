@@ -9,8 +9,8 @@ import ChartContainer from '../Components/ChartContainer';
 const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 }) => {
     const theme = useTheme();
     const [activeSeries, setActiveSeries] = React.useState(null);
-    const { timeRange, hiddenSeries, toggleSeries } = useHistoryContext();
-    const { filteredData, rawHistory } = useHistoryData(timeRange);
+    const { timeRange, customRange, hiddenSeries, toggleSeries, isolateSeries } = useHistoryContext();
+    const { filteredData, rawHistory } = useHistoryData(timeRange, customRange);
 
     // Identify which series have data
     const visibleSeries = useMemo(() => {
@@ -198,7 +198,7 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                                         transform: 'scale(0.95)'
                                     }
                                 }}
-                                onClick={() => toggleSeries(seriesKey)}
+                                onClick={() => isolateSeries(seriesKey, visibleSeries.map(s => `${prefix}_${s.i}`))}
                                 onMouseEnter={() => !isHidden && setActiveSeries(seriesKey)}
                                 onMouseLeave={() => setActiveSeries(null)}
                             >

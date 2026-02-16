@@ -21,5 +21,6 @@ export default defineConfig({
                 '.js': 'jsx',
             },
         },
+        include: ['html2canvas'],
     },
 });

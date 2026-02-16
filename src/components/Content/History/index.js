@@ -8,14 +8,15 @@ import BossProgressChart from './Charts/BossProgressChart';
 import ResourceChart from './Charts/ResourceChart';
 import StackedAreaChart from './Charts/StackedAreaChart';
 import HistoryTable from './HistoryTable';
+import CustomRangePicker from './Components/CustomRangePicker';
 import { History as HistoryIcon, Analytics, FlashOn, AutoFixHigh, Code } from '@mui/icons-material';
 import ImportSaveForm from '../../ImportSaveForm/ImportSaveForm';
 
 // Inner layout component to access Context
 const DashboardLayout = () => {
     const theme = useTheme();
-    const { timeRange, setTimeRange } = useHistoryContext();
-    const { sortedHistory } = useHistoryData(timeRange);
+    const { timeRange, setTimeRange, customRange, setCustomRange } = useHistoryContext();
+    const { sortedHistory, filteredData } = useHistoryData(timeRange, customRange);
 
     if (!sortedHistory || sortedHistory.length === 0) {
         return (
@@ -121,12 +122,19 @@ const DashboardLayout = () => {
                                 {range.label}
                             </Button>
                         ))}
+                        <CustomRangePicker
+                            range={customRange}
+                            onSelect={(r) => {
+                                setCustomRange(r);
+                                setTimeRange('custom');
+                            }}
+                        />
                     </Box>
                 </Box>
             </Box>
 
             {/* Top Level Metrics */}
-            <SummaryCards history={sortedHistory} />
+            <SummaryCards history={filteredData} />
 
             {/* Resource Charts Row */}
             <Grid container spacing={3} sx={{ mb: 6 }}>
@@ -187,7 +195,7 @@ const DashboardLayout = () => {
             </Grid>
 
             <Box sx={{ mt: 8 }}>
-                <HistoryTable history={sortedHistory} />
+                <HistoryTable history={filteredData} />
             </Box>
 
         </Container>

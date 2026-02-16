@@ -2,43 +2,11 @@ import React, { useMemo } from 'react';
 import CookieBanner from 'react-cookie-banner';
 import { NavLink, useLocation, useMatch, useParams } from 'react-router-dom';
 
-import {
-    alpha,
-    Box,
-    CssBaseline,
-    ThemeProvider,
-    Typography,
-    IconButton,
-    useMediaQuery,
-    Link,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Drawer,
-    Tooltip,
-    Divider,
-    Avatar
-} from '@mui/material';
-import {
-    Brightness4,
-    Brightness7,
-    Palette,
-    GitHub,
-    SettingsSuggest, // Gear/Optimizer
-    TrendingUp, // Augments (Growth)
-    FlashOn, // Energy/Magic (NGUs)
-    Code, // Hacks
-    Star, // Wishes
-    History, // Rebirth History
-    ChevronLeft,
-
-    ChevronRight,
-    CardGiftcard // Perks
-} from '@mui/icons-material';
+import { alpha, Box, CssBaseline, ThemeProvider, Typography, IconButton, useMediaQuery, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Drawer, Tooltip, Divider, Avatar } from '@mui/material';
+import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Settings as SettingsIcon } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
 
+import { allowed_zone, get_limits } from '../../util';
 import DarkModeContext from './DarkModeContext';
 import getTheme from '../../theme';
 import { THEME_COLORS } from '../../themeColors';
@@ -53,8 +21,17 @@ import HackComponent from '../Content/Hacks';
 import WishComponent from '../Content/Wishes';
 import HistoryComponent from '../Content/History/index';
 import PerksComponent from '../Perks/Perks';
+import SettingsComponent from '../Content/Settings';
 // import AboutComponent from '../About/About';
 
+// Import images logic (matching Item.js behavior)
+const glob = import.meta.glob('../../assets/img/*.{png,jpg,jpeg,svg}', { eager: true });
+const images = Object.fromEntries(
+    Object.entries(glob).map(([path, module]) => {
+        const fileName = path.split('/').pop().replace(/\.[^/.]+$/, '');
+        return [fileName, module.default];
+    })
+);
 
 const DRAWER_WIDTH = 260;
 const COLLAPSED_DRAWER_WIDTH = 80;
@@ -220,7 +197,7 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
 });
 
 // IMPROVED Page Content: Unmount inactive pages for performance
-const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, props, loadoutParams, fadeAnimation }) => {
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, isSettings, props, loadoutParams, fadeAnimation }) => {
     return (
         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto', ...fadeAnimation }}>
             {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
@@ -230,11 +207,55 @@ const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWis
             {isWishes && <WishComponent {...props} className='app_body' />}
             {isHistory && <HistoryComponent {...props} className='app_body' />}
             {isPerks && <PerksComponent {...props} className='app_body' />}
+            {isSettings && <SettingsComponent {...props} className='app_body' />}
+            {isSettings && <SettingsComponent {...props} className='app_body' />}
         </Box>
     );
 });
 
+const LOGO_CANDIDATES = [
+    "Crappy Helmet", "Forest Helmet", "Blue Cheese Helmet", "Cloth Hat",
+    "Magitech Helmet", "Chef's Hat", "Clockwork Hat", "Circle Helmet",
+    "Spoopy Helmet", "Office Hat", "Gaudy Hat", "Mega Helmet",
+    "Groucho Marx Disguise", "Wanderer's Hat", "taH s'rerednaW",
+    "Badly Drawn Smiley Face", "Stealthy Hat", "Slimy Helmet",
+    "Looty McLootFace", "Sir Looty McLootington III, Esquire", "King Looty",
+    "Emperor Looty", "GALACTIC HERALD LOOTY", "SUPREME INTELLIGENCE LOOTY",
+    "Forest Pendant", "Ascended Forest Pendant", "Ascended Ascended Forest Pendant",
+    "Ascended Ascended Ascended Pendant", "Ascended x4 Pendant", "Ascended x5 Pendant",
+    "My Red Heart 3", "My Blue Heart 3", "My Yellow Heart 3", "My Green Heart 3",
+    "My Purple Heart 3", "My Brown Heart 3", "My Pink Heart 3", "My Rainbow Heart",
+    "THE MALF SLAMMER", "The D20", "The D8", "The Godmother's Ring", "The Lonely Flubber"
+];
+
 const AppLayout = (props) => {
+    // Random Icon Logic
+    const randomIcon = React.useMemo(() => {
+        let keys = Object.keys(images).filter(k => LOGO_CANDIDATES.includes(k));
+
+        if (props.randomLogoFilterOwned) {
+            const limits = get_limits(props);
+            keys = keys.filter(k => {
+                // Fuzzy search to match "My Pink Heart 3" with "My Pink Heart <3"
+                const searchKey = k.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                const item = props.itemdata[k] || Object.values(props.itemdata).find(i =>
+                    i.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() === searchKey
+                );
+
+                if (!item || item.disable || item.id >= 10000) return false;
+                return allowed_zone(props.itemdata, limits, item.id);
+            });
+        }
+
+        if (keys.length === 0) {
+            // Strict fallback: only use images we KNOW are candidates and exist
+            const fallbackKey = LOGO_CANDIDATES.find(c => images[c]) || Object.keys(images)[0];
+            return images[fallbackKey];
+        }
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        return images[randomKey];
+    }, [props.itemdata, props.randomLogoFilterOwned]);
+
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const [darkMode, setDarkMode] = React.useState(() => {
         const saved = localStorage.getItem('dark-mode');
@@ -280,6 +301,7 @@ const AppLayout = (props) => {
     const isWishes = path.startsWith('/wishes');
     const isHistory = path.startsWith('/history');
     const isPerks = path.startsWith('/perks');
+    const isSettings = path.startsWith('/settings');
 
 
 
@@ -342,14 +364,22 @@ const AppLayout = (props) => {
                                 overflow: 'hidden',
                                 whiteSpace: 'nowrap'
                             }}>
-                                <Avatar variant="rounded" sx={{ bgcolor: 'primary.main', boxShadow: 3 }}>
-                                    <SettingsSuggest />
+                                <Avatar
+                                    sx={{
+                                        bgcolor: 'rgba(255,255,255,0.03)',
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255,255,255,0.08)'
+                                    }}
+                                >
+                                    <img src={randomIcon} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                 </Avatar>
-                                <Box>
-                                    <Typography variant="h6" fontWeight={700} lineHeight={1}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Typography variant="h6" fontWeight={900} sx={{ lineHeight: 0.75, m: 0 }}>
                                         Gear
                                     </Typography>
-                                    <Typography variant="caption" sx={{ letterSpacing: 1, opacity: 0.7 }}>
+                                    <Typography variant="caption" sx={{ letterSpacing: 1.5, opacity: 0.8, fontSize: '0.65rem', fontWeight: 700, mt: -0.4 }}>
                                         OPTIMIZER
                                     </Typography>
                                 </Box>
@@ -378,7 +408,7 @@ const AppLayout = (props) => {
                         <Box sx={{ flexGrow: 1 }} />
 
                         {/* FOOTER ACTIONS */}
-                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
+                        <Box sx={{ p: 2, pb: 1, display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
                             <Box sx={{ width: '100%', px: open ? 1 : 0, display: 'flex', justifyContent: 'center' }}>
                                 <LiveSyncPill collapsed={!open} />
                             </Box>
@@ -390,6 +420,11 @@ const AppLayout = (props) => {
                                 open={open}
                             />
                         </Box>
+
+                        <Divider sx={{ mx: 3, opacity: 0.1 }} />
+                        <List component="nav" sx={{ py: 1 }}>
+                            <NavItem open={open} to="/settings" label="Settings" icon={<SettingsIcon />} isActive={location.pathname.startsWith('/settings')} />
+                        </List>
                     </Drawer>
 
                     {/* MAIN CONTENT AREA */}
@@ -410,6 +445,7 @@ const AppLayout = (props) => {
                             isWishes={isWishes}
                             isHistory={isHistory}
                             isPerks={isPerks}
+                            isSettings={isSettings}
                             props={props}
                             loadoutParams={loadoutParams}
                             fadeAnimation={fadeAnimation}

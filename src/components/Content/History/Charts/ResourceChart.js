@@ -10,8 +10,8 @@ import { FlashOn, Science, AutoFixHigh } from '@mui/icons-material';
 const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | 'res3'
     const theme = useTheme();
     const [activeSeries, setActiveSeries] = React.useState(null);
-    const { timeRange, chartMode, setChartMode, showR3, hiddenSeries, toggleSeries } = useHistoryContext();
-    const { filteredData, rawHistory } = useHistoryData(timeRange);
+    const { timeRange, customRange, chartMode, setChartMode, showR3, hiddenSeries, toggleSeries, isolateSeries } = useHistoryContext();
+    const { filteredData, rawHistory } = useHistoryData(timeRange, customRange);
 
     const getClosestSeries = (e) => {
         if (!e || !e.activePayload || e.activePayload.length === 0) return null;
@@ -248,7 +248,7 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                         return (
                             <Box
                                 key={label}
-                                onClick={() => toggleSeries(seriesKey)}
+                                onClick={() => isolateSeries(seriesKey, config.keys)}
                                 onMouseEnter={() => !isHidden && setActiveSeries(seriesKey)}
                                 onMouseLeave={() => setActiveSeries(null)}
                                 sx={{

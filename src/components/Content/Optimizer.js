@@ -27,6 +27,7 @@ import Paperdoll from '../Paperdoll/Paperdoll';
 
 
 import Loading from '../Loading/Loading';
+import UselessItemsDialog from '../UselessItems/UselessItemsDialog';
 
 class Optimizer extends Component {
     static contextType = DarkModeContext;
@@ -36,7 +37,8 @@ class Optimizer extends Component {
         this.state = {
             isReady: false,
             syncStatus: 'disconnected',
-            inventoryCollapsed: true
+            inventoryCollapsed: true,
+            uselessModalOpen: false
         };
         this.fresh = true;
         this.handleChange = this.handleChange.bind(this);
@@ -87,6 +89,7 @@ class Optimizer extends Component {
             tier: tier
         };
     }
+
 
     closeEditModal = () => (this.props.handleToggleModal('edit item', {
         itemId: undefined,
@@ -150,6 +153,8 @@ class Optimizer extends Component {
                                         offhand={this.props.offhand}
                                         syncStatus={this.state.syncStatus}
                                         optimizedEquip={this.props.optimizedEquip}
+                                        onShare={null}
+                                        highlightEquipped={this.props.highlightEquipped}
                                     />
 
                                     {/* Data Integration (Below Paperdoll) */}
@@ -276,6 +281,17 @@ class Optimizer extends Component {
                                                 <OptimizeButton text={'Gear'} running={this.props.running}
                                                     abort={this.props.handleTerminate}
                                                     optimize={this.props.handleOptimizeGear} />
+                                                <Button
+                                                    variant="outlined"
+                                                    size="small"
+                                                    onClick={() => {
+                                                        this.props.handleScanUseless();
+                                                        this.setState({ uselessModalOpen: true });
+                                                    }}
+                                                    sx={{ ml: 1 }}
+                                                >
+                                                    Scan Useless
+                                                </Button>
                                             </Box>
                                             <Grid container spacing={1}>
                                                 {[...this.props.factors.keys()].map((idx) => (
@@ -399,6 +415,7 @@ class Optimizer extends Component {
                                         on: true
                                     })}
                                     handleDropItem={this.props.handleDropEquipItem}
+                                    highlightEquipped={this.props.highlightEquipped}
                                 />
 
                                 <ConditionalSection
@@ -416,6 +433,7 @@ class Optimizer extends Component {
                                         on: true
                                     })}
                                     handleDropItem={this.props.handleDropEquipItem}
+                                    highlightEquipped={this.props.highlightEquipped}
                                 />
                             </Box>
                         </Grid>
@@ -453,6 +471,17 @@ class Optimizer extends Component {
                             <ItemForm {...this.props} closeEditModal={this.closeEditModal} />
                         </DialogContent>
                     </Dialog>
+
+
+                    <UselessItemsDialog
+                        open={this.state.uselessModalOpen}
+                        onClose={() => this.setState({ uselessModalOpen: false })}
+                        usefulItemIds={this.props.usefulItemIds}
+                        itemdata={this.itemdata}
+                        items={this.props.items}
+                        handleDisableItem={this.props.handleDisableItem}
+                        handleMassDisable={this.props.handleMassDisable}
+                    />
                 </Box >
             </DndProvider >
         );
