@@ -27,7 +27,7 @@ import Paperdoll from '../Paperdoll/Paperdoll';
 
 
 import Loading from '../Loading/Loading';
-import UselessItemsDialog from '../UselessItems/UselessItemsDialog';
+
 
 class Optimizer extends Component {
     static contextType = DarkModeContext;
@@ -38,7 +38,7 @@ class Optimizer extends Component {
             isReady: false,
             syncStatus: 'disconnected',
             inventoryCollapsed: true,
-            uselessModalOpen: false
+
         };
         this.fresh = true;
         this.handleChange = this.handleChange.bind(this);
@@ -281,17 +281,7 @@ class Optimizer extends Component {
                                                 <OptimizeButton text={'Gear'} running={this.props.running}
                                                     abort={this.props.handleTerminate}
                                                     optimize={this.props.handleOptimizeGear} />
-                                                <Button
-                                                    variant="outlined"
-                                                    size="small"
-                                                    onClick={() => {
-                                                        this.props.handleScanUseless();
-                                                        this.setState({ uselessModalOpen: true });
-                                                    }}
-                                                    sx={{ ml: 1 }}
-                                                >
-                                                    Scan Useless
-                                                </Button>
+
                                             </Box>
                                             <Grid container spacing={1}>
                                                 {[...this.props.factors.keys()].map((idx) => (
@@ -473,15 +463,7 @@ class Optimizer extends Component {
                     </Dialog>
 
 
-                    <UselessItemsDialog
-                        open={this.state.uselessModalOpen}
-                        onClose={() => this.setState({ uselessModalOpen: false })}
-                        usefulItemIds={this.props.usefulItemIds}
-                        itemdata={this.itemdata}
-                        items={this.props.items}
-                        handleDisableItem={this.props.handleDisableItem}
-                        handleMassDisable={this.props.handleMassDisable}
-                    />
+
                 </Box >
             </DndProvider >
         );
