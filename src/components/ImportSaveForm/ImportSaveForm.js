@@ -185,6 +185,9 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     }, [optimizerState]);
 
     const updateHackTab = (data) => {
+        // Check if syncLevels is enabled (default true)
+        if (stateRef.current.syncLevels === false) return;
+
         if (!data || !data.hacks || !data.hacks.hacks) return;
 
         // Use the ref to get the absolute LATEST state, avoiding closure bugs
@@ -282,6 +285,11 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     }
 
     const updateNgus = (data) => {
+        // Check if syncLevels is enabled (default true)
+        if (stateRef.current.syncLevels === false) return;
+
+        if (!data || !data.NGU || !data.NGU.skills || !data.NGU.magicSkills) return;
+
         let ngus = []
         for (let i = 0; i < data.NGU.skills.length; i++) {
             const skill = data.NGU.skills[i];
@@ -639,6 +647,22 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                                 />
                             }
                             label="Sync Equipment"
+                        />
+                    </Tooltip>
+                </Box>
+
+                <Box sx={{ flex: '0 0 auto', mr: 1 }}>
+                    <Tooltip title="When enabled, Live Sync will update your NGU and Hack levels automatically." arrow>
+                        <FormControlLabel
+                            sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
+                            control={
+                                <Switch
+                                    size="small"
+                                    checked={optimizerState.syncLevels !== false}
+                                    onChange={() => dispatch(Settings("syncLevels", !optimizerState.syncLevels))}
+                                />
+                            }
+                            label="Sync N/H Levels"
                         />
                     </Tooltip>
                 </Box>

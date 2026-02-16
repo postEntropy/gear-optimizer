@@ -256,6 +256,7 @@ const INITIAL_STATE = {
         updateCount: 0
     },
     syncEquip: true,
+    syncLevels: true,
     adventure: {
         itopod: {
             perkLevel: []

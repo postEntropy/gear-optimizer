@@ -208,7 +208,7 @@ const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWis
             {isHistory && <HistoryComponent {...props} className='app_body' />}
             {isPerks && <PerksComponent {...props} className='app_body' />}
             {isSettings && <SettingsComponent {...props} className='app_body' />}
-            {isSettings && <SettingsComponent {...props} className='app_body' />}
+
         </Box>
     );
 });
