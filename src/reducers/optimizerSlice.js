@@ -40,7 +40,7 @@ import { SAVE_STATE_LOCALSTORAGE } from '../actions/SaveStateLocalStorage';
 import { MASSUPDATE } from '../actions/MassUpdateItems';
 import { DROP_EQUIP_ITEM } from '../actions/DropEquipItem';
 import { RECORD_HISTORY, CLEAR_HISTORY } from '../actions/History';
-import { SCAN_USELESS } from '../actions/ScanUseless';
+
 export const MASS_DISABLE = 'Mass disable items.';
 
 import { cleanState, fillState, loadState } from './Items'; // Re-use helpers for now
@@ -769,10 +769,7 @@ const optimizerSlice = createSlice({
                         : save.maxslots
                 });
             })
-            .addCase(SCAN_USELESS, (state, action) => {
-                state.usefulItemIds = action.payload.usefulIds;
-                state.running = false;
-            })
+
             .addCase(MASS_DISABLE, (state, action) => {
                 const ids = action.payload.ids;
                 ids.forEach(id => {
