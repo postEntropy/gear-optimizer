@@ -252,7 +252,6 @@ export class Optimizer {
     compute_optimal(base_layouts, factoridx) {
         this.factors = Factors[this.factorslist[factoridx]];
         this.maxslots = this.maxslotslist[factoridx];
-        // console.log('Priority', factoridx + ':', this.factors[0], this.maxslots);
 
         if (this.factors[1].length === 0) {
             return base_layouts;
@@ -278,7 +277,6 @@ export class Optimizer {
             let s = [];
 
             const layouts = this.optimize_layouts(this.new2oldequip(base_layouts[layout]), accslots, s).map(x => this.old2newequip(x));
-            // console.log('Processing ' + s[2] + ' out of ' + s[1] + ' out of ' + s[0] + ' gear layouts.');
 
             for (let idx in layouts) {
                 // Combine every gear with every accessory layout
@@ -393,10 +391,8 @@ export class Optimizer {
                         let cc = clone(candidate);
                         cc.accessory[locked_accs + idx] = remainder[jdx];
                         alternatives.push(cc);
-                        // console.log('alternative found')
                     }
                     if (tmp_score > score) {
-                        // console.log('error: alternative ', remainder[jdx], 'scores better than ', tmp);
                     }
                 }
             }
@@ -424,7 +420,6 @@ export class Optimizer {
                     candidate[slotname][idx] = EmptySlotId(slotname);
                     const tmp_score = this.score_equip(candidate);
                     if (tmp_score === score) {
-                        // console.log('Dropped ' + tmp + ' from optimal loadout.');
                     } else {
                         candidate[slotname][idx] = tmp;
                     }

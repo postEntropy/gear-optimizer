@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, TextField, Box, Stack, Typography } from '@mui/material';
-import { getLock, getSlot } from '../../utils/items' // Updated import to utils/items
+import { getLock, getSlot } from '../../util'
 
 class LockButton extends React.Component {
     render() {

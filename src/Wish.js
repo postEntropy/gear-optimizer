@@ -1,5 +1,5 @@
-import {Factors, resource_priorities, Wishes} from './assets/ItemAux';
-import {speedmodifier} from './util';
+import { Factors, resource_priorities, Wishes } from './assets/ItemAux';
+import { speedmodifier } from './util';
 
 // [min, max[
 function getRandomInt(min, max) {
@@ -201,7 +201,6 @@ export class Wish {
                     const tmp = [...assignments[w]];
                     assignments[w][spend] = Math.ceil(tmp[spend] + res[spend]);
                     if (tmp[spend] / assignments[w][spend] >= 1) {
-                        console.log('error in wish assignment')
                     }
                     assignments[w][save] *= tmp[spend] / assignments[w][spend];
                     assignments[w][save] = Math.ceil(assignments[w][save]);
@@ -223,7 +222,6 @@ export class Wish {
         const x2 = (m + 1 - d) / (1 - m * r);
         let x;
         if (x1 < 0 && x2 < 0) {
-            console.log('Wish error: both negative.');
             return [assignments, res, scores];
 
         }
@@ -237,7 +235,6 @@ export class Wish {
                 : x2;
         }
         if (x * M1 > M2 + M1 && x * M1 > M2 + M1 + res[spend]) {
-            console.log('Wish warning: too many resources requested.')
             return [assignments, res, scores];
         }
         assignments[w1][spend] = Math.max(this.BASE[spend], Math.ceil(x * M1));
@@ -329,7 +326,6 @@ export class Wish {
         const cap_modifiers = this.cap_modifiers();
         res = res.map((x, idx) => Math.max(0, x * cap_modifiers[idx]));
         assignments = assignments.map(assignment => assignment.map((x, idx) => Math.max(0, x * cap_modifiers[idx])));
-        console.log(Date.now() - global_start_time + ' ms');
         return [scores, assignments, res, true_scores];
     }
 
@@ -344,7 +340,6 @@ export class Wish {
         while (progress < target) {
             const next = Math.fround(progress + ppt);
             if (next === progress) {
-                console.log('early exit at ', progress * 100, '%');
                 return [Infinity, ticks, progress];
             }
             progress = next;

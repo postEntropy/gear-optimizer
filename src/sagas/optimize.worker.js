@@ -38,7 +38,6 @@ function optimize(e) {
     base_layout = base_layout[Math.floor(Math.random() * base_layout.length)];
     let equip = optimizer.sort_locks(state.locked, state.equip, base_layout);
     this.postMessage({ equip: equip });
-    console.log(Math.floor((Date.now() - start_time) / 10) / 100 + ' seconds');
     this.close();
 }
 
@@ -46,7 +45,6 @@ function optimizeSaves(e) {
     let start_time = Date.now();
     const savedequip = e.data.state.savedequip.map(save => {
         if (save.factors === undefined || save.factors.length === 0) {
-            console.log('quit early')
             return save;
         }
         let state = e.data.state;
@@ -91,7 +89,6 @@ function optimizeSaves(e) {
         return save;
     });
     this.postMessage({ savedequip: savedequip });
-    console.log(Math.floor((Date.now() - start_time) / 10) / 100 + ' seconds');
     this.close();
 }
 
@@ -183,7 +180,6 @@ function scanUseless(e) {
 
     const result = Array.from(usefulIds);
     this.postMessage({ usefulIds: result });
-    console.log('Scan useful finished in ' + (Math.floor((Date.now() - start_time) / 10) / 100) + ' seconds');
     this.close();
 }
 

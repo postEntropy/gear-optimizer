@@ -78,15 +78,13 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                 const rawData = Deserializer.fromFile(content)[1];
                 data = Deserializer.convertData(undefined, rawData);
             } catch (e2) {
-                console.error("Error parsing save file:", file.name, e, e2);
+                console.error("Error parsing save file:", file.name, e);
                 return null;
             }
         }
 
         if (!data) return null;
 
-        // Debug log to help identify property names in user save
-        console.log("Extracted save data structure:", data);
 
         // Try to extract timestamp from filename: Rebirth_2026-01-22_14-29-17
         let timestamp = file.lastModified || Date.now();
@@ -146,15 +144,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
             fullData: data
         };
 
-        // Debug: Log extracted metrics
-        console.log("📊 Extracted Metrics:", {
-            pp: result.pp,
-            qp: result.qp,
-            challenges: result.challenges,
-            beardLevels: result.beardLevels,
-            attackMulti: result.attackMulti,
-            defenseMulti: result.defenseMulti
-        });
 
         return result;
     }
@@ -201,7 +190,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         // Use the ref to get the absolute LATEST state, avoiding closure bugs
         const currentHackstats = stateRef.current.hackstats;
 
-        console.log("🛠️ updateHackTab called. Current rpow:", currentHackstats.rpow, "Current rcap:", currentHackstats.rcap);
 
         // Create a clean new state based on CURRENT hackstats
         // We ONLY update the levels, keeping rpow, rcap, and hackspeed as they are
@@ -219,8 +207,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
             hacks: newHacks
         };
 
-        // Explicitly ensuring we don't accidentally merge anything else
-        console.log("📤 Dispatching hackstats. rpow should be:", newState.rpow);
         dispatch(Settings("hackstats", newState));
     }
 
@@ -242,7 +228,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
 
         const updateItem = (item, _) => {
             if (!item) {
-                // console.trace("Skipping null item in updateItem");
                 return;
             }
             let id = item.id;
@@ -450,11 +435,9 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         }
 
         const connect = () => {
-            console.log("🔌 Attempting to connect to NGU Live Sync Bridge...");
             eventSource = new EventSource('http://localhost:3005/events');
 
             eventSource.onopen = () => {
-                console.log("✅ Connected to Live Sync Bridge");
                 setSyncStatus('connected');
                 dispatch(Settings("liveSync", {
                     ...optimizerState.liveSync,
@@ -464,7 +447,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
             };
 
             eventSource.onmessage = (event) => {
-                console.log("📩 SSE Message received (length):", event.data.length);
                 try {
                     let data;
                     if (event.data.trim().startsWith('{')) {
@@ -479,7 +461,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                     }
 
                     if (data) {
-                        console.log("⚡ Auto-Update: Received new save data from bridge");
                         setHasReceivedData(true);
 
                         // Update Redux Metrics
@@ -499,7 +480,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
             eventSource.onerror = (err) => {
                 console.warn("⚠️ Live Sync connection error. Current state:", eventSource.readyState);
                 if (eventSource.readyState === 2) {
-                    // console.error("🚫 Connection closed by browser/server");
                 }
                 setSyncStatus('error');
                 dispatch(Settings("liveSync", {
@@ -530,16 +510,13 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
 
     const handleFilePick = async (e) => {
         const files = Array.from(e.target.files);
-        console.log("🔍 Files selected:", files.length);
         e.target.value = null;
 
         const results = await Promise.all(files.map(file => {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    console.log("📖 Reading file:", file.name);
                     const processed = handleFileRead(file, event.target.result);
-                    console.log("✅ Processed result:", processed ? "Success" : "Failed");
                     resolve(processed);
                 };
                 reader.readAsText(file);
@@ -547,14 +524,12 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         }));
 
         const validResults = results.filter(r => r !== null);
-        console.log("✔️ Valid results:", validResults.length, "out of", results.length);
         if (validResults.length === 0) return;
 
         // Record only Rebirth saves in history
         validResults.forEach(res => {
             const { fullData, isRebirth, ...historyData } = res;
             if (isRebirth) {
-                console.log("💾 Recording rebirth history entry:", historyData);
                 dispatch(RecordHistory(historyData));
             }
         });
@@ -566,7 +541,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         })[0];
 
         if (latest) {
-            console.log("🎯 Applying latest save with", latest.rebirths, "rebirths");
             applyData(latest.fullData);
         }
     }
