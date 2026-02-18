@@ -48,7 +48,9 @@ import {
     Star,
     FlashOn,
     AutoFixHigh,
-    Science
+    AutoFixHigh,
+    Science,
+
 } from '@mui/icons-material';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer, Legend, AreaChart, Area
@@ -101,12 +103,13 @@ const HistoryEntry = ({ entry, previous, index }) => {
 
 const History = ({ handleClearHistory, handleSettings, showR3History, historyChartMode = 'absolute' }) => {
     const history = useSelector(state => state.optimizer.history);
+
     const theme = useTheme();
     const [timeRange, setTimeRange] = useState(30); // Default to 30 days
     const deferredTimeRange = useDeferredValue(timeRange); // Defer expensive recalculations
     const [clearDialogOpen, setClearDialogOpen] = useState(false);
     const [activeSeries, setActiveSeries] = useState(null);
-    const [hiddenSeries, setHiddenSeries] = useState(new Set());
+    const [hiddenSeries, setHiddenSeries] = new Set();
 
     const toggleSeries = (dataKey) => {
         setHiddenSeries(prev => {
@@ -295,6 +298,7 @@ const History = ({ handleClearHistory, handleSettings, showR3History, historyCha
                     data[`beard_${i}`] = level;
                 });
             }
+
             return data;
         });
     }, [history]);
@@ -433,6 +437,7 @@ const History = ({ handleClearHistory, handleSettings, showR3History, historyCha
     const nguNames = ['Augments', 'Wandoos', 'Respawn', 'Gold', 'Adventure α', 'Power α', 'Drop Chance', 'Magic NGU', 'PP'];
     const magicNguNames = ['Yggdrasil', 'Exp', 'Power β', 'Number', 'Time Machine', 'Energy NGU', 'Adventure β'];
     const hackNames = ['Stats', 'Adventure', 'TM', 'Drop', 'Augment', 'ENGU', 'MNGU', 'Blood', 'QP', 'Daycare', 'EXP', 'Number', 'PP', 'Hack', 'Wish'];
+
 
 
     const visibleEnergyNgus = useMemo(() => {
@@ -1420,6 +1425,8 @@ const History = ({ handleClearHistory, handleSettings, showR3History, historyCha
                                     <Divider sx={{ my: 6 }} />
                                 </>
                             )}
+
+
 
                             <Accordion elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 4, '&:before': { display: 'none' } }}>
                                 <AccordionSummary

@@ -136,14 +136,15 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                     (data.totalPlaytime.seconds || 0))
             ) : 0,
 
+
             challenges: Object.values(data.challenges || {}).reduce((acc, c) => acc + (typeof c === 'object' ? (c.curCompletions || 0) + (c.curEvilCompletions || 0) + (c.curSadisticCompletions || 0) : 0), 0),
             beardLevels: Array.isArray(data.beards?.beards) ? data.beards.beards.map(b => b?.permLevel || 0) : [],
+
             timestamp,
             isRebirth: file.name.toLowerCase().includes('rebirth'),
             // keep the full data locally for initial application
             fullData: data
         };
-
 
         return result;
     }
@@ -185,9 +186,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     }, [optimizerState]);
 
     const updateHackTab = (data) => {
-        // Check if syncLevels is enabled (default true)
-        if (stateRef.current.syncLevels === false) return;
-
         if (!data || !data.hacks || !data.hacks.hacks) return;
 
         // Use the ref to get the absolute LATEST state, avoiding closure bugs
@@ -285,11 +283,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     }
 
     const updateNgus = (data) => {
-        // Check if syncLevels is enabled (default true)
-        if (stateRef.current.syncLevels === false) return;
-
-        if (!data || !data.NGU || !data.NGU.skills || !data.NGU.magicSkills) return;
-
         let ngus = []
         for (let i = 0; i < data.NGU.skills.length; i++) {
             const skill = data.NGU.skills[i];
@@ -652,22 +645,6 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                 </Box>
 
                 <Box sx={{ flex: '0 0 auto', mr: 1 }}>
-                    <Tooltip title="When enabled, Live Sync will update your NGU and Hack levels automatically." arrow>
-                        <FormControlLabel
-                            sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
-                            control={
-                                <Switch
-                                    size="small"
-                                    checked={optimizerState.syncLevels !== false}
-                                    onChange={() => dispatch(Settings("syncLevels", !optimizerState.syncLevels))}
-                                />
-                            }
-                            label="Sync N/H Levels"
-                        />
-                    </Tooltip>
-                </Box>
-
-                <Box sx={{ flex: '0 0 auto', mr: 1 }}>
                     <Tooltip title="Enable/Disable Live Sync Connection" arrow>
                         <FormControlLabel
                             sx={{ mr: 0, '& .MuiFormControlLabel-label': { fontSize: '0.85rem' } }}
@@ -748,10 +725,10 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                             num="1"
                             title="Download & Install Mod"
                             desc={
-                                <Box>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     <Typography
                                         component="a"
-                                        href="https://github.com/postEntropy/gear-optimizer/raw/master/public/NGULiveSync.dll"
+                                        href="./NGULiveSync.dll"
                                         download
                                         sx={{
                                             color: 'primary.main',
@@ -766,10 +743,30 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                                             }
                                         }}
                                     >
-                                        Click here to download NGULiveSync.dll
-                                    </Typography>.
-                                    <br />
-                                    Place the file in your <code>BepInEx/plugins</code> folder.
+                                        1. Download NGULiveSync.dll
+                                    </Typography>
+                                    <Typography
+                                        component="a"
+                                        href="./Newtonsoft.Json.dll"
+                                        download
+                                        sx={{
+                                            color: 'primary.main',
+                                            fontWeight: 'bold',
+                                            textDecoration: 'none',
+                                            borderBottom: '1px solid',
+                                            borderColor: 'primary.main',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                color: 'primary.light',
+                                                borderColor: 'primary.light'
+                                            }
+                                        }}
+                                    >
+                                        2. Download Newtonsoft.Json.dll
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mt: 1 }}>
+                                        Place <b>BOTH</b> files in your <code>BepInEx/plugins</code> folder.
+                                    </Typography>
                                 </Box>
                             }
                             active={true}

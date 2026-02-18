@@ -39,3 +39,5 @@ licenses.json
 # compile_mod.ps1
 ngu-sync-bridge.js
 *.code-workspace
+# Local Feature: Advanced Training Calculator
+src/components/Content/AdvancedTrainingCalculator.js

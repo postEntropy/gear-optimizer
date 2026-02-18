@@ -288,7 +288,12 @@ export function loadState(state) {
         showunused: state.showunused,
         editItem: state.editItem,
         version: state.version,
-        loaded: true
+        loaded: true,
+        liveSync: {
+            status: 'disconnected',
+            lastUpdate: null,
+            updateCount: 0
+        }
     });
 }
 
