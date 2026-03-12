@@ -156,50 +156,8 @@ const DashboardLayout = () => {
             </Typography>
 
             <Grid container spacing={3}>
-                {/* ---------- ENERGY NGU ROW ---------- */}
-                <Grid item xs={12} lg={8}>
-                    <StackedAreaChart
-                        title="Energy NGU Progression"
-                        icon={FlashOn}
-                        color="secondary"
-                        prefix="ngu_e"
-                        names={nguNames}
-                        baseColorHue={0}
-                    />
-                </Grid>
-                <Grid item xs={12} lg={4}>
-                    <GrowthPieChart
-                        title="Energy NGU Focus Target"
-                        icon={FlashOn}
-                        color="secondary"
-                        prefix="ngu_e"
-                        names={nguNames}
-                    />
-                </Grid>
-
-                {/* ---------- MAGIC NGU ROW ---------- */}
-                <Grid item xs={12} lg={8}>
-                    <StackedAreaChart
-                        title="Magic NGU Progression"
-                        icon={AutoFixHigh}
-                        color="info"
-                        prefix="ngu_m"
-                        names={magicNguNames}
-                        baseColorHue={180}
-                    />
-                </Grid>
-                <Grid item xs={12} lg={4}>
-                    <GrowthPieChart
-                        title="Magic NGU Focus Target"
-                        icon={AutoFixHigh}
-                        color="info"
-                        prefix="ngu_m"
-                        names={magicNguNames}
-                    />
-                </Grid>
-
                 {/* ---------- HACKS ROW ---------- */}
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={6}>
                     <StackedAreaChart
                         title="Hack Levels Timeline"
                         icon={Code}
@@ -209,7 +167,7 @@ const DashboardLayout = () => {
                         baseColorHue={120}
                     />
                 </Grid>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={6}>
                     <DeltaBarChart
                         title="Gains Per Rebirth"
                         icon={Code}
@@ -218,13 +176,28 @@ const DashboardLayout = () => {
                         names={hackNames}
                     />
                 </Grid>
-                <Grid item xs={12} lg={4}>
-                    <GrowthPieChart
-                        title="Hack Levels Gained Total"
-                        icon={Code}
-                        color="success"
-                        prefix="hack"
-                        names={hackNames}
+
+                {/* ---------- ENERGY NGU ROW ---------- */}
+                <Grid item xs={12} lg={6}>
+                    <StackedAreaChart
+                        title="Energy NGU Progression"
+                        icon={FlashOn}
+                        color="secondary"
+                        prefix="ngu_e"
+                        names={nguNames}
+                        baseColorHue={0}
+                    />
+                </Grid>
+
+                {/* ---------- MAGIC NGU ROW ---------- */}
+                <Grid item xs={12} lg={6}>
+                    <StackedAreaChart
+                        title="Magic NGU Progression"
+                        icon={AutoFixHigh}
+                        color="info"
+                        prefix="ngu_m"
+                        names={magicNguNames}
+                        baseColorHue={180}
                     />
                 </Grid>
 

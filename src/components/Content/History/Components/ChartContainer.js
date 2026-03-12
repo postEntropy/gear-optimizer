@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Paper, Typography, useTheme, alpha, IconButton, Tooltip, Popover, Divider } from '@mui/material';
 import { InfoOutlined, Fullscreen } from '@mui/icons-material';
 
-const ChartContainer = ({ title, subtitle, icon: Icon, children, controls, color = 'primary', detailsContent }) => {
+const ChartContainer = ({ title, subtitle, icon: Icon, children, controls, footer, color = 'primary', detailsContent }) => {
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -83,7 +83,7 @@ const ChartContainer = ({ title, subtitle, icon: Icon, children, controls, color
             </Box>
 
             {/* Chart Content */}
-            <Box sx={{ flexGrow: 1, p: 2, minHeight: 400, position: 'relative' }}>
+            <Box sx={{ flexGrow: 1, p: 2, position: 'relative' }}>
                 {children}
             </Box>
 
@@ -119,6 +119,13 @@ const ChartContainer = ({ title, subtitle, icon: Icon, children, controls, color
                     </Typography>
                 )}
             </Popover>
+
+            {/* Footer Area */}
+            {footer && (
+                <Box sx={{ mt: 'auto' }}>
+                    {footer}
+                </Box>
+            )}
         </Paper>
     );
 };
