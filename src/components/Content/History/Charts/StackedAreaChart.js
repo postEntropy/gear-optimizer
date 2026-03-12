@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
-import { useTheme, alpha, Box, Typography, Paper } from '@mui/material';
+import { useTheme, alpha, Box, Typography, Paper, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { useHistoryContext } from '../HistoryContext';
 import { useHistoryData } from '../hooks/useHistoryData';
 import { shorten } from '../../../../util';
@@ -8,7 +8,8 @@ import ChartContainer from '../Components/ChartContainer';
 
 const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 }) => {
     const theme = useTheme();
-    const [activeSeries, setActiveSeries] = React.useState(null);
+    const [activeSeries, setActiveSeries] = useState(null);
+    const [stackOffset, setStackOffset] = useState('none');
     const { timeRange, customRange, hiddenSeries, toggleSeries, isolateSeries } = useHistoryContext();
     const { filteredData, rawHistory } = useHistoryData(timeRange, customRange);
 
@@ -84,19 +85,28 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                         gridTemplateColumns: useGrid ? '1fr 1fr' : 'none',
                         gap: useGrid ? 1.5 : 0.5
                     }}>
-                        {sorted.map((entry, index) => (
-                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-                                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
-                                    <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.7rem' }}>
-                                        {entry.name}
-                                    </Typography>
+                        {sorted.map((entry, index) => {
+                            // In 'expand' mode, Recharts converts values to percentages implicitly, 
+                            // but payload.value usually holds the original value, unless it's transformed.
+                            // However, we want to show original values and possibly percentage.
+                            // Let's just show original values as shorten() for now, maybe with % if expand mode.
+                            const originalValue = entry.value; 
+                            return (
+                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
+                                        <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.7rem' }}>
+                                            {entry.name}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 800, fontFamily: 'monospace', color: entry.color, fontSize: '0.75rem' }}>
+                                            {shorten(originalValue)}
+                                        </Typography>
+                                    </Box>
                                 </Box>
-                                <Typography variant="caption" sx={{ fontWeight: 800, fontFamily: 'monospace', color: entry.color, fontSize: '0.75rem' }}>
-                                    {shorten(entry.value)}
-                                </Typography>
-                            </Box>
-                        ))}
+                            );
+                        })}
                     </Box>
                 </Paper>
             );
@@ -104,13 +114,27 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
         return null;
     };
 
+    const controls = (
+        <ToggleButtonGroup
+            value={stackOffset}
+            exclusive
+            onChange={(e, val) => val && setStackOffset(val)}
+            size="small"
+            sx={{ height: 26, '.MuiToggleButton-root': { py: 0, px: 1.5, fontSize: '0.7rem', fontWeight: 700 } }}
+        >
+            <ToggleButton value="none">Total</ToggleButton>
+            <ToggleButton value="expand">%</ToggleButton>
+        </ToggleButtonGroup>
+    );
+
     return (
-        <ChartContainer title={title} icon={icon} color={color}>
+        <ChartContainer title={title} icon={icon} color={color} controls={controls}>
             <Box sx={{ px: 1 }}>
                 <ResponsiveContainer width="100%" height={380}>
                     <AreaChart
                         data={filteredData}
                         margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+                        stackOffset={stackOffset}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} style={{ pointerEvents: 'none' }} />
                         <XAxis
@@ -122,10 +146,11 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                             fontSize={10}
                         />
                         <YAxis
-                            tickFormatter={(v) => shorten(v)}
+                            tickFormatter={(v) => stackOffset === 'expand' ? `${(v * 100).toFixed(0)}%` : shorten(v)}
+                            domain={stackOffset === 'expand' ? [0, 1] : ['auto', 'auto']}
                             stroke={theme.palette.text.secondary}
                             fontSize={10}
-                            width={65}
+                            width={55}
                             tick={{ dx: -5 }}
                         />
                         <Tooltip content={<CustomTooltip />} />

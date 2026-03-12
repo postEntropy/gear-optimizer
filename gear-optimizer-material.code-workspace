@@ -11,6 +11,7 @@
 		}
 	],
 	"settings": {
-		"powershell.cwd": "gear-optimizer-material"
+		"powershell.cwd": "gear-optimizer-material",
+		"kiroAgent.configureMCP": "Disabled"
 	}
 }
