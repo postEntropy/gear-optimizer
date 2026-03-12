@@ -34,6 +34,34 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
             });
     }, [rawHistory, names, prefix]);
 
+    const chartData = useMemo(() => {
+        return filteredData.map(d => {
+            const safeData = { ...d };
+            let visibleSum = 0;
+            let firstVisibleKey = null;
+
+            visibleSeries.forEach(({ i }) => {
+                const key = `${prefix}_${i}`;
+                let val = Number(safeData[key]);
+                if (isNaN(val) || val < 0) val = 0; // Prevent negative or invalid values
+
+                safeData[key] = val;
+
+                if (!hiddenSeries.has(key)) {
+                    visibleSum += val;
+                    if (!firstVisibleKey) firstVisibleKey = key;
+                }
+            });
+
+            // Prevent React/Recharts from crashing in Expand mode when total sum is exactly 0
+            if (stackOffset === 'expand' && visibleSum === 0 && firstVisibleKey) {
+                safeData[firstVisibleKey] = 0.000001;
+            }
+
+            return safeData;
+        });
+    }, [filteredData, stackOffset, visibleSeries, hiddenSeries, prefix]);
+
     const getClosestSeries = (e) => {
         if (!e || !e.activePayload || e.activePayload.length === 0) return null;
         // For stacked charts, finding "closest" is tricky because they stack.
@@ -132,7 +160,7 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
             <Box sx={{ px: 1 }}>
                 <ResponsiveContainer width="100%" height={380}>
                     <AreaChart
-                        data={filteredData}
+                        data={chartData}
                         margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
                         stackOffset={stackOffset}
                     >
