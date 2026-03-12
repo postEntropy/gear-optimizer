@@ -8,6 +8,7 @@ import BossProgressChart from './Charts/BossProgressChart';
 import ResourceChart from './Charts/ResourceChart';
 import StackedAreaChart from './Charts/StackedAreaChart';
 import GrowthPieChart from './Charts/GrowthPieChart';
+import DeltaBarChart from './Charts/DeltaBarChart';
 import HistoryTable from './HistoryTable';
 import CustomRangePicker from './Components/CustomRangePicker';
 import { History as HistoryIcon, Analytics, FlashOn, AutoFixHigh, Code } from '@mui/icons-material';
@@ -198,7 +199,7 @@ const DashboardLayout = () => {
                 </Grid>
 
                 {/* ---------- HACKS ROW ---------- */}
-                <Grid item xs={12} lg={8}>
+                <Grid item xs={12} lg={4}>
                     <StackedAreaChart
                         title="Hack Levels Timeline"
                         icon={Code}
@@ -209,8 +210,17 @@ const DashboardLayout = () => {
                     />
                 </Grid>
                 <Grid item xs={12} lg={4}>
+                    <DeltaBarChart
+                        title="Gains Per Rebirth"
+                        icon={Code}
+                        color="success"
+                        prefix="hack"
+                        names={hackNames}
+                    />
+                </Grid>
+                <Grid item xs={12} lg={4}>
                     <GrowthPieChart
-                        title="Hack Levels Gained"
+                        title="Hack Levels Gained Total"
                         icon={Code}
                         color="success"
                         prefix="hack"
