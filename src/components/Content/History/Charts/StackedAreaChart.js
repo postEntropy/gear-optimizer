@@ -9,7 +9,7 @@ import ChartContainer from '../Components/ChartContainer';
 const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 }) => {
     const theme = useTheme();
     const [activeSeries, setActiveSeries] = useState(null);
-    const [stackOffset, setStackOffset] = useState('none');
+    const [viewMode, setViewMode] = useState('volume'); // 'volume', 'lines', 'gains'
     const { timeRange, customRange, hiddenSeries, toggleSeries, isolateSeries } = useHistoryContext();
     const { filteredData, rawHistory } = useHistoryData(timeRange, customRange);
 
@@ -35,32 +35,37 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
     }, [rawHistory, names, prefix]);
 
     const chartData = useMemo(() => {
+        if (!filteredData || filteredData.length === 0) return [];
+
+        // For 'gains' mode, capture the baseline values (first timestamp)
+        const baseValues = {};
+        if (viewMode === 'gains') {
+            const firstEntry = filteredData[0];
+            visibleSeries.forEach(({ i }) => {
+                const key = `${prefix}_${i}`;
+                baseValues[key] = Number(firstEntry[key]) || 0;
+            });
+        }
+
         return filteredData.map(d => {
             const safeData = { ...d };
-            let visibleSum = 0;
-            let firstVisibleKey = null;
 
             visibleSeries.forEach(({ i }) => {
                 const key = `${prefix}_${i}`;
                 let val = Number(safeData[key]);
-                if (isNaN(val) || val < 0) val = 0; // Prevent negative or invalid values
+                if (isNaN(val) || val < 0) val = 0;
 
-                safeData[key] = val;
-
-                if (!hiddenSeries.has(key)) {
-                    visibleSum += val;
-                    if (!firstVisibleKey) firstVisibleKey = key;
+                if (viewMode === 'gains') {
+                    // Show only growth since the start
+                    safeData[key] = Math.max(0, val - baseValues[key]);
+                } else {
+                    safeData[key] = val;
                 }
             });
 
-            // Prevent React/Recharts from crashing in Expand mode when total sum is exactly 0
-            if (stackOffset === 'expand' && visibleSum === 0 && firstVisibleKey) {
-                safeData[firstVisibleKey] = 0.000001;
-            }
-
             return safeData;
         });
-    }, [filteredData, stackOffset, visibleSeries, hiddenSeries, prefix]);
+    }, [filteredData, viewMode, visibleSeries, hiddenSeries, prefix]);
 
     const getClosestSeries = (e) => {
         if (!e || !e.activePayload || e.activePayload.length === 0) return null;
@@ -114,11 +119,7 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                         gap: useGrid ? 1.5 : 0.5
                     }}>
                         {sorted.map((entry, index) => {
-                            // In 'expand' mode, Recharts converts values to percentages implicitly, 
-                            // but payload.value usually holds the original value, unless it's transformed.
-                            // However, we want to show original values and possibly percentage.
-                            // Let's just show original values as shorten() for now, maybe with % if expand mode.
-                            const originalValue = entry.value; 
+                            const displayValue = entry.value; 
                             return (
                                 <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
@@ -129,7 +130,7 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                                     </Box>
                                     <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Typography variant="caption" sx={{ fontWeight: 800, fontFamily: 'monospace', color: entry.color, fontSize: '0.75rem' }}>
-                                            {shorten(originalValue)}
+                                            {viewMode === 'gains' && displayValue > 0 ? '+' : ''}{shorten(displayValue)}
                                         </Typography>
                                     </Box>
                                 </Box>
@@ -144,14 +145,15 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
 
     const controls = (
         <ToggleButtonGroup
-            value={stackOffset}
+            value={viewMode}
             exclusive
-            onChange={(e, val) => val && setStackOffset(val)}
+            onChange={(e, val) => val && setViewMode(val)}
             size="small"
-            sx={{ height: 26, '.MuiToggleButton-root': { py: 0, px: 1.5, fontSize: '0.7rem', fontWeight: 700 } }}
+            sx={{ height: 26, '.MuiToggleButton-root': { py: 0, px: 2, fontSize: '0.7rem', fontWeight: 800 } }}
         >
-            <ToggleButton value="none">Total</ToggleButton>
-            <ToggleButton value="expand">%</ToggleButton>
+            <ToggleButton value="volume">Total</ToggleButton>
+            <ToggleButton value="lines">Lines</ToggleButton>
+            <ToggleButton value="gains">Gains</ToggleButton>
         </ToggleButtonGroup>
     );
 
@@ -162,7 +164,6 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                     <AreaChart
                         data={chartData}
                         margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
-                        stackOffset={stackOffset}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} style={{ pointerEvents: 'none' }} />
                         <XAxis
@@ -174,8 +175,8 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                             fontSize={10}
                         />
                         <YAxis
-                            tickFormatter={(v) => stackOffset === 'expand' ? `${(v * 100).toFixed(0)}%` : shorten(v)}
-                            domain={stackOffset === 'expand' ? [0, 1] : ['auto', 'auto']}
+                            tickFormatter={(v) => (viewMode === 'gains' && v > 0) ? `+${shorten(v)}` : shorten(v)}
+                            domain={['auto', 'auto']}
                             stroke={theme.palette.text.secondary}
                             fontSize={10}
                             width={55}
@@ -198,12 +199,16 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
                                     type="monotone"
                                     dataKey={seriesKey}
                                     name={name}
-                                    stackId="1"
+                                    stackId={viewMode === 'volume' ? "1" : undefined}
                                     stroke={fillColor}
                                     fill={fillColor}
-                                    fillOpacity={activeSeries ? (activeSeries === seriesKey ? 0.8 : 0.1) : 0.5}
+                                    fillOpacity={
+                                        viewMode === 'volume' 
+                                            ? (activeSeries ? (activeSeries === seriesKey ? 0.8 : 0.1) : 0.5) 
+                                            : (activeSeries === seriesKey ? 0.2 : 0)
+                                    }
                                     strokeOpacity={activeSeries ? (activeSeries === seriesKey ? 1 : 0.2) : 1}
-                                    strokeWidth={activeSeries === seriesKey ? 2 : 1}
+                                    strokeWidth={viewMode !== 'volume' ? 2 : (activeSeries === seriesKey ? 2 : 1)}
                                     activeDot={{ r: 4, strokeWidth: 0 }}
                                 />
                             );
