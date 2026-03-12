@@ -7,6 +7,7 @@ import MainProgressChart from './Charts/MainProgressChart';
 import BossProgressChart from './Charts/BossProgressChart';
 import ResourceChart from './Charts/ResourceChart';
 import StackedAreaChart from './Charts/StackedAreaChart';
+import GrowthPieChart from './Charts/GrowthPieChart';
 import HistoryTable from './HistoryTable';
 import CustomRangePicker from './Components/CustomRangePicker';
 import { History as HistoryIcon, Analytics, FlashOn, AutoFixHigh, Code } from '@mui/icons-material';
@@ -154,9 +155,10 @@ const DashboardLayout = () => {
             </Typography>
 
             <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                {/* ---------- ENERGY NGU ROW ---------- */}
+                <Grid item xs={12} lg={8}>
                     <StackedAreaChart
-                        title="Energy NGU Levels"
+                        title="Energy NGU Progression"
                         icon={FlashOn}
                         color="secondary"
                         prefix="ngu_e"
@@ -164,9 +166,20 @@ const DashboardLayout = () => {
                         baseColorHue={0}
                     />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} lg={4}>
+                    <GrowthPieChart
+                        title="Energy NGU Focus Target"
+                        icon={FlashOn}
+                        color="secondary"
+                        prefix="ngu_e"
+                        names={nguNames}
+                    />
+                </Grid>
+
+                {/* ---------- MAGIC NGU ROW ---------- */}
+                <Grid item xs={12} lg={8}>
                     <StackedAreaChart
-                        title="Magic NGU Levels"
+                        title="Magic NGU Progression"
                         icon={AutoFixHigh}
                         color="info"
                         prefix="ngu_m"
@@ -174,14 +187,34 @@ const DashboardLayout = () => {
                         baseColorHue={180}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} lg={4}>
+                    <GrowthPieChart
+                        title="Magic NGU Focus Target"
+                        icon={AutoFixHigh}
+                        color="info"
+                        prefix="ngu_m"
+                        names={magicNguNames}
+                    />
+                </Grid>
+
+                {/* ---------- HACKS ROW ---------- */}
+                <Grid item xs={12} lg={8}>
                     <StackedAreaChart
-                        title="Hack Levels"
+                        title="Hack Levels Timeline"
                         icon={Code}
                         color="success"
                         prefix="hack"
                         names={hackNames}
                         baseColorHue={120}
+                    />
+                </Grid>
+                <Grid item xs={12} lg={4}>
+                    <GrowthPieChart
+                        title="Hack Levels Gained"
+                        icon={Code}
+                        color="success"
+                        prefix="hack"
+                        names={hackNames}
                     />
                 </Grid>
 
