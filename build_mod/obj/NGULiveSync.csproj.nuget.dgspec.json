@@ -1,0 +1,53 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj": {}
+  },
+  "projects": {
+    "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj",
+        "projectName": "NGULiveSync",
+        "projectPath": "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj",
+        "packagesPath": "/home/leonardo/.nuget/packages/",
+        "outputPath": "/home/leonardo/Documents/gear-optimizer-master/build_mod/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/leonardo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net46"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net46": {
+            "targetAlias": "net46",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net46": {
+          "targetAlias": "net46",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.124/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

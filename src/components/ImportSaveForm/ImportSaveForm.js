@@ -60,12 +60,16 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
 
     const optimizerState = useSelector(state => state.optimizer);
     const [disableItems, setDisableItems] = useState(true);
+    const disableItemsRef = useRef(true); // ref para evitar stale closure no SSE listener
     const [syncStatus, setSyncStatus] = useState('disconnected'); // 'disconnected', 'connected', 'error'
     const [guideOpen, setGuideOpen] = useState(false);
     const [hasReceivedData, setHasReceivedData] = useState(false);
     let fileReader;
 
     const inputElem = useRef(null);
+
+    // Mantém a ref sempre atualizada quando o state muda
+    React.useEffect(() => { disableItemsRef.current = disableItems; }, [disableItems]);
 
     const handleFileRead = (file, content) => {
         let data;
@@ -283,43 +287,37 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     }
 
     const updateNgus = (data) => {
-        let ngus = []
-        for (let i = 0; i < data.NGU.skills.length; i++) {
-            const skill = data.NGU.skills[i];
-            let temp = {}
-            temp.normal = skill.level
-            temp.evil = skill.evilLevel
-            temp.sadistic = skill.sadisticLevel
-            ngus.push(temp)
-        }
+        if (!data?.NGU?.skills || !data?.NGU?.magicSkills) return;
 
-        let mngus = []
-        for (let i = 0; i < data.NGU.magicSkills.length; i++) {
-            const magicSkill = data.NGU.magicSkills[i];
-            let temp = {}
-            temp.normal = magicSkill.level
-            temp.evil = magicSkill.evilLevel
-            temp.sadistic = magicSkill.sadisticLevel
-            mngus.push(temp)
-        }
+        let ngus = data.NGU.skills.map(skill => ({
+            normal: skill.level || 0,
+            evil: skill.evilLevel || 0,
+            sadistic: skill.sadisticLevel || 0
+        }));
+
+        let mngus = data.NGU.magicSkills.map(skill => ({
+            normal: skill.level || 0,
+            evil: skill.evilLevel || 0,
+            sadistic: skill.sadisticLevel || 0
+        }));
 
         let newState = JSON.parse(JSON.stringify(stateRef.current.ngustats));
 
-        newState.quirk.e2n = data.beastQuest.quirkLevel[14] > 0
-        newState.quirk.s2e = data.beastQuest.quirkLevel[89] > 0
-        newState.blueHeart = data.inventory.itemList.itemMaxxed[195]
-        newState.eBetaPot = data.arbitrary.energyPotion2InUse
-        newState.eDeltaPot = data.arbitrary.energyPotion1Time.totalseconds > 0
-        newState.energy.cap = Math.max(data.capEnergy, data.curEnergy)
-        newState.energy.ngus = ngus
-        newState.mBetaPot = data.arbitrary.magicPotion2InUse
-        newState.mDeltaPot = data.arbitrary.magicPotion1Time.totalseconds > 0
-        newState.magic.cap = Math.max(data.magic.capMagic, data.magic.curMagic)
-        newState.magic.ngus = mngus
+        if (data.beastQuest?.quirkLevel) {
+            newState.quirk.e2n = (data.beastQuest.quirkLevel[14] || 0) > 0;
+            newState.quirk.s2e = (data.beastQuest.quirkLevel[89] || 0) > 0;
+        }
+        newState.blueHeart = data.inventory?.itemList?.itemMaxxed?.[195] ?? newState.blueHeart;
+        newState.eBetaPot = data.arbitrary?.energyPotion2InUse ?? newState.eBetaPot;
+        newState.eDeltaPot = (data.arbitrary?.energyPotion1Time?.totalseconds || 0) > 0;
+        newState.energy.cap = Math.max(data.capEnergy || 0, data.curEnergy || 0);
+        newState.energy.ngus = ngus;
+        newState.mBetaPot = data.arbitrary?.magicPotion2InUse ?? newState.mBetaPot;
+        newState.mDeltaPot = (data.arbitrary?.magicPotion1Time?.totalseconds || 0) > 0;
+        newState.magic.cap = Math.max(data.magic?.capMagic || 0, data.magic?.curMagic || 0);
+        newState.magic.ngus = mngus;
 
-        dispatch(Settings("ngustats",
-            newState
-        ))
+        dispatch(Settings("ngustats", newState));
     }
 
     const updateEquipped = (data) => {
@@ -387,19 +385,33 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         );
 
         dispatch(Settings("zone", zone));
-        resetItems(newItemData)
-        let found = updateItemLevels(data, newItemData)
-        if (disableItems) {
-            disableUnownedItems(found, newItemData)
+        resetItems(newItemData);
+        let found = updateItemLevels(data, newItemData);
+        // Usa ref para evitar stale closure no listener SSE
+        if (disableItemsRef.current) {
+            disableUnownedItems(found, newItemData);
         }
 
-        dispatch(MassUpdate(newItemData))
-        updateNgus(data)
-        updateAugmentTab(data)
-        updateHackTab(data)
+        dispatch(MassUpdate(newItemData));
 
-        updatePerkTab(data)
-        updateEquipped(data)
+        try { updateNgus(data); } catch(e) { console.error('❌ updateNgus failed:', e); }
+        try { updateAugmentTab(data); } catch(e) { console.error('❌ updateAugmentTab failed:', e); }
+        try { updateHackTab(data); } catch(e) { console.error('❌ updateHackTab failed:', e); }
+        try { updatePerkTab(data); } catch(e) { console.error('❌ updatePerkTab failed:', e); }
+        try { updateEquipped(data); } catch(e) { console.error('❌ updateEquipped failed:', e); }
+
+        // Store raw resource stats so EXP Calculator can read them automatically
+        dispatch(Settings("resourceStats", {
+            energyPower: data.energyPower || 0,
+            energyCap:   data.capEnergy   || data.energyPurchasedCap || 0,
+            energyBars:  data.energyBars  || 0,
+            magicPower:  data.magic?.magicPower  || 0,
+            magicCap:    data.magic?.capMagic    || data.magic?.purchasedMagicCap || 0,
+            magicBars:   data.magic?.magicPerBar || 0,
+            res3Power:   data.res3?.res3Power    || 0,
+            res3Cap:     data.res3?.capRes3      || data.res3?.purchasedRes3Cap   || 0,
+            res3Bars:    data.res3?.res3PerBar   || 0,
+        }));
     }
 
     const updatePerkTab = (data) => {
@@ -464,17 +476,44 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                     if (data) {
                         setHasReceivedData(true);
 
+                        const newCount = (stateRef.current.liveSync?.updateCount || 0) + 1;
+                        const nguCount = data.NGU?.skills?.length || 0;
+                        const hackCount = Array.isArray(data.hacks?.hacks) ? data.hacks.hacks.length : 0;
+                        const prevLogs = stateRef.current.liveSync?.logs || [];
+
+                        // Append log entry, keep last 50
+                        const newLog = {
+                            ts: Date.now(),
+                            ok: true,
+                            label: `Sync #${newCount}`,
+                            detail: `NGUs: ${nguCount} | Hacks: ${hackCount} | Rebirths: ${data.rebirths ?? data.numberRebirths ?? '?'}`
+                        };
+                        const newLogs = [...prevLogs, newLog].slice(-50);
+
                         // Update Redux Metrics
                         dispatch(Settings("liveSync", {
                             status: 'connected',
                             lastUpdate: Date.now(),
-                            updateCount: (stateRef.current.liveSync?.updateCount || 0) + 1
+                            updateCount: newCount,
+                            logs: newLogs
                         }));
 
                         applyData(data, true);
                     }
                 } catch (err) {
                     console.error("❌ Error parsing live sync data:", err);
+                    // Log the error too
+                    const prevLogs = stateRef.current.liveSync?.logs || [];
+                    const errLog = {
+                        ts: Date.now(),
+                        ok: false,
+                        label: 'Parse Error',
+                        detail: err.message?.slice(0, 60) || 'unknown error'
+                    };
+                    dispatch(Settings("liveSync", {
+                        ...stateRef.current.liveSync,
+                        logs: [...prevLogs, errLog].slice(-50)
+                    }));
                 }
             };
 

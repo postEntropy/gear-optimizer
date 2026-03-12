@@ -253,7 +253,8 @@ const INITIAL_STATE = {
     liveSync: {
         status: 'disconnected',
         lastUpdate: null,
-        updateCount: 0
+        updateCount: 0,
+        logs: []
     },
     syncEquip: true,
     adventure: {

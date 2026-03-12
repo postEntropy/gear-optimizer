@@ -3,7 +3,7 @@ import CookieBanner from 'react-cookie-banner';
 import { NavLink, useLocation, useMatch, useParams } from 'react-router-dom';
 
 import { alpha, Box, CssBaseline, ThemeProvider, Typography, IconButton, useMediaQuery, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Drawer, Tooltip, Divider, Avatar } from '@mui/material';
-import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Settings as SettingsIcon } from '@mui/icons-material';
+import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Calculate, Settings as SettingsIcon } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
 
 import { allowed_zone, get_limits } from '../../util';
@@ -22,8 +22,9 @@ import WishComponent from '../Content/Wishes';
 import HistoryComponent from '../Content/History/index';
 import PerksComponent from '../Perks/Perks';
 import SettingsComponent from '../Content/Settings';
+import ExpCalculator from '../Content/ExpCalculator/ExpCalculator';
 
-import AdvancedTrainingCalculator from '../Content/AdvancedTrainingCalculator';
+// import AdvancedTrainingCalculator from '../Content/AdvancedTrainingCalculator';
 // import AboutComponent from '../About/About';
 
 // Import images logic (matching Item.js behavior)
@@ -199,7 +200,7 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
 });
 
 // IMPROVED Page Content: Unmount inactive pages for performance
-const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, isSettings, isAdvancedTraining, props, loadoutParams, fadeAnimation }) => {
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, isSettings, isExpCalculator, props, loadoutParams, fadeAnimation }) => {
     return (
         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto', ...fadeAnimation }}>
             {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
@@ -210,7 +211,8 @@ const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWis
             {isHistory && <HistoryComponent {...props} className='app_body' />}
             {isPerks && <PerksComponent {...props} className='app_body' />}
             {isSettings && <SettingsComponent {...props} className='app_body' />}
-            {isAdvancedTraining && <AdvancedTrainingCalculator {...props} className='app_body' />}
+            {/* {isAdvancedTraining && <AdvancedTrainingCalculator {...props} className='app_body' />} */}
+            {isExpCalculator && <ExpCalculator {...props} className='app_body' />}
         </Box>
     );
 });
@@ -303,7 +305,8 @@ const AppLayout = (props) => {
     const isWishes = path.startsWith('/wishes');
     const isHistory = path.startsWith('/history');
     const isPerks = path.startsWith('/perks');
-    const isAdvancedTraining = path.startsWith('/advanced-training-calculator');
+    // const isAdvancedTraining = path.startsWith('/advanced-training-calculator');
+    const isExpCalculator = path.startsWith('/exp-calculator');
     const isSettings = path.startsWith('/settings');
 
 
@@ -404,7 +407,8 @@ const AppLayout = (props) => {
                             <NavItem open={open} to="/hacks" label="Hacks" icon={<Code />} isActive={location.pathname.startsWith('/hacks')} />
                             <NavItem open={open} to="/wishes" label="Wishes" icon={<Star />} isActive={location.pathname.startsWith('/wishes')} />
                             <NavItem open={open} to="/perks" label="Perks" icon={<CardGiftcard />} isActive={location.pathname.startsWith('/perks')} />
-                            <NavItem open={open} to="/advanced-training-calculator" label="Adv. Training" icon={<AutoAwesome />} isActive={location.pathname.startsWith('/advanced-training-calculator')} />
+                            {/* <NavItem open={open} to="/advanced-training-calculator" label="Adv. Training" icon={<AutoAwesome />} isActive={location.pathname.startsWith('/advanced-training-calculator')} /> */}
+                            <NavItem open={open} to="/exp-calculator" label="EXP Calculator" icon={<Calculate />} isActive={location.pathname.startsWith('/exp-calculator')} />
                             <NavItem open={open} to="/history" label="History" icon={<History />} isActive={location.pathname.startsWith('/history')} />
                         </List>
 
@@ -449,7 +453,8 @@ const AppLayout = (props) => {
                             isWishes={isWishes}
                             isHistory={isHistory}
                             isPerks={isPerks}
-                            isAdvancedTraining={isAdvancedTraining}
+                            // isAdvancedTraining={isAdvancedTraining}
+                            isExpCalculator={isExpCalculator}
                             isSettings={isSettings}
                             props={props}
                             loadoutParams={loadoutParams}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -9,12 +9,14 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace NGULiveSync {
-    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.1.1")]
+    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.2.0")]
     public class LiveSyncPlugin : BaseUnityPlugin {
         private static HttpListener _listener;
         private static List<HttpListenerResponse> _clients = new List<HttpListenerResponse>();
         private Thread _serverThread;
-        public static Character Character; 
+        public static Character Character;
+        private static float _lastBroadcastTime = -999f;
+        private const float DEBOUNCE_SECONDS = 5f;
 
         void Awake() {
             var harmony = new Harmony("com.leonardo.ngu.livesync");
@@ -22,34 +24,8 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("Live Sync Mod Loaded (v1.1.1)! Waiting for browser...");
+            Logger.LogInfo("NGU Live Sync v1.2.0 loaded! Broadcasts driven by game saves.");
         }
-
-        void Update() {
-            // Se o personagem ou componentes essenciais não existem, nem tenta.
-            if (Character == null || Character.importExport == null || Character.inventory == null) return;
-            
-            // Only proceed if someone is actually listening
-            bool hasClients;
-            lock (_clients) { hasClients = _clients.Count > 0; }
-            if (!hasClients) return;
-
-            // Timer logic for 30s sync
-            if (Time.unscaledTime - _lastSyncTime >= 30f) {
-                _lastSyncTime = Time.unscaledTime;
-                try {
-                    // gameStateToData já faz as verificações internas de segurança, 
-                    // mas envolve acessar muitos objetos, então envolvemos em Try/Catch.
-                    var data = Character.importExport.gameStateToData();
-                    if (data != null) BroadcastData(data);
-                } catch (Exception e) {
-                    // Logamos o erro completo para saber exatamente ONDE falhou
-                    Logger.LogError("Error in LiveSync Update: " + e.ToString());
-                }
-            }
-        }
-
-        private float _lastSyncTime = 0f;
 
         void StartServer() {
             try {
@@ -94,7 +70,12 @@ namespace NGULiveSync {
 
         public static void BroadcastData(PlayerData pd) {
             try {
-                if (pd != null) {
+                if (pd == null) return;
+                // Debounce: ignore if last broadcast was less than DEBOUNCE_SECONDS ago
+                float now = Time.unscaledTime;
+                if (now - _lastBroadcastTime < DEBOUNCE_SECONDS) return;
+                _lastBroadcastTime = now;
+                {
                     string json = JsonConvert.SerializeObject(pd);
                     byte[] data = Encoding.UTF8.GetBytes("data: " + json + "\n\n");
                     lock(_clients) {

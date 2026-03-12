@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = NGULiveSync
+build_property.ProjectDir = /home/leonardo/Documents/gear-optimizer-master/build_mod/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

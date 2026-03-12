@@ -1,0 +1,21 @@
+npm warn Unknown global config "python". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> gear-optimizer@0.10.2 start
+> vite
+
+Port 5173 is in use, trying another one...
+
+  VITE v7.3.0  ready in 811 ms
+
+  ➜  Local:   http://localhost:5174/gear-optimizer/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+10:00:40 AM [vite] (client) Pre-transform error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
