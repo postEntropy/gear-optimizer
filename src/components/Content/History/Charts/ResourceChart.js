@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { useTheme, alpha, Box, Typography, Paper, ToggleButton, ToggleButtonGroup, Divider } from '@mui/material';
 import { useHistoryContext } from '../HistoryContext';
@@ -7,13 +7,76 @@ import { shorten } from '../../../../util';
 import ChartContainer from '../Components/ChartContainer';
 import { FlashOn, Science, AutoFixHigh } from '@mui/icons-material';
 
-const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | 'res3'
-    const theme = useTheme();
-    const [activeSeries, setActiveSeries] = React.useState(null);
-    const { timeRange, customRange, chartMode, setChartMode, showR3, hiddenSeries, toggleSeries, isolateSeries } = useHistoryContext();
-    const { filteredData, rawHistory } = useHistoryData(timeRange, customRange);
+// Config outside component to avoid recreation
+const RESOURCE_CONFIGS = {
+    energy: {
+        title: "Energy Metrics",
+        icon: FlashOn,
+        color: "success",
+        keys: ['energyCapVal', 'energyPowerVal', 'energyBarsVal'],
+        labels: ['Cap', 'Power', 'Bars'],
+        colors: ['#ff9800', '#4caf50', '#2196f3']
+    },
+    magic: {
+        title: "Magic Metrics",
+        icon: AutoFixHigh,
+        color: "info",
+        keys: ['magicCapVal', 'magicPowerVal', 'magicBarsVal'],
+        labels: ['Cap', 'Power', 'Bars'],
+        colors: ['#009688', '#2196f3', '#9c27b0']
+    },
+    res3: {
+        title: "Resource 3 Metrics",
+        icon: Science,
+        color: "secondary",
+        keys: ['res3CapVal', 'res3PowerVal', 'res3BarsVal'],
+        labels: ['Cap', 'Power', 'Bars'],
+        colors: ['#ff9800', '#f44336', '#e91e63']
+    }
+};
 
-    const getClosestSeries = (e) => {
+const CustomTooltip = React.memo(({ active, payload, label, theme }) => {
+    if (active && payload && payload.length) {
+        return (
+            <Paper
+                elevation={10}
+                sx={{
+                    p: 1.5,
+                    bgcolor: alpha(theme.palette.background.paper, 0.9),
+                    backdropFilter: 'blur(8px)',
+                    border: `1px solid ${theme.palette.divider}`,
+                    borderRadius: 2
+                }}
+            >
+                <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 700, color: 'text.secondary' }}>
+                    {new Date(label).toLocaleString()}
+                </Typography>
+                {[...payload].sort((a, b) => b.value - a.value).map((entry, index) => (
+                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
+                            <Typography variant="body2" sx={{ color: entry.color, fontWeight: 600 }}>{entry.name}</Typography>
+                        </Box>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                            {shorten(entry.value)}
+                        </Typography>
+                    </Box>
+                ))}
+            </Paper>
+        );
+    }
+    return null;
+});
+
+const ResourceChart = ({ type = 'energy' }) => {
+    const theme = useTheme();
+    const [activeSeries, setActiveSeries] = useState(null);
+    const { timeRange, customRange, hiddenSeries, toggleSeries } = useHistoryContext();
+    const { filteredData } = useHistoryData(timeRange, customRange);
+
+    const config = RESOURCE_CONFIGS[type];
+
+    const getClosestSeries = useCallback((e) => {
         if (!e || !e.activePayload || e.activePayload.length === 0) return null;
         if (e.activePayload.length === 1) return e.activePayload[0].dataKey;
 
@@ -30,75 +93,19 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
             }
         }
         return closest.dataKey;
-    };
+    }, []);
 
-    // Configuration based on type
-    const config = {
-        energy: {
-            title: "Energy Metrics",
-            icon: FlashOn,
-            color: "success",
-            keys: ['energyCapVal', 'energyPowerVal', 'energyBarsVal'],
-            labels: ['Cap', 'Power', 'Bars'],
-            colors: ['#ff9800', '#4caf50', '#2196f3'] // Orange, Green, Blue
-        },
-        magic: {
-            title: "Magic Metrics",
-            icon: AutoFixHigh,
-            color: "info",
-            keys: ['magicCapVal', 'magicPowerVal', 'magicBarsVal'],
-            labels: ['Cap', 'Power', 'Bars'],
-            colors: ['#009688', '#2196f3', '#9c27b0'] // Teal, Blue, Purple
-        },
-        res3: {
-            title: "Resource 3 Metrics",
-            icon: Science,
-            color: "secondary",
-            keys: ['res3CapVal', 'res3PowerVal', 'res3BarsVal'],
-            labels: ['Cap', 'Power', 'Bars'],
-            colors: ['#ff9800', '#f44336', '#e91e63'] // Orange, Red, Pink
-        }
-    }[type];
+    const handleMouseMove = useCallback((e) => {
+        setActiveSeries(getClosestSeries(e));
+    }, [getClosestSeries]);
+
+    const handleMouseLeave = useCallback(() => {
+        setActiveSeries(null);
+    }, []);
+
+    const formatYAxis = useCallback((val) => shorten(val), []);
 
     if (!config) return null;
-
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <Paper
-                    elevation={10}
-                    sx={{
-                        p: 1.5,
-                        bgcolor: alpha(theme.palette.background.paper, 0.9),
-                        backdropFilter: 'blur(8px)',
-                        border: `1px solid ${theme.palette.divider}`,
-                        borderRadius: 2
-                    }}
-                >
-                    <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 700, color: 'text.secondary' }}>
-                        {new Date(label).toLocaleString()}
-                    </Typography>
-                    {/* Sort payload by value descending so the highest line is always at the top of the tooltip */}
-                    {[...payload].sort((a, b) => b.value - a.value).map((entry, index) => (
-                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 0.5 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
-                                <Typography variant="body2" sx={{ color: entry.color, fontWeight: 600 }}>{entry.name}</Typography>
-                            </Box>
-                            <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
-                                {shorten(entry.value)}
-                            </Typography>
-                        </Box>
-                    ))}
-                </Paper>
-            );
-        }
-        return null;
-    };
-
-    // Y-Axis formatting
-    const formatYAxis = (val) => shorten(val);
-    const [scaleType, setScaleType] = React.useState('log');
 
     const detailsContent = (
         <Box>
@@ -145,8 +152,8 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                     <LineChart
                         data={filteredData}
                         syncId={type}
-                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
-                        onMouseLeave={() => setActiveSeries(null)}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
                         margin={{ top: 10, right: 30, left: 10, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
@@ -163,7 +170,7 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                             width={75}
                             tick={{ dx: -5 }}
                         />
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip content={<CustomTooltip theme={theme} />} />
                         {!hiddenSeries.has(config.keys[1]) && (
                             <Line
                                 type="monotone"
@@ -174,7 +181,7 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                                 strokeOpacity={activeSeries && activeSeries !== config.keys[1] ? 0.2 : 1}
                                 dot={false}
                                 activeDot={{ r: 6, strokeWidth: 0 }}
-                                style={{ transition: 'all 0.2s' }}
+                                isAnimationActive={false}
                             />
                         )}
                         {!hiddenSeries.has(config.keys[2]) && (
@@ -187,7 +194,7 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                                 strokeOpacity={activeSeries && activeSeries !== config.keys[2] ? 0.2 : 1}
                                 dot={false}
                                 activeDot={{ r: 6, strokeWidth: 0 }}
-                                style={{ transition: 'all 0.2s' }}
+                                isAnimationActive={false}
                             />
                         )}
                     </LineChart>
@@ -200,8 +207,8 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                     <LineChart
                         data={filteredData}
                         syncId={type}
-                        onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
-                        onMouseLeave={() => setActiveSeries(null)}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
                         margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
@@ -222,7 +229,7 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                             width={75}
                             tick={{ dx: -5 }}
                         />
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip content={<CustomTooltip theme={theme} />} />
                         {!hiddenSeries.has(config.keys[0]) && (
                             <Line
                                 type="monotone"
@@ -233,7 +240,7 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
                                 strokeOpacity={activeSeries && activeSeries !== config.keys[0] ? 0.2 : 1}
                                 dot={false}
                                 activeDot={{ r: 6, strokeWidth: 0 }}
-                                style={{ transition: 'all 0.2s' }}
+                                isAnimationActive={false}
                             />
                         )}
                     </LineChart>
@@ -300,4 +307,4 @@ const ResourceChart = ({ type = 'energy' }) => { // type: 'energy' | 'magic' | '
     );
 };
 
-export default ResourceChart;
+export default React.memo(ResourceChart);

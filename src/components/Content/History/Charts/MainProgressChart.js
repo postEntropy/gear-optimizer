@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { useTheme, alpha, Box, Typography, Paper, Divider } from '@mui/material';
 import { useHistoryContext } from '../HistoryContext';
@@ -7,13 +7,47 @@ import { shorten } from '../../../../util';
 import ChartContainer from '../Components/ChartContainer';
 import { TrendingUp, Timeline, ShowChart } from '@mui/icons-material';
 
+const CustomTooltip = React.memo(({ active, payload, label, theme }) => {
+    if (active && payload && payload.length) {
+        return (
+            <Paper
+                elevation={10}
+                sx={{
+                    p: 2,
+                    bgcolor: alpha(theme.palette.background.paper, 0.8),
+                    backdropFilter: 'blur(8px)',
+                    border: `1px solid ${theme.palette.divider}`,
+                    borderRadius: 3,
+                    minWidth: 200
+                }}
+            >
+                <Typography variant="subtitle2" sx={{ mb: 1.5, pb: 1, borderBottom: `1px solid ${theme.palette.divider}`, fontWeight: 700 }}>
+                    {new Date(label).toLocaleString()}
+                </Typography>
+                {payload.map((entry, index) => (
+                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
+                            <Typography variant="caption" sx={{ color: entry.color, fontWeight: 600 }}>{entry.name}</Typography>
+                        </Box>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                            {shorten(entry.value)}
+                        </Typography>
+                    </Box>
+                ))}
+            </Paper>
+        );
+    }
+    return null;
+});
+
 const MainProgressChart = () => {
     const theme = useTheme();
-    const [activeSeries, setActiveSeries] = React.useState(null);
-    const { timeRange, customRange, setTimeRange } = useHistoryContext();
+    const [activeSeries, setActiveSeries] = useState(null);
+    const { timeRange, customRange } = useHistoryContext();
     const { filteredData } = useHistoryData(timeRange, customRange);
 
-    const getClosestSeries = (e) => {
+    const getClosestSeries = useCallback((e) => {
         if (!e || !e.activePayload || e.activePayload.length === 0) return null;
         if (e.activePayload.length === 1) return e.activePayload[0].dataKey;
 
@@ -30,43 +64,17 @@ const MainProgressChart = () => {
             }
         }
         return closest.dataKey;
-    };
+    }, []);
 
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <Paper
-                    elevation={10}
-                    sx={{
-                        p: 2,
-                        bgcolor: alpha(theme.palette.background.paper, 0.8),
-                        backdropFilter: 'blur(8px)',
-                        border: `1px solid ${theme.palette.divider}`,
-                        borderRadius: 3,
-                        minWidth: 200
-                    }}
-                >
-                    <Typography variant="subtitle2" sx={{ mb: 1.5, pb: 1, borderBottom: `1px solid ${theme.palette.divider}`, fontWeight: 700 }}>
-                        {new Date(label).toLocaleString()}
-                    </Typography>
-                    {payload.map((entry, index) => (
-                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
-                                <Typography variant="caption" sx={{ color: entry.color, fontWeight: 600 }}>{entry.name}</Typography>
-                            </Box>
-                            <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
-                                {shorten(entry.value)}
-                            </Typography>
-                        </Box>
-                    ))}
-                </Paper>
-            );
-        }
-        return null;
-    };
+    const handleMouseMove = useCallback((e) => {
+        setActiveSeries(getClosestSeries(e));
+    }, [getClosestSeries]);
 
-    const detailsContent = (
+    const handleMouseLeave = useCallback(() => {
+        setActiveSeries(null);
+    }, []);
+
+    const detailsContent = useMemo(() => (
         <Box>
             <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700, color: 'primary.main' }}>
                 XP Calculation Details
@@ -80,7 +88,7 @@ const MainProgressChart = () => {
                 Latest Recorded Gains:
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {filteredData.slice(-5).reverse().map((d, i, arr) => {
+                {filteredData.slice(-5).reverse().map((d, i) => {
                     const prev = filteredData[filteredData.indexOf(d) - 1];
                     const gain = prev ? d.exp - prev.exp : 0;
                     return (
@@ -108,7 +116,7 @@ const MainProgressChart = () => {
                 })}
             </Box>
         </Box>
-    );
+    ), [filteredData]);
 
     return (
         <ChartContainer
@@ -121,8 +129,8 @@ const MainProgressChart = () => {
             <ResponsiveContainer width="100%" height={400}>
                 <AreaChart
                     data={filteredData}
-                    onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
-                    onMouseLeave={() => setActiveSeries(null)}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
                     margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
                     <defs>
@@ -154,7 +162,7 @@ const MainProgressChart = () => {
                         width={40}
                         style={{ pointerEvents: 'none' }}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip theme={theme} />} />
                     <Legend />
 
                     <Area
@@ -168,6 +176,7 @@ const MainProgressChart = () => {
                         fillOpacity={activeSeries ? (activeSeries === 'exp' ? 1 : 0.1) : 1}
                         dot={false}
                         activeDot={{ r: 6, strokeWidth: 0, fill: theme.palette.primary.main }}
+                        isAnimationActive={false}
                     />
                 </AreaChart>
             </ResponsiveContainer>
@@ -175,4 +184,4 @@ const MainProgressChart = () => {
     );
 };
 
-export default MainProgressChart;
+export default React.memo(MainProgressChart);

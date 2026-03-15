@@ -7,3 +7,6 @@
 /home/leonardo/Documents/gear-optimizer-master/output/NGULiveSync.pdb
 /home/leonardo/Documents/gear-optimizer-master/build_mod/obj/Release/net46/NGULiveSync.dll
 /home/leonardo/Documents/gear-optimizer-master/build_mod/obj/Release/net46/NGULiveSync.pdb
+/home/leonardo/Documents/gear-optimizer-master/build_mod/bin/Release/net46/NGULiveSync.dll
+/home/leonardo/Documents/gear-optimizer-master/build_mod/bin/Release/net46/NGULiveSync.pdb
+/home/leonardo/Documents/gear-optimizer-master/build_mod/obj/Release/net46/NGULiveSync.sourcelink.json

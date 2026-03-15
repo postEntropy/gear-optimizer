@@ -76,8 +76,13 @@ namespace NGULiveSync {
                 if (now - _lastBroadcastTime < DEBOUNCE_SECONDS) return;
                 _lastBroadcastTime = now;
                 {
-                    string json = JsonConvert.SerializeObject(pd);
-                    byte[] data = Encoding.UTF8.GetBytes("data: " + json + "\n\n");
+                    string base64Str = "";
+                    using (System.IO.MemoryStream ms = new System.IO.MemoryStream()) {
+                        System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                        bf.Serialize(ms, pd);
+                        base64Str = Convert.ToBase64String(ms.ToArray());
+                    }
+                    byte[] data = Encoding.UTF8.GetBytes("data: " + base64Str + "\n\n");
                     lock(_clients) {
                         for (int i = _clients.Count - 1; i >= 0; i--) {
                             try { 

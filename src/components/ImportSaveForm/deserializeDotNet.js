@@ -10,8 +10,17 @@ export class Deserializer {
             const content = Buffer.from(input, 'base64')
             // nrbfreader
             const wrapper = NRBFReader.readBuffer(content);
-            const wrappedData = Buffer.from(wrapper[1].value._members.get("playerData"), 'base64');
-            return NRBFReader.readBuffer(wrappedData);
+            
+            // NGU Idle saves are often a wrapper object with a base64 'playerData' string.
+            // But Live Sync sends the PlayerData object directly serialized.
+            const playerDataMember = wrapper[1]?.value?._members?.get?.("playerData");
+            if (playerDataMember) {
+                const wrappedData = Buffer.from(playerDataMember, 'base64');
+                return NRBFReader.readBuffer(wrappedData);
+            }
+
+            // If no wrapper, assume it's the direct data (Live Sync format)
+            return wrapper;
         } catch (error) {
             console.error('Could not parse file', error)
         }

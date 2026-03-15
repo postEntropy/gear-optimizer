@@ -1,0 +1,21 @@
+🎮  Game dir: /home/leonardo/.local/share/Steam/steamapps/common/NGU IDLE
+✅  DLLs de referência encontradas.
+✅  Newtonsoft.Json.dll: /home/leonardo/.local/share/Steam/steamapps/common/NGU IDLE/BepInEx/plugins/Newtonsoft.Json.dll
+✅  dotnet: 8.0.124
+
+🔨  Compilando NGULiveSync...
+MSBuild version 17.8.49+7806cbf7b for .NET
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  NGULiveSync -> /home/leonardo/Documents/gear-optimizer-master/output/NGULiveSync.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.13
+
+✅  NGULiveSync.dll copiado para:
+    /home/leonardo/.local/share/Steam/steamapps/common/NGU IDLE/BepInEx/plugins/NGULiveSync.dll
+
+🚀  Pronto! Abra o NGU IDLE com BepInEx para ativar o mod.

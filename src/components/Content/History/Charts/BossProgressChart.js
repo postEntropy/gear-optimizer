@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useTheme, alpha, Box, Typography, Paper, Divider } from '@mui/material';
 import { useHistoryContext } from '../HistoryContext';
@@ -6,18 +6,7 @@ import { useHistoryData } from '../hooks/useHistoryData';
 import ChartContainer from '../Components/ChartContainer';
 import { EmojiEvents } from '@mui/icons-material';
 
-const BossProgressChart = () => {
-    const theme = useTheme();
-    const [activeSeries, setActiveSeries] = React.useState(null);
-    const { timeRange, customRange } = useHistoryContext();
-    const { filteredData } = useHistoryData(timeRange, customRange);
-
-    const getClosestSeries = (e) => {
-        if (!e || !e.activePayload || e.activePayload.length === 0) return null;
-        return e.activePayload[0].dataKey;
-    };
-
-    const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = React.memo(({ active, payload, label, theme }) => {
         if (active && payload && payload.length) {
             const entry = payload[0];
             const rawValue = entry.value;
@@ -50,9 +39,29 @@ const BossProgressChart = () => {
             );
         }
         return null;
-    };
+});
 
-    const detailsContent = (
+const BossProgressChart = () => {
+    const theme = useTheme();
+    const [activeSeries, setActiveSeries] = useState(null);
+    const { timeRange, customRange } = useHistoryContext();
+    const { filteredData } = useHistoryData(timeRange, customRange);
+
+    const handleMouseMove = useCallback(() => {
+        setActiveSeries('highestBossScore');
+    }, []);
+
+    const handleMouseLeave = useCallback(() => {
+        setActiveSeries(null);
+    }, []);
+
+    const formatYAxis = useCallback((v) => {
+        if (v > 1000000) return `S${Math.floor(v / 1000000)}`;
+        if (v > 1000) return `E${Math.floor(v / 1000)}`;
+        return `N${v}`;
+    }, []);
+
+    const detailsContent = useMemo(() => (
         <Box>
             <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700, color: 'secondary.main' }}>
                 Boss Scaling Logic
@@ -79,7 +88,7 @@ const BossProgressChart = () => {
                 ))}
             </Box>
         </Box>
-    );
+    ), [filteredData, theme]);
 
     return (
         <ChartContainer
@@ -92,8 +101,8 @@ const BossProgressChart = () => {
             <ResponsiveContainer width="100%" height={350}>
                 <AreaChart
                     data={filteredData}
-                    onMouseMove={(e) => setActiveSeries(getClosestSeries(e))}
-                    onMouseLeave={() => setActiveSeries(null)}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
                     margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
                     <defs>
@@ -113,18 +122,14 @@ const BossProgressChart = () => {
                         style={{ pointerEvents: 'none' }}
                     />
                     <YAxis
-                        tickFormatter={(v) => {
-                            if (v > 1000000) return `S${Math.floor(v / 1000000)}`;
-                            if (v > 1000) return `E${Math.floor(v / 1000)}`;
-                            return `N${v}`;
-                        }}
+                        tickFormatter={formatYAxis}
                         domain={['dataMin', 'dataMax']}
                         stroke={theme.palette.secondary.main}
                         fontSize={11}
                         width={40}
                         style={{ pointerEvents: 'none' }}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip theme={theme} />} />
 
                     <Area
                         type="step"
@@ -136,6 +141,7 @@ const BossProgressChart = () => {
                         fillOpacity={activeSeries ? (activeSeries === 'highestBossScore' ? 1 : 0.1) : 0.6}
                         dot={false}
                         activeDot={{ r: 6, strokeWidth: 0, fill: theme.palette.secondary.main }}
+                        isAnimationActive={false}
                     />
                 </AreaChart>
             </ResponsiveContainer>
@@ -143,4 +149,4 @@ const BossProgressChart = () => {
     );
 };
 
-export default BossProgressChart;
+export default React.memo(BossProgressChart);

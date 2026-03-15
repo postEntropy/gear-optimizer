@@ -79,10 +79,14 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         } catch (e) {
             // If JSON fails, try as Raw NRBF (native save)
             try {
-                const rawData = Deserializer.fromFile(content)[1];
+                const rawResult = Deserializer.fromFile(content);
+                if (!rawResult || !rawResult[1]) {
+                    throw new Error("Deserializer returned invalid data structure");
+                }
+                const rawData = rawResult[1];
                 data = Deserializer.convertData(undefined, rawData);
             } catch (e2) {
-                console.error("Error parsing save file:", file.name, e);
+                console.error("Error parsing save file:", file.name, "as JSON:", e, "as NRBF:", e2);
                 return null;
             }
         }
