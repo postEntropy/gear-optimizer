@@ -261,10 +261,12 @@ const AppLayout = (props) => {
     }, [props.itemdata, props.randomLogoFilterOwned]);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const [darkMode, setDarkMode] = React.useState(() => {
-        const saved = localStorage.getItem('dark-mode');
-        return saved !== null ? saved === 'true' : prefersDarkMode;
-    });
+    const [darkMode, setDarkMode] = React.useState(prefersDarkMode);
+
+    React.useEffect(() => {
+        setDarkMode(prefersDarkMode);
+    }, [prefersDarkMode]);
+
     const [selectedColorKey, setSelectedColorKey] = React.useState(() => {
         const saved = localStorage.getItem('theme-color-key');
         return saved && THEME_COLORS[saved] ? saved : 'NOVA';
@@ -277,11 +279,7 @@ const AppLayout = (props) => {
     };
 
     const toggleDarkMode = React.useCallback(() => {
-        setDarkMode(prev => {
-            const next = !prev;
-            localStorage.setItem('dark-mode', next);
-            return next;
-        });
+        setDarkMode(prev => !prev);
     }, []);
 
     const changeColor = React.useCallback((key) => {

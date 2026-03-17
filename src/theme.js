@@ -7,9 +7,9 @@ const getTheme = (mode, colorObj) => {
     const primaryMain = colorObj ? colorObj.main : (isDark ? '#8b5cf6' : '#6366f1');
     const secondaryMain = isDark ? alpha(primaryMain, 0.7) : alpha(primaryMain, 0.8);
 
-    // Backgrounds: Deeper, More Intense Obsidian/White
-    // Dark: Deep Obsidian to Rich Charcoal with a hint of the primary color
-    const darkGradient = '#020617';
+    // Backgrounds: True Black/White
+    // Dark: Pure Black
+    const darkGradient = '#000000';
     // Light: Clean White to Soft Silver
     const lightGradient = 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)';
 
@@ -24,12 +24,12 @@ const getTheme = (mode, colorObj) => {
                 main: secondaryMain,
             },
             background: {
-                default: isDark ? '#020617' : '#ffffff',
-                paper: isDark ? alpha('#0f172a', 0.8) : alpha('#ffffff', 0.9),
+                default: isDark ? '#000000' : '#ffffff',
+                paper: isDark ? alpha('#121212', 0.8) : alpha('#ffffff', 0.9),
             },
             text: {
-                primary: isDark ? '#f8fafc' : '#0f172a',
-                secondary: isDark ? '#94a3b8' : '#64748b',
+                primary: isDark ? '#ffffff' : '#0f172a',
+                secondary: isDark ? '#a3a3a3' : '#64748b',
             },
             divider: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
         },
@@ -70,10 +70,10 @@ const getTheme = (mode, colorObj) => {
                             width: '8px',
                         },
                         '&::-webkit-scrollbar-track': {
-                            background: isDark ? '#020617' : '#f1f5f9',
+                            background: isDark ? '#000000' : '#f1f5f9',
                         },
                         '&::-webkit-scrollbar-thumb': {
-                            background: isDark ? '#1e293b' : '#cbd5e1',
+                            background: isDark ? '#333333' : '#cbd5e1',
                             borderRadius: '4px',
                         },
                     }
@@ -117,6 +117,22 @@ const getTheme = (mode, colorObj) => {
                             borderRadius: 6,
                             backgroundColor: isDark ? alpha('#000', 0.1) : alpha('#fff', 0.5),
                         }
+                    }
+                }
+            },
+            MuiMenu: {
+                styleOverrides: {
+                    paper: {
+                        backgroundColor: isDark ? alpha('#121212', 0.95) : alpha('#ffffff', 0.95),
+                        backdropFilter: 'blur(12px)',
+                    }
+                }
+            },
+            MuiAutocomplete: {
+                styleOverrides: {
+                    paper: {
+                        backgroundColor: isDark ? alpha('#121212', 0.95) : alpha('#ffffff', 0.95),
+                        backdropFilter: 'blur(12px)',
                     }
                 }
             }
