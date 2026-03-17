@@ -9,7 +9,7 @@ const getTheme = (mode, colorObj) => {
 
     // Backgrounds: Deeper, More Intense Obsidian/White
     // Dark: Deep Obsidian to Rich Charcoal with a hint of the primary color
-    const darkGradient = `radial-gradient(circle at 50% 0%, ${alpha(primaryMain, 0.15)} 0%, #020617 100%)`;
+    const darkGradient = '#020617';
     // Light: Clean White to Soft Silver
     const lightGradient = 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)';
 
