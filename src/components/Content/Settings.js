@@ -11,7 +11,9 @@ import {
     useTheme,
     Grid,
     Tooltip,
-    Link
+    Link,
+    InputAdornment,
+    IconButton
 } from '@mui/material';
 import {
     Settings as SettingsIcon,
@@ -19,16 +21,20 @@ import {
     Wallpaper as WallpaperIcon,
     Info as InfoIcon,
     Storage as StorageIcon,
-    AutoAwesome as GeminiIcon
+    AutoAwesome as GeminiIcon,
+    Visibility,
+    VisibilityOff
 } from '@mui/icons-material';
 
 const Settings = (props) => {
     const theme = useTheme();
+    const [showApiKey, setShowApiKey] = React.useState(false);
     const {
         playerName,
         randomLogoFilterOwned,
         handleSettings,
-        highlightBest
+        highlightBest,
+        geminiApiKey
     } = props;
 
     const handleChange = (name) => (event) => {
@@ -90,6 +96,40 @@ const Settings = (props) => {
                         />
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 1, mt: 0.5, mb: 3 }}>
                             Your name will appear on shared Build Cards and loadouts.
+                        </Typography>
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                            <GeminiIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
+                            <Typography variant="subtitle2" fontWeight={600}>Gemini AI Key</Typography>
+                        </Box>
+                        <TextField
+                            fullWidth
+                            label="Google Gemini API Key"
+                            variant="outlined"
+                            type={showApiKey ? 'text' : 'password'}
+                            value={geminiApiKey || ''}
+                            onChange={handleChange('geminiApiKey')}
+                            placeholder="AIza..."
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={() => setShowApiKey(v => !v)}
+                                            edge="end"
+                                            size="small"
+                                        >
+                                            {showApiKey ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 1, mt: 0.5 }}>
+                            Required to use the AI assistant on the Wishes page. Get your key at{' '}
+                            <Link href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">
+                                aistudio.google.com
+                            </Link>
+                            . The key is stored in your browser's local storage — do not share exported settings files as they will contain your API key.
                         </Typography>
 
                     </Paper>
