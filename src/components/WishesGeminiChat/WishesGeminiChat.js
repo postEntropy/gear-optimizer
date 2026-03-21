@@ -13,6 +13,8 @@ import {
     ContentCopy as CopyIcon,
     Refresh as RefreshIcon
 } from '@mui/icons-material';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Wishes } from '../../assets/ItemAux';
 import { toTime, shortenExponential } from '../../util';
 
@@ -207,16 +209,21 @@ function MessageBubble({ msg, theme }) {
                         position: 'relative'
                     }}
                 >
-                    <Typography
-                        variant="body2"
+                    <Box
                         sx={{
-                            whiteSpace: 'pre-wrap',
+                            pr: 2,
                             lineHeight: 1.6,
-                            pr: 2
+                            '& p': { mt: 0, mb: 1, fontSize: '0.875rem' },
+                            '& h1, & h2, & h3, & h4': { mt: 2, mb: 1, fontWeight: 'bold' },
+                            '& ul, & ol': { mt: 0, mb: 1, pl: 2 },
+                            '& code': { bgcolor: alpha(theme.palette.text.primary, 0.1), px: 0.5, py: 0.2, borderRadius: 1, fontFamily: 'monospace' },
+                            '& pre': { bgcolor: alpha(theme.palette.text.primary, 0.1), p: 1, borderRadius: 1, overflowX: 'auto' }
                         }}
                     >
-                        {msg.text}
-                    </Typography>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {msg.text}
+                        </ReactMarkdown>
+                    </Box>
                     <Tooltip title={copied ? 'Copied!' : 'Copy'}>
                         <IconButton
                             size="small"
@@ -245,12 +252,23 @@ function MessageBubble({ msg, theme }) {
 export default function WishesGeminiChat({ wishstats, liveSync, optimizerResults, geminiApiKey, defaultOpen = false, fullPage = false }) {
     const theme = useTheme();
     const [open, setOpen] = useState(defaultOpen || fullPage);
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState(() => {
+        try {
+            const saved = localStorage.getItem('geminiChatHistory');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    });
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+
+    useEffect(() => {
+        localStorage.setItem('geminiChatHistory', JSON.stringify(messages));
+    }, [messages]);
 
     useEffect(() => {
         if (open && messagesEndRef.current) {

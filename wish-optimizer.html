@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGU Idle — Wish Optimizer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root {
+    --bg: #0d0d1a;
+    --surface: #13132a;
+    --surface2: #1c1c3a;
+    --border: #2a2a55;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --fast: #10b981;
+    --medium: #f59e0b;
+    --slow: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, #1a0533 0%, #0d1a33 50%, #001a1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  header h1 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(90deg, #a78bfa, #38bdf8, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 0; height: calc(100vh - 70px); }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .card h3 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+
+  .resource-group { display: flex; flex-direction: column; gap: 10px; }
+  .resource-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+  .resource-label { font-size: 0.78rem; font-weight: 600; }
+  .resource-label.energy { color: #fbbf24; }
+  .resource-label.magic { color: #a78bfa; }
+  .resource-label.r3 { color: #34d399; }
+
+  .input-wrap { position: relative; }
+  .input-wrap input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: inherit; font-size: 0.82rem; padding: 7px 10px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .input-wrap input:focus { border-color: var(--accent); }
+
+  .alloc-section { margin-top: 4px; }
+  .alloc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .alloc-header span { font-size: 0.75rem; color: var(--muted); }
+  .alloc-header strong { font-size: 0.82rem; font-weight: 700; }
+
+  .slider-row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .slider-label { font-size: 0.72rem; font-weight: 600; width: 22px; text-align: right; }
+  .slider-label.e { color: #fbbf24; }
+  .slider-label.m { color: #a78bfa; }
+  .slider-label.r { color: #34d399; }
+  .slider-pct { font-size: 0.72rem; color: var(--muted); width: 36px; text-align: right; }
+
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px;
+    background: var(--surface); outline: none; cursor: pointer;
+  }
+  input[type=range].e { background: linear-gradient(to right, #fbbf24 var(--pct, 50%), var(--surface) var(--pct, 50%)); }
+  input[type=range].m { background: linear-gradient(to right, #a78bfa var(--pct, 50%), var(--surface) var(--pct, 50%)); }
+  input[type=range].r { background: linear-gradient(to right, #34d399 var(--pct, 50%), var(--surface) var(--pct, 50%)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: white; cursor: pointer; }
+
+  .hint { font-size: 0.72rem; color: var(--muted); line-height: 1.5; background: var(--bg); border-radius: 8px; padding: 10px; border-left: 3px solid var(--accent); }
+
+  .speed-preview {
+    background: var(--bg); border-radius: 8px; padding: 10px;
+    font-size: 0.78rem; display: flex; flex-direction: column; gap: 4px;
+  }
+  .speed-line { display: flex; justify-content: space-between; }
+  .speed-val { font-weight: 700; color: var(--accent2); font-family: monospace; font-size: 0.82rem; }
+
+  /* ---- MAIN ---- */
+  .main { overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .toolbar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;
+  }
+  .search-wrap { flex: 1; min-width: 200px; position: relative; }
+  .search-wrap input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: inherit; font-size: 0.85rem; padding: 8px 12px 8px 32px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+
+  .sort-btn {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: inherit; font-size: 0.78rem; font-weight: 600;
+    padding: 7px 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .sort-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sort-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .count-badge { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+
+  /* Wish List */
+  .wish-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .wish-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; transition: all 0.15s;
+    display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center;
+  }
+  .wish-item:hover { border-color: var(--accent); background: var(--surface2); transform: translateX(2px); }
+  .wish-item.expanded { border-color: var(--accent); background: var(--surface2); }
+
+  .wish-id {
+    font-size: 0.72rem; font-weight: 800; color: var(--muted);
+    background: var(--bg); border-radius: 6px; padding: 4px 6px; text-align: center;
+  }
+  .wish-info { min-width: 0; }
+  .wish-name { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wish-meta { display: flex; gap: 10px; margin-top: 4px; align-items: center; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px;
+    background: var(--bg); border: 1px solid var(--border);
+  }
+  .badge.levels { color: #fbbf24; border-color: #fbbf2440; }
+  .badge.sd { color: #a78bfa; border-color: #a78bfa40; }
+  .bar-wrap { min-width: 90px; }
+  .speed-bar-bg { background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .speed-bar { height: 6px; border-radius: 4px; transition: width 0.4s ease; }
+  .speed-label { font-size: 0.65rem; color: var(--muted); text-align: right; margin-top: 3px; }
+
+  .wish-detail {
+    grid-column: 1 / -1; padding: 12px; background: var(--bg);
+    border-radius: 8px; margin-top: 8px; font-size: 0.8rem; color: var(--muted);
+    line-height: 1.6; display: none;
+  }
+  .wish-item.expanded .wish-detail { display: block; }
+
+  .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .detail-cell { background: var(--surface2); border-radius: 6px; padding: 8px; text-align: center; }
+  .detail-cell .dval { font-size: 1rem; font-weight: 800; color: var(--accent2); font-family: monospace; }
+  .detail-cell .dlabel { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
+
+  .level-progress { margin-top: 10px; }
+  .level-bars { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
+  .lbar { height: 8px; flex: 1; min-width: 6px; background: var(--surface2); border-radius: 2px; }
+  .lbar.done { background: var(--accent3); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .formula-box {
+    background: var(--bg); border-radius: 8px; padding: 10px; border: 1px solid var(--border);
+    font-family: monospace; font-size: 0.75rem; color: #a78bfa; text-align: center;
+    line-height: 1.8;
+  }
+  .formula-box span.num { color: #34d399; }
+  .formula-box span.den { color: #f59e0b; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>⭐ NGU Idle — Wish Optimizer</h1>
+    <p>Configure seus recursos e veja quais wishes completar mais rápido</p>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="card">
+      <h3>📊 Seus Resource Stats</h3>
+      <div class="resource-group">
+        <div class="resource-row">
+          <span class="resource-label energy">⚡ Eng Power</span>
+          <div class="input-wrap"><input type="number" id="ePow" value="1000" min="1"></div>
+        </div>
+        <div class="resource-row">
+          <span class="resource-label magic">🔮 Mag Power</span>
+          <div class="input-wrap"><input type="number" id="mPow" value="1000" min="1"></div>
+        </div>
+        <div class="resource-row">
+          <span class="resource-label r3">💚 R3 Power</span>
+          <div class="input-wrap"><input type="number" id="rPow" value="1000" min="1"></div>
+        </div>
+        <div class="resource-row">
+          <span class="resource-label energy">⚡ Eng Cap</span>
+          <div class="input-wrap"><input type="number" id="eCap" value="1000000" min="1"></div>
+        </div>
+        <div class="resource-row">
+          <span class="resource-label magic">🔮 Mag Cap</span>
+          <div class="input-wrap"><input type="number" id="mCap" value="1000000" min="1"></div>
+        </div>
+        <div class="resource-row">
+          <span class="resource-label r3">💚 R3 Cap</span>
+          <div class="input-wrap"><input type="number" id="rCap" value="100000" min="1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🎛️ Alocação para Wishes</h3>
+      <p class="hint" style="margin-bottom:10px">Quanto % de cada cap você aloca nos wishes? O restante fica "salvo" para outras coisas.</p>
+      <div class="alloc-section">
+        <div class="slider-row">
+          <span class="slider-label e">E</span>
+          <input type="range" class="e" id="eAlloc" min="1" max="100" value="50">
+          <span class="slider-pct" id="eAllocPct">50%</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label m">M</span>
+          <input type="range" class="m" id="mAlloc" min="1" max="100" value="50">
+          <span class="slider-pct" id="mAllocPct">50%</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label r">R3</span>
+          <input type="range" class="r" id="rAlloc" min="1" max="100" value="50">
+          <span class="slider-pct" id="rAllocPct">50%</span>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:10px">
+        💡 <strong>Dica:</strong> Dobrar qualquer recurso aumenta velocidade em apenas ~12.5% (expoente 0.17). Vale mais distribuir entre os 3 do que focar em um.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>⚡ Wish Output/seg (atual)</h3>
+      <div class="speed-preview" id="speedPreview">
+        <div class="speed-line"><span>Produto dos recursos:</span><span class="speed-val" id="previewProd">—</span></div>
+        <div class="speed-line"><span>Após ^0.17:</span><span class="speed-val" id="previewBase">—</span></div>
+        <div class="speed-line"><span style="font-size:0.7rem;color:var(--muted)">Output/s = base ÷ SpeedDivider ÷ (lvl+1)</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📐 Fórmula</h3>
+      <div class="formula-box">
+        <span class="num">(EP×EA × MP×MA × R3P×R3A)^0.17</span><br>
+        ─────────────────────────<br>
+        <span class="den">SpeedDivider × (level + 1)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="Buscar wish por nome...">
+      </div>
+      <button class="sort-btn active" data-sort="speed">⚡ Mais Rápido</button>
+      <button class="sort-btn" data-sort="id">🔢 ID</button>
+      <button class="sort-btn" data-sort="levels">📊 Levels</button>
+      <button class="sort-btn" data-sort="sd">🐢 Speed Divider</button>
+      <span class="count-badge" id="countBadge">231 wishes</span>
+    </div>
+    <div class="wish-list" id="wishList"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// WISH DATA (embedded from CSV)
+// ============================================================
+const WISHES_RAW = `0,I wish that wishes kicked ass,"This wish gives 100% to Attack/Defense, 20% to adventure stats, and 5% to Energy/Magic/Resource 3's power, cap, and bars! How's that for a kickass wish?",1,1.00E+15
+1,I Wish that wishes weren't so slow :c,"Don't we all. This wish will help by giving you a 5% speed boost per level, though!",10,1.00E+15
+2,I wish MacGuffin drops mattered,This wish will increase the level of all MacGuffin drops by 1 per level! BAM!,5,2.00E+15
+3,I wish V2/3/4 Titans had better rewards,"With this wish, you'll get more XP & PP from harder titans!",3,8.00E+15
+4,I wish money Pit didn't suck,"Research this Wish to unlock new money pit tiers that have Stat and Seed rewards that scale!",1,6.00E+15
+5,I wish I could beat up more bosses I,Each level will grant a +100% bonus to your Attack/Defense.,10,3.00E+15
+6,I wish I was stronger in Adventure mode I,This wish will grant you 3% more Adventure Stats per level!,10,3.00E+15
+7,I wish I had more Inventory space I,Each level in this wish grants 1 extra inventory slot!,12,4.00E+15
+8,I wish I had a cool new move for Adventure I,Unlocks the MEGA BUFF move! (Cooldown 50s - All buffs simultaneously + 20% extra),1,6.00E+15
+9,I wish I had more Energy Power I,+5% Energy Power per level!,10,5.00E+15
+10,I wish I had more Energy Cap I,+3% Energy Cap per level!,10,5.00E+15
+11,I wish I had more Energy Bars I,+3% Energy Bars per level!,10,5.00E+15
+12,I wish I had more Magic Power I,+5% Magic Power per level!,10,5.00E+15
+13,I wish I had more Magic Cap I,+3% Magic Cap per level!,10,5.00E+15
+14,I wish I had more Magic Bars I,+3% Magic Bars per level!,10,5.00E+15
+15,I wish I had more Resource 3 Power I,+5% Resource 3 Power per level!,10,5.00E+15
+16,I wish I had more Resource 3 Cap I,+3% Resource 3 Cap per level!,10,5.00E+15
+17,I wish I had more Resource 3 Bars I,+3% Resource 3 Bars per level!,10,5.00E+15
+18,I wish the Greasy Nerd took a shower,+4% Hack Speed per level,10,1.00E+16
+19,I wish Active Quests were more Rewarding I,+2% better active questing rewards per level,10,2.00E+16
+20,I wish I didn't have to wait 3 minutes per rebirth,Reduces minimum rebirth time by 10 seconds per level,6,3.00E+16
+21,I wish Wishes weren't so slow :c II,+2% wish speed bonus per level,10,5.00E+16
+22,I wish I had more Inventory space II,+1 extra inventory slot per level!,12,8.00E+16
+23,I wish Basic Training was EVEN FASTER >:),Adds +1 level when bar fills on every Basic Training!,1,1.00E+17
+24,I wish Blood MacGuffin α wasn't so random,Blood MacGuffin targets your first slot instead of random,1,6.00E+16
+25,I wish Fruit of MacGuffin α wasn't so random,Fruit of MacGuffin targets your first slot instead of random,1,6.00E+16
+26,I wish I were an Oscar Meyer Weiner,Unlocks new player portrait,1,1.00E+18
+27,I wish the Daycare Kitty was even happier,+1% daycare speed per level,10,5.00E+16
+28,I wish I could dual wield weapons,Unlocks 2nd weapon slot! Each level = +5% of 2nd weapon's stats,10,3.00E+17
+29,I wish I was stronger in Adventure mode II,+2% more Adventure Stats per level,10,2.00E+17
+30,I wish I could beat up more bosses II,+100% stacking bonus to Attack/Defense per level,10,2.00E+17
+31,I wish I had more Energy Power II,+5% Energy Power per level!,10,1.00E+17
+32,I wish I had more Energy Cap II,+3% Energy Cap per level!,10,1.00E+17
+33,I wish I had more Energy Bars II,+3% Energy Bars per level!,10,1.00E+17
+34,I wish I had more Magic Power II,+5% Magic Power per level!,10,1.00E+17
+35,I wish I had more Magic Cap II,+3% Magic Cap per level!,10,1.00E+17
+36,I wish I had more Magic Bars II,+3% Magic Bars per level!,10,1.00E+17
+37,I wish I had more Resource 3 Power II,+5% Resource 3 Power per level!,10,1.00E+17
+38,I wish I had more Resource 3 Cap II,+3% Resource 3 Cap per level!,10,1.00E+17
+39,I wish I had more Resource 3 Bars II,+3% Resource 3 Bars per level!,10,1.00E+17
+40,I wish the Godmother would drop QP,Unlocks QP rewards from Godmother (Base 2 QP),1,1.00E+19
+41,I wish the Titan after Godmother would also drop QP,Unlocks QP from next Titan (Base 3 QP),1,3.00E+20
+42,I wish the Greasy Nerd took a shower II,+4% hack speed per level,10,7.00E+17
+43,I wish Wishes weren't so slow :c III,+2% wish speed bonus per level,10,2.00E+18
+44,I wish there was more cute Daycare Kitty Art,Unlocks art!,1,3.00E+19
+45,I wish I could dual wield weapons II,+5% effectiveness to 2nd weapon slot per level,10,1.00E+19
+46,I wish enemies spawned faster,Reduces respawn times by 1% per level,10,6.00E+18
+47,I wish Quests gave more QP,+2% Quest QP rewards per level,10,3.00E+18
+48,I wish I had more Energy Power III,+5% Energy Power per level!,10,5.00E+18
+49,I wish I had more Energy Cap III,+3% Energy Cap per level!,10,5.00E+18
+50,I wish I had more Energy Bars III,+3% Energy Bars per level!,10,5.00E+18
+51,I wish I had more Magic Power III,+5% Magic Power per level!,10,5.00E+18
+52,I wish I had more Magic Cap III,+3% Magic Cap per level!,10,5.00E+18
+53,I wish I had more Magic Bars III,+3% Magic Bars per level!,10,5.00E+18
+54,I wish I had more Resource 3 Power III,+5% Resource 3 Power per level!,10,5.00E+18
+55,I wish I had more Resource 3 Cap III,+3% Resource 3 Cap per level!,10,5.00E+18
+56,I wish I had more Resource 3 Bars III,+3% Resource 3 Bars per level!,10,5.00E+18
+57,I wish I had more Inventory space III,+1 extra inventory slot per level,12,8.00E+19
+58,I wish I had another cool new move for adventure,Unlocks OH SHIT move (Heal+Paralyze+Hyper Regen simultaneously),1,3.00E+21
+59,I wish Blood MacGuffin α also didn't suck,+20% Blood MacGuffin improvement per level,10,4.00E+20
+60,I wish Fruit of MacGuffin α also didn't suck,+20% Fruit of MacGuffin improvement per level,10,4.00E+20
+61,I wish I was more OP,+0.5% GLOBAL EXP per level,10,8.00E+19
+62,I wish Active Quests were more Rewarding II,+1% better active questing rewards per level,10,8.00E+20
+63,I wish the Greasy Nerd could at least wear some body spray,+2% hack speed per level,10,5.00E+20
+64,I wish I had more Energy Power IV,+5% Energy Power per level!,10,3.00E+20
+65,I wish I had more Energy Cap IV,+3% Energy Cap per level!,10,3.00E+20
+66,I wish I had more Energy Bars IV,+3% Energy Bars per level!,10,3.00E+20
+67,I wish I had more Magic Power IV,+5% Magic Power per level!,10,3.00E+20
+68,I wish I had more Magic Cap IV,+3% Magic Cap per level!,10,3.00E+20
+69,I wish I had more Magic Bars IV,+3% Magic Bars per level!,10,3.00E+20
+70,I wish I had more Resource 3 Power IV,+5% Resource 3 Power per level!,10,3.00E+20
+71,I wish I had more Resource 3 Cap IV,+3% Resource 3 Cap per level!,10,3.00E+20
+72,I wish I had more Resource 3 Bars IV,+3% Resource 3 Bars per level!,10,3.00E+20
+73,I wish the Beast would drop some QP,Unlocks QP from the Beast (Base 1 QP),1,2.00E+16
+74,I wish the Greasy Nerd would drop some QP,Unlocks QP from Greasy Nerd (Base 1 QP),1,5.00E+17
+75,I wish I was a giant jar of Mayo.,Unlocks player portrait,1,5.00E+21
+76,I wish the QP Hack had more milestones I,Reduces hack levels required per milestone by 1 per level,5,2.00E+17
+77,I wish the Number Hack had more milestones I,Reduces hack levels required per milestone by 1 per level,5,1.00E+19
+78,I wish the HACK HACK had more milestones I,Reduces hack levels required per milestone by 1 per level,10,6.00E+20
+79,I wish the ITOPOD awarded more Base PP,+50 base PP progress to ITOPOD kills per level,10,2.00E+21
+80,I wish higher level quest drops counted for more Quest progress I,Reduces level divider for Quest handins by 1 per level,2,5.00E+17
+81,I wish higher level quest drops counted for more Quest progress II,Reduces level divider for Quest handins by 1 per level,2,1.00E+22
+82,I wish I had more Energy Power V,+2% Energy Power per level!,10,5.00E+21
+83,I wish I had more Energy Bars V,+1% Energy Bars per level!,10,5.00E+21
+84,I wish I had more Energy Cap V,+1% Energy Cap per level!,10,5.00E+21
+85,I wish I had more Magic Power V,+2% Magic Power per level!,10,5.00E+21
+86,I wish I had more Magic Bars V,+1% Magic Bars per level!,10,5.00E+21
+87,I wish I had more Magic Cap V,+1% Magic Cap per level!,10,5.00E+21
+88,I wish I had more Resource 3 Power V,+3% Resource 3 Power per level!,1,5.00E+21
+89,I wish I had more Resource 3 Barfs V,+1.5% Resource 3 Bars per level (yes barfs),1,5.00E+21
+90,I wish I had more Resource 3 Cap V,+1.5% Resource 3 Cap per level!,10,5.00E+21
+91,I wish I had more Energy Power VI,+2% Energy Power per level!,10,1.00E+21
+92,I wish I had more Energy Bars VI,+1% Energy Bars per level!,10,1.00E+23
+93,I wish I had more Energy Cap VI,+1% Energy Cap per level!,10,1.00E+23
+94,I wish I had more Magic Power VI,+2% Magic Power per level!,10,1.00E+23
+95,I wish I had more Magic Bars VI,+1% Magic Bars per level!,10,1.00E+23
+96,I wish I had more Magic Cap VI,+1% Magic Cap per level!,10,1.00E+23
+97,I wish I had more Resource 3 Power VI,+3% Resource 3 Power per level!,10,1.00E+23
+98,I wish I had more Resource 3 Bars VI,+1.5% Resource 3 Bars per level!,10,1.00E+23
+99,I wish I had more Resource 3 Cap VI,+1.5% Resource 3 Cap per level!,10,1.00E+23
+100,I wish Titan 10 dropped QP,Unlocks QP from Titan 10 (Base 4 QP),1,5.00E+22
+101,I wish Major Quests had better Base QP Rewards.,+1 base QP reward for Major Quests per level,10,1.00E+22
+102,I wish Minor Quests had better Base QP Rewards.,+1 base QP reward for Minor Quests per level,2,1.80E+23
+103,I wish I was stronger in Adventure Mode III,+2% Adventure Stats per level,10,1.00E+19
+104,I wish I was stronger in Adventure Mode IV,+1% Adventure Stats per level,10,3.00E+21
+105,I wish I could beat up more bosses III,+100% Attack/Defense per level,10,2.00E+19
+106,I wish I could beat up more bosses IV,+100% Attack/Defense per level,10,1.00E+21
+107,I wish the Sadistic Boss Multiplier didn't suck so bad I,+0.001 boss multiplier per level,10,2.00E+22
+108,I wish the Sadistic Boss Multiplier didn't suck so bad II,+0.001 boss multiplier per level,10,5.00E+23
+109,I wish I had yet another Accessory Slot!,Unlocks Accessory Slot,1,5.00E+24
+110,I wish Infinity Cube Boosting wasn't so awful I,+5% Infinity Cube boost effectiveness per level,20,4.00E+19
+111,I wish Energy NGU's were Faster I,+2% Energy NGU Speed per level!,10,7.00E+20
+112,I wish Energy NGU's were Faster II,+2% Energy NGU Speed per level!,10,2.00E+22
+113,I wish Magic NGU's were Faster I,+2% Magic NGU Speed per level!,10,7.00E+20
+114,I wish Magic NGU's were Faster II,+2% Magic NGU Speed per level!,10,2.00E+22
+115,I wish my Energy NGU Card Tier was higher I,+1 tier all future E NGU cards,1,4.00E+19
+116,I wish my Drop Chance Card Tier was higher I,+1 tier all future Drop Chance cards,1,4.00E+19
+117,I wish my Wandoos Card Tier was higher I,+1 tier all future Wandoos cards,1,2.00E+19
+118,I wish my Adventure Stats Card Tier was higher I,+1 tier all future Adv Stats cards,1,8.00E+19
+119,I wish my Hacks Card Tier was higher I,+1 tier all future Hack cards,1,5.00E+19
+120,I wish my Augment Card Tier was higher I,+1 tier all future Augment cards,1,6.00E+19
+121,I wish my Gold Drop Card Tier was higher I,+1 tier all future Gold Drop cards,1,8.00E+19
+122,I wish my PP Card Tier was higher I,+1 tier all future PP cards,1,1.00E+20
+123,I wish my A/D Card Tier was higher I,+1 tier all future A/D cards,1,9.00E+19
+124,I wish my Magic NGU Card Tier was higher I,+1 tier all future Mag NGU cards,1,1.90E+20
+125,I wish my TM Speed Card Tier was higher I,+1 tier all future TM Speed cards,1,1.70E+20
+126,I wish my QP Card Tier was higher I,+1 tier all future QP cards,1,2.20E+20
+127,I wish my Daycare Card Tier was higher I,+1 tier all future Daycare cards,1,2.50E+20
+128,I wish my Energy NGU Card Tier was higher II,+1 tier E NGU cards,1,1.20E+21
+129,I wish my Drop Chance Card Tier was higher II,+1 tier Drop Chance cards,1,1.20E+21
+130,I wish my Wandoos Card Tier was higher II,+1 tier Wandoos cards,1,1.00E+21
+131,I wish my Adventure Stats Card Tier was higher II,+1 tier Adv Stats cards,1,1.50E+21
+132,I wish my Hacks Card Tier was higher II,+1 tier Hack cards,1,1.80E+21
+133,I wish my Augment Card Tier was higher II,+1 tier Augment cards,1,1.80E+21
+134,I wish my Gold Drop Card Tier was higher II,+1 tier Gold Drop cards,1,2.00E+21
+135,I wish my PP Card Tier was higher II,+1 tier PP cards,1,2.50E+21
+136,I wish my A/D Card Tier was higher II,+1 tier A/D cards,1,2.00E+21
+137,I wish my Magic NGU Card Tier was higher II,+1 tier Mag NGU cards,1,3.00E+21
+138,I wish my TM Speed Card Tier was higher II,+1 tier TM Speed cards,1,2.50E+21
+139,I wish my QP Card Tier was higher II,+1 tier QP cards,1,4.00E+21
+140,I wish my Daycare Card Tier was higher II,+1 tier Daycare cards,1,5.00E+21
+141,I wish my Energy NGU Card Tier was higher III,+1 tier E NGU cards,1,2.00E+22
+142,I wish my Drop Chance Card Tier was higher III,+1 tier Drop Chance cards,1,1.80E+22
+143,I wish my Wandoos Card Tier was higher III,+1 tier Wandoos cards,1,1.50E+22
+144,I wish my Adventure Stats Card Tier was higher III,+1 tier Adv Stats cards,1,5.00E+22
+145,I wish my Hacks Card Tier was higher III,+1 tier Hack cards,1,4.00E+22
+146,I wish my Augment Card Tier was higher III,+1 tier Augment cards,1,6.00E+22
+147,I wish my Gold Drop Card Tier was higher III,+1 tier Gold Drop cards,1,7.50E+22
+148,I wish my PP Card Tier was higher III,+1 tier PP cards,2,1.00E+23
+149,I wish my A/D Card Tier was higher III,+1 tier A/D cards,1,8.00E+22
+150,I wish my Magic NGU Card Tier was higher III,+1 tier Mag NGU cards,1,1.30E+23
+151,I wish my TM Speed Card Tier was higher III,+1 tier TM Speed cards,1,1.20E+23
+152,I wish my QP Card Tier was higher III,+1 tier QP cards,2,1.50E+23
+153,I wish my Daycare Card Tier was higher III,+1 tier Daycare cards,1,1.60E+23
+154,I wish I made Mayo Faster I,+0.5% Mayo production per level,10,5.00E+20
+155,I wish my Cards Spawned Faster I,Reduces Card Spawn timer by 0.5% per level,10,5.00E+20
+156,I wish I made Mayo Faster II,+0.4% Mayo production per level,10,1.00E+22
+157,I wish my Cards Spawned Faster II,Reduces Card Spawn timer by 0.4% per level,10,1.00E+22
+158,I wish I made Mayo Faster III,+0.3% Mayo production per level,10,2.00E+23
+159,I wish my Cards Spawned Faster III,Reduces Card Spawn timer by 0.3% per level,10,2.00E+23
+160,I wish I made Mayo Faster IV,+0.3% Mayo production per level,10,4.00E+24
+161,I wish my Cards Spawned Faster IV,Reduces Card Spawn timer by 0.3% per level,10,4.00E+24
+162,I wish I had BEEFY Cards I,Raises max mayo cost of regular cards by 1 (max was 9),1,4.00E+24
+163,I wish I didn't have WIMPY Cards I,Raises MIN mayo cost of regular cards by 1,1,4.00E+24
+164,I wish I had a bigger Deck I,+1 Max Deck Size per level,5,1.00E+20
+165,I wish I had a bigger Deck II,+1 Max Deck Size per level,5,5.00E+21
+166,I wish I had a bigger Deck III,+1 Max Deck Size per level,5,2.50E+23
+167,I wish I had another Mayo Generator,+1 Mayo Generator slot + 2% Mayo Speed,1,5.00E+21
+168,I wish I had another Bonus Tag,Provides extra Tag slot,1,3.00E+22
+169,I wish Tags worked better I,+0.05% tagging effects per level,10,2.00E+19
+170,I wish Tags worked better II,+0.04% tagging effects per level,10,6.00E+20
+171,I wish Tags worked better III,+0.04% tagging effects per level,10,1.80E+22
+172,I wish Tags worked better IV,+0.04% tagging effects per level,10,5.00E+23
+173,I wish Tags worked better V,+0.04% tagging effects per level,10,1.50E+25
+174,I wish my Energy NGU Card Tier was higher IV,+1 tier E NGU cards,2,2.50E+23
+175,I wish my Drop Chance Card Tier was higher IV,+1 tier Drop Chance cards,2,2.20E+23
+176,I wish my Wandoos Card Tier was higher IV,+1 tier Wandoos cards,2,2.00E+23
+177,I wish my Adventure Stats Card Tier was higher IV,+1 tier Adv Stats cards,2,5.00E+23
+178,I wish my Hacks Card Tier was higher IV,+1 tier Hack cards,2,4.00E+23
+179,I wish my Augment Card Tier was higher IV,+1 tier Augment cards,2,6.00E+23
+180,I wish my Gold Drop Card Tier was higher IV,+1 tier Gold Drop cards,2,7.50E+23
+181,I wish my PP Card Tier was higher IV,+1 tier PP cards,2,1.00E+24
+182,I wish my A/D Card Tier was higher IV,+1 tier A/D cards,2,8.00E+23
+183,I wish my Magic NGU Card Tier was higher IV,+1 tier Mag NGU cards,2,1.30E+24
+184,I wish my TM Speed Card Tier was higher IV,+1 tier TM Speed cards,2,1.20E+24
+185,I wish my QP Card Tier was higher IV,+1 tier QP cards,2,1.50E+24
+186,I wish my Daycare Card Tier was higher IV,+1 tier Daycare cards,2,1.60E+24
+187,I wish Titan 11 Dropped QP,Unlocks QP from Titan 11 (Base 5 QP),1,2.00E+25
+188,I wish I was stronger in Adventure Mode V,+1% Adventure stats per level (20 levels),20,1.00E+24
+189,I wish I could beat up more bosses V,+1% Attack/Defense per level (20 levels),20,1.00E+24
+190,I wish I was f**king done with Advanced Training forever!,Makes Advanced Training run at max speed,1,1.00E+18
+191,I wish I could beat up more Bosses VI,+100% Attack/Defense per level (20 levels),20,2.00E+25
+192,I wish I could beat up more Bosses VII,+100% Attack/Defense per level (20 levels),20,6.00E+25
+193,I wish I had more Energy Power VII,+2% Energy Power per level!,10,2.00E+24
+194,I wish I had more Energy Bars VII,+1% Energy Bars per level!,10,2.00E+24
+195,I wish I had more Energy Cap VII,+1% Energy Cap per level!,10,2.00E+24
+196,I wish I had more Magic Power VII,+2% Magic Power per level!,10,2.00E+24
+197,I wish I had more Magic Bars VII,+1% Magic Bars per level!,10,2.00E+24
+198,I wish I had more Magic Cap VII,+1% Magic Cap per level!,10,2.00E+24
+199,I wish I had more Resource 3 Power VII,+3% Resource 3 Power per level!,10,2.00E+24
+200,I wish I had more Resource 3 Bars VII,+1.5% Resource 3 Bars per level!,10,2.00E+24
+201,I wish I had more Resource 3 Cap VII,+1.5% Resource 3 Cap per level!,10,2.00E+24
+202,I wish I was a sneak preview of 4G's next Idle game,Unlocks player portrait,1,1.00E+24
+203,ARE YOU SURE YOU WISH TO SHUT DOWN?,I MUST SHUT DOWN... SHUT DOWN EVERYTHING...,1,1.00E+27
+204,I wish Titan 12 gave me some QP,Unlocks QP from Titan 12 (Base 6 QP),1,3.00E+26
+205,I wish my Energy NGU Card Tier was Higher V,+1 tier E NGU cards,2,4.00E+25
+206,I wish my Drop Chance Card Tier was Higher V,+1 tier Drop Chance cards,2,5.00E+25
+207,I wish my Wandoos Card Tier was Higher V,+1 tier Wandoos cards,2,4.00E+25
+208,I wish my Adventure Stats Card Tier was Higher V,+1 tier Adv Stats cards,2,1.00E+26
+209,I wish my Hacks Card Tier was Higher V,+1 tier Hack cards,2,8.00E+25
+210,I wish my Augment Card Tier was Higher V,+1 tier Augment cards,2,1.00E+26
+211,I wish my Gold Drop Card Tier was Higher V,+1 tier Gold Drop cards,2,1.30E+26
+212,I wish my PP Card Tier was Higher V,+1 tier PP cards,2,2.00E+26
+213,I wish my A/D Card Tier was Higher V,+1 tier A/D cards,2,2.50E+26
+214,I wish my Magic NGU Card Tier was Higher V,+1 tier Mag NGU cards,2,2.00E+26
+215,I wish my TM Speed Tier was Higher V,+1 tier TM Speed cards,2,3.00E+26
+216,I wish my QP Card Tier was Higher V,+1 tier QP cards,2,5.00E+26
+217,I wish my Daycare Card Tier was Higher V,+1 tier Daycare cards,2,4.00E+26
+218,I wish I was stronger in Adventure mode VI,+1% Adventure stats per level (20 levels),20,5.00E+25
+219,I wish I could beat up more Bosses VIII,+100% Attack/Defense per level (20 lvls),20,1.80E+26
+220,I wish I had BEEFY cards II,Raises max mayo cost of regular cards by 1,1,1.00E+26
+221,I wish I didn't have WIMPY cards II,Raises MIN mayo cost of regular cards by 1,1,1.00E+26
+222,I wish I made Mayo faster V,+0.3% Mayo production per level,10,8.00E+25
+223,I wish Cards Spawned Faster V,Reduces Card Spawn timer by 0.3% per level,10,8.00E+25
+224,I wish I made Mayo faster VI,+0.3% Mayo production per level,10,1.00E+27
+225,I wish Cards Spawned Faster VI,Reduces Card Spawn timer by 0.3% per level,10,1.00E+27
+226,I wish I was stronger in Adventure mode VI (part 2),+1% Adventure stats per level,10,3.30E+26
+227,I wish I had BEEFY Cards III,Raises max mayo cost by 1 per level,2,3.80E+26
+228,I wish I didn't have WIMPY cards III,Raises min mayo cost by 1 per level,2,3.50E+26
+229,I wish my chonkers were CHONKIER,Increase Big Chocker max mayo cost by 1 per level,5,3.40E+26
+230,I wish my chonkers were LESS NOT CHONKIER,Increase Big Chocker min mayo cost by 1 per level,5,3.70E+26`;
+
+// Parse wishes
+const wishes = WISHES_RAW.trim().split('\n').map(line => {
+  const m = line.match(/^(\d+),(.+?),(".*?"|[^,]+),(\d+),([\d.E+]+)$/);
+  if (!m) {
+    // handle quoted fields
+    const parts = [];
+    let inQ = false, cur = '', i = 0;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { parts.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    parts.push(cur.trim());
+    return { id: +parts[0], name: parts[1], effect: parts[2], levels: +parts[3], sd: +parts[4] };
+  }
+  return { id: +m[1], name: m[2], effect: m[3].replace(/^"|"$/g,''), levels: +m[4], sd: +m[5] };
+});
+
+// ============================================================
+// STATE & FORMULA
+// ============================================================
+let sortMode = 'speed';
+let searchText = '';
+
+function getInputs() {
+  return {
+    ePow: +document.getElementById('ePow').value || 1,
+    mPow: +document.getElementById('mPow').value || 1,
+    rPow: +document.getElementById('rPow').value || 1,
+    eCap: +document.getElementById('eCap').value || 1,
+    mCap: +document.getElementById('mCap').value || 1,
+    rCap: +document.getElementById('rCap').value || 1,
+    eAlloc: +document.getElementById('eAlloc').value / 100,
+    mAlloc: +document.getElementById('mAlloc').value / 100,
+    rAlloc: +document.getElementById('rAlloc').value / 100,
+  };
+}
+
+function calcWishSpeed(wish, inp) {
+  const eA = inp.eCap * inp.eAlloc;
+  const mA = inp.mCap * inp.mAlloc;
+  const rA = inp.rCap * inp.rAlloc;
+  const product = inp.ePow * eA * inp.mPow * mA * inp.rPow * rA;
+  const base = Math.pow(product, 0.17);
+  // output/sec for level 0 (first level)
+  return base / (wish.sd * 1);
+}
+
+function fmtSci(n) {
+  if (n === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(n)));
+  const m = n / Math.pow(10, e);
+  return `${m.toFixed(2)}e${e}`;
+}
+
+function fmtTime(seconds) {
+  if (!isFinite(seconds) || seconds > 1e15) return '∞';
+  const h = seconds / 3600;
+  if (h < 1) return `${Math.round(seconds/60)}m`;
+  if (h < 24) return `${h.toFixed(1)}h`;
+  if (h < 24*365) return `${(h/24).toFixed(1)}d`;
+  return `${(h/24/365).toFixed(1)}y`;
+}
+
+function speedColor(pct) {
+  if (pct > 0.6) return '#10b981';
+  if (pct > 0.25) return '#f59e0b';
+  return '#ef4444';
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+let expandedId = null;
+
+function render() {
+  const inp = getInputs();
+  const eA = inp.eCap * inp.eAlloc;
+  const mA = inp.mCap * inp.mAlloc;
+  const rA = inp.rCap * inp.rAlloc;
+  const product = inp.ePow * eA * inp.mPow * mA * inp.rPow * rA;
+  const base = Math.pow(product, 0.17);
+
+  document.getElementById('previewProd').textContent = fmtSci(product);
+  document.getElementById('previewBase').textContent = fmtSci(base);
+
+  // Update slider labels
+  ['e','m','r'].forEach(k => {
+    const slider = document.getElementById(k + 'Alloc');
+    const pct = slider.value;
+    document.getElementById(k + 'AllocPct').textContent = pct + '%';
+    slider.style.setProperty('--pct', pct + '%');
+  });
+
+  // Filter & sort wishes
+  let filtered = wishes.filter(w => {
+    if (!searchText) return true;
+    return w.name.toLowerCase().includes(searchText) || w.id.toString() === searchText;
+  });
+
+  // Compute speed scores
+  filtered = filtered.map(w => ({ ...w, speed: calcWishSpeed(w, inp) }));
+  const maxSpeed = Math.max(...filtered.map(w => w.speed));
+
+  if (sortMode === 'speed') filtered.sort((a,b) => b.speed - a.speed);
+  else if (sortMode === 'id') filtered.sort((a,b) => a.id - b.id);
+  else if (sortMode === 'levels') filtered.sort((a,b) => a.levels - b.levels);
+  else if (sortMode === 'sd') filtered.sort((a,b) => a.sd - b.sd);
+
+  document.getElementById('countBadge').textContent = `${filtered.length} wishes`;
+
+  const list = document.getElementById('wishList');
+  list.innerHTML = filtered.map(w => {
+    const pct = maxSpeed > 0 ? w.speed / maxSpeed : 0;
+    const barW = Math.max(3, Math.round(pct * 100));
+    const color = speedColor(pct);
+    const rank = Math.round(pct * 100);
+    const isExp = expandedId === w.id;
+
+    // time estimation (assuming SpeedDivider represents total work per level)
+    // output/s for each level accumulates; we estimate vs SD
+    const timePerLevel = 1 / (w.speed); // relative
+    const sdLabel = w.sd >= 1e24 ? fmtSci(w.sd) : w.sd.toExponential(1);
+
+    const levelBars = Array.from({length: Math.min(w.levels, 20)}, (_,i) => `<div class="lbar"></div>`).join('');
+
+    return `<div class="wish-item${isExp?' expanded':''}" onclick="toggleExpand(${w.id})">
+      <div class="wish-id">#${w.id}</div>
+      <div class="wish-info">
+        <div class="wish-name">${w.name}</div>
+        <div class="wish-meta">
+          <span class="badge levels">📊 ${w.levels} lvl${w.levels>1?'s':''}</span>
+          <span class="badge sd">÷ ${sdLabel}</span>
+        </div>
+      </div>
+      <div class="bar-wrap">
+        <div class="speed-bar-bg"><div class="speed-bar" style="width:${barW}%;background:${color}"></div></div>
+        <div class="speed-label">${rank}%</div>
+      </div>
+      <div class="wish-detail">
+        <div style="color:var(--text);margin-bottom:8px">${w.effect}</div>
+        <div class="detail-grid">
+          <div class="detail-cell"><div class="dval">${fmtSci(w.speed)}</div><div class="dlabel">Output/s (lvl 1)</div></div>
+          <div class="detail-cell"><div class="dval">${rank}%</div><div class="dlabel">Velocidade relativa</div></div>
+          <div class="detail-cell"><div class="dval">${w.levels}</div><div class="dlabel">Total de níveis</div></div>
+        </div>
+        <div class="level-progress">
+          <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">Níveis:</div>
+          <div class="level-bars">${levelBars}${w.levels>20?`<span style="font-size:0.65rem;color:var(--muted);display:flex;align-items:center">+${w.levels-20}</span>`:''}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleExpand(id) {
+  expandedId = expandedId === id ? null : id;
+  render();
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    sortMode = btn.dataset.sort;
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  searchText = e.target.value.toLowerCase().trim();
+  render();
+});
+
+['ePow','mPow','rPow','eCap','mCap','rCap','eAlloc','mAlloc','rAlloc'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
