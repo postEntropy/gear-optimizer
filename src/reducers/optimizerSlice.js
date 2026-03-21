@@ -266,6 +266,7 @@ const INITIAL_STATE = {
     randomLogoFilterOwned: true,
     usefulItemIds: null,
     geminiApiKey: '',
+    wishesLegacyMode: false,
     version: '2.0.0'
 };
 

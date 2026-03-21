@@ -17,7 +17,7 @@ import { Wishes } from '../../assets/ItemAux';
 import { toTime, shortenExponential } from '../../util';
 
 const GEMINI_API_URL =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 // Speed divider constants (from NGU Idle game mechanics)
 const TICKS_PER_SECOND = 50;
@@ -242,9 +242,9 @@ function MessageBubble({ msg, theme }) {
     );
 }
 
-export default function WishesGeminiChat({ wishstats, liveSync, optimizerResults, geminiApiKey }) {
+export default function WishesGeminiChat({ wishstats, liveSync, optimizerResults, geminiApiKey, defaultOpen = false, fullPage = false }) {
     const theme = useTheme();
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(defaultOpen || fullPage);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -339,41 +339,43 @@ export default function WishesGeminiChat({ wishstats, liveSync, optimizerResults
     const hasKey = !!geminiApiKey;
 
     return (
-        <Box sx={{ mt: 2 }}>
-            {/* Toggle Button */}
-            <Button
-                variant={open ? 'contained' : 'outlined'}
-                startIcon={<GeminiIcon />}
-                endIcon={open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                onClick={() => setOpen(v => !v)}
-                sx={{
-                    borderRadius: 3,
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    background: open
-                        ? `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
-                        : undefined,
-                    borderColor: alpha(theme.palette.primary.main, 0.5),
-                    '&:hover': {
-                        background: open
-                            ? `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`
-                            : alpha(theme.palette.primary.main, 0.08),
-                    }
-                }}
-            >
-                Ask Gemini AI
-            </Button>
-
-            <Collapse in={open}>
-                <Paper
-                    elevation={3}
+        <Box sx={{ mt: fullPage ? 0 : 2 }}>
+            {/* Toggle Button — hidden in full-page mode */}
+            {!fullPage && (
+                <Button
+                    variant={open ? 'contained' : 'outlined'}
+                    startIcon={<GeminiIcon />}
+                    endIcon={open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    onClick={() => setOpen(v => !v)}
                     sx={{
-                        mt: 1.5,
                         borderRadius: 3,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        background: open
+                            ? `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
+                            : undefined,
+                        borderColor: alpha(theme.palette.primary.main, 0.5),
+                        '&:hover': {
+                            background: open
+                                ? `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`
+                                : alpha(theme.palette.primary.main, 0.08),
+                        }
+                    }}
+                >
+                    Ask Gemini AI
+                </Button>
+            )}
+
+            <Collapse in={open} timeout={fullPage ? 0 : 'auto'}>
+                <Paper
+                    elevation={fullPage ? 0 : 3}
+                    sx={{
+                        mt: fullPage ? 0 : 1.5,
+                        borderRadius: fullPage ? 0 : 3,
                         overflow: 'hidden',
-                        border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                        background: alpha(theme.palette.background.paper, 0.85),
-                        backdropFilter: 'blur(12px)',
+                        border: fullPage ? 'none' : `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                        background: fullPage ? 'transparent' : alpha(theme.palette.background.paper, 0.85),
+                        backdropFilter: fullPage ? 'none' : 'blur(12px)',
                     }}
                 >
                     {/* Header */}
@@ -408,9 +410,11 @@ export default function WishesGeminiChat({ wishstats, liveSync, optimizerResults
                                     </IconButton>
                                 </Tooltip>
                             )}
-                            <IconButton size="small" onClick={() => setOpen(false)}>
-                                <CloseIcon fontSize="small" />
-                            </IconButton>
+                            {!fullPage && (
+                                <IconButton size="small" onClick={() => setOpen(false)}>
+                                    <CloseIcon fontSize="small" />
+                                </IconButton>
+                            )}
                         </Box>
                     </Box>
 
@@ -431,7 +435,8 @@ export default function WishesGeminiChat({ wishstats, liveSync, optimizerResults
                     {/* Messages */}
                     <Box
                         sx={{
-                            height: 360,
+                            height: fullPage ? 'calc(100vh - 320px)' : 360,
+                            minHeight: fullPage ? 400 : undefined,
                             overflowY: 'auto',
                             p: 2,
                             display: 'flex',
