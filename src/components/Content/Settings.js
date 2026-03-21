@@ -34,7 +34,8 @@ const Settings = (props) => {
         randomLogoFilterOwned,
         handleSettings,
         highlightBest,
-        geminiApiKey
+        geminiApiKey,
+        wishesLegacyMode
     } = props;
 
     const handleChange = (name) => (event) => {
@@ -131,6 +132,22 @@ const Settings = (props) => {
                             </Link>
                             . The key is stored in your browser's local storage — do not share exported settings files as they will contain your API key.
                         </Typography>
+
+                        <Box sx={{ mt: 2.5 }}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={wishesLegacyMode || false}
+                                        onChange={handleChange('wishesLegacyMode')}
+                                        color="primary"
+                                    />
+                                }
+                                label="Legacy Wishes Optimizer"
+                            />
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 4, mt: -0.5 }}>
+                                When enabled, shows the classic optimizer form layout. When disabled (default), the Wishes page displays the Gemini AI chat as the primary interface.
+                            </Typography>
+                        </Box>
 
                     </Paper>
                 </Grid>

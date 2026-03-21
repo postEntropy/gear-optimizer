@@ -99,6 +99,7 @@ const App = () => {
         showGraphs: state.showGraphs,
         liveSync: state.liveSync,
         geminiApiKey: state.geminiApiKey,
+        wishesLegacyMode: state.wishesLegacyMode,
 
     }), [state]);
 
