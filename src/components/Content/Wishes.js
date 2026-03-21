@@ -11,6 +11,7 @@ import WishForm from '../WishForm/WishForm';
 import { default as Crement } from '../Crement/Crement';
 import { shortenExponential, toTime } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
+import WishesGeminiChat from '../WishesGeminiChat/WishesGeminiChat';
 
 import Loading from '../Loading/Loading';
 
@@ -370,6 +371,13 @@ class WishComponent extends Component {
                         )}
                     </Paper>
                 </form>
+
+                <WishesGeminiChat
+                    wishstats={this.props.wishstats}
+                    liveSync={this.props.liveSync}
+                    geminiApiKey={this.props.geminiApiKey}
+                    optimizerResults={{ scores, assignments, remaining }}
+                />
             </Box>
         );
     };

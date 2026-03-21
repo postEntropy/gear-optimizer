@@ -265,6 +265,7 @@ const INITIAL_STATE = {
     playerName: 'Player',
     randomLogoFilterOwned: true,
     usefulItemIds: null,
+    geminiApiKey: '',
     version: '2.0.0'
 };
 

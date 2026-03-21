@@ -97,6 +97,8 @@ const App = () => {
         randomLogoFilterOwned: state.randomLogoFilterOwned,
         highlightEquipped: state.highlightEquipped,
         showGraphs: state.showGraphs,
+        liveSync: state.liveSync,
+        geminiApiKey: state.geminiApiKey,
 
     }), [state]);
 
