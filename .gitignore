@@ -38,6 +38,11 @@ licenses.json
 
 # compile_mod.ps1
 ngu-sync-bridge.js
+
+# NuGet restore artifacts (build_mod)
+build_mod/obj/*.nuget.*
+build_mod/obj/project.assets.json
+build_mod/obj/project.nuget.cache
 *.code-workspace
 # Local Feature: Advanced Training Calculator
 src/components/Content/AdvancedTrainingCalculator.js
