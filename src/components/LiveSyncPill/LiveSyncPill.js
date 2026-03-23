@@ -14,14 +14,21 @@ const LiveSyncPill = ({ collapsed }) => {
 
     const isConnected = status === 'connected';
     const isError = status === 'error';
+    const isConnecting = status === 'connecting';
+    const isReconnecting = status === 'reconnecting';
 
     const getStatusColor = () => {
         if (isConnected) return '#00ff00';
         if (isError) return '#ff1744';
+        if (isConnecting || isReconnecting) return '#ffa726';
         return '#757575';
     };
 
-    const statusLabel = isConnected ? 'LIVE' : isError ? 'ERROR' : 'OFF';
+    const statusLabel = isConnected ? 'LIVE'
+        : isError ? 'ERROR'
+        : isConnecting ? 'CONNECTING'
+        : isReconnecting ? 'RECONNECTING'
+        : 'OFF';
 
     // Timer logic
     const [timeSince, setTimeSince] = React.useState('');
@@ -57,7 +64,7 @@ const LiveSyncPill = ({ collapsed }) => {
 
     if (collapsed) {
         return (
-            <Tooltip title={`Live Sync: ${statusLabel}${lastUpdate ? ` (${timeSince} ago)` : ''}`}>
+            <Tooltip title={`Live Sync: ${statusLabel}${lastUpdate ? ` (${timeSince} ago)` : ''}${isReconnecting ? ' – reconnecting soon' : ''}`}>
                 <Box onClick={handleClick} sx={{
                     width: 14, height: 14, borderRadius: '50%',
                     bgcolor: alpha(statusColor, 0.15),
@@ -70,7 +77,7 @@ const LiveSyncPill = ({ collapsed }) => {
                         width: 7, height: 7, borderRadius: '50%',
                         bgcolor: statusColor,
                         boxShadow: isConnected ? `0 0 10px ${statusColor}` : 'none',
-                        animation: isConnected ? `${blink} 1.5s infinite` : 'none'
+                        animation: (isConnected || isConnecting || isReconnecting) ? `${blink} 1.5s infinite` : 'none'
                     }} />
                 </Box>
             </Tooltip>
@@ -98,14 +105,14 @@ const LiveSyncPill = ({ collapsed }) => {
                     <Box sx={{
                         width: 8, height: 8, borderRadius: '50%',
                         bgcolor: statusColor,
-                        boxShadow: isConnected ? `0 0 10px ${statusColor}` : 'none',
-                        animation: isConnected ? `${blink} 2s infinite` : 'none',
+                        boxShadow: (isConnected || isConnecting || isReconnecting) ? `0 0 10px ${statusColor}` : 'none',
+                        animation: (isConnected || isConnecting || isReconnecting) ? `${blink} 2s infinite` : 'none',
                         flexShrink: 0
                     }} />
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, flexGrow: 1 }}>
                         <Typography variant="caption" fontWeight={900} sx={{
-                            color: isConnected ? 'text.primary' : 'text.secondary',
+                            color: (isConnected || isConnecting || isReconnecting) ? 'text.primary' : 'text.secondary',
                             letterSpacing: 0.8, fontSize: '0.7rem',
                             textTransform: 'uppercase', lineHeight: 1.2
                         }}>
@@ -117,6 +124,15 @@ const LiveSyncPill = ({ collapsed }) => {
                                 fontFamily: 'monospace', letterSpacing: 0.2
                             }}>
                                 Updated {timeSince} ago
+                            </Typography>
+                        )}
+                        {(isConnecting || isReconnecting) && (
+                            <Typography variant="caption" sx={{
+                                opacity: 0.6, fontSize: '0.6rem',
+                                fontFamily: 'monospace', letterSpacing: 0.2,
+                                color: statusColor
+                            }}>
+                                {isReconnecting ? 'Reconnecting...' : 'Connecting...'}
                             </Typography>
                         )}
                     </Box>

@@ -9,14 +9,16 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace NGULiveSync {
-    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.2.0")]
+    [BepInPlugin("com.leonardo.ngu.livesync", "NGU Live Sync", "1.3.0")]
     public class LiveSyncPlugin : BaseUnityPlugin {
         private static HttpListener _listener;
         private static List<HttpListenerResponse> _clients = new List<HttpListenerResponse>();
         private Thread _serverThread;
+        private Timer _heartbeatTimer;
         public static Character Character;
         private static float _lastBroadcastTime = -999f;
         private const float DEBOUNCE_SECONDS = 5f;
+        private const int HEARTBEAT_INTERVAL_MS = 15000;
 
         void Awake() {
             var harmony = new Harmony("com.leonardo.ngu.livesync");
@@ -24,7 +26,14 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("NGU Live Sync v1.2.0 loaded! Broadcasts driven by game saves.");
+            // Periodic heartbeat keeps SSE connections alive and flushes dead clients
+            _heartbeatTimer = new Timer(SendHeartbeat, null, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS);
+            Logger.LogInfo("NGU Live Sync v1.3.0 loaded! Broadcasts driven by game saves.");
+        }
+
+        void OnDestroy() {
+            try { _heartbeatTimer?.Dispose(); } catch { }
+            try { _listener?.Stop(); } catch { }
         }
 
         void StartServer() {
@@ -54,11 +63,19 @@ namespace NGULiveSync {
                             res.Headers.Add("Cache-Control", "no-cache");
                             res.Headers.Add("Connection", "keep-alive");
                             
-                            byte[] ok = Encoding.UTF8.GetBytes(": ok\n\n");
-                            res.OutputStream.Write(ok, 0, ok.Length);
+                            // Send an initial comment so the browser confirms the connection immediately
+                            byte[] connectedMsg = Encoding.UTF8.GetBytes(": connected\n\n");
+                            res.OutputStream.Write(connectedMsg, 0, connectedMsg.Length);
                             res.OutputStream.Flush();
 
                             lock(_clients) { _clients.Add(res); }
+                        } else if (req.Url.AbsolutePath == "/health") {
+                            // Simple health-check endpoint for diagnostics
+                            res.ContentType = "application/json";
+                            res.StatusCode = 200;
+                            byte[] body = Encoding.UTF8.GetBytes("{\"status\":\"ok\",\"clients\":" + _clients.Count + "}");
+                            res.OutputStream.Write(body, 0, body.Length);
+                            res.Close();
                         } else { 
                             res.StatusCode = 404;
                             res.Close(); 
@@ -66,6 +83,21 @@ namespace NGULiveSync {
                     } catch { }
                 }
             } catch { }
+        }
+
+        private static void SendHeartbeat(object state) {
+            byte[] ping = Encoding.UTF8.GetBytes(": ping\n\n");
+            lock (_clients) {
+                for (int i = _clients.Count - 1; i >= 0; i--) {
+                    try {
+                        _clients[i].OutputStream.Write(ping, 0, ping.Length);
+                        _clients[i].OutputStream.Flush();
+                    } catch {
+                        try { _clients[i].Close(); } catch { }
+                        _clients.RemoveAt(i);
+                    }
+                }
+            }
         }
 
         public static void BroadcastData(PlayerData pd) {

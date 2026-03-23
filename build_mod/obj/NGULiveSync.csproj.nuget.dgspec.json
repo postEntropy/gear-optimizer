@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj": {}
+    "/home/runner/work/gear-optimizer/gear-optimizer/build_mod/NGULiveSync.csproj": {}
   },
   "projects": {
-    "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj": {
+    "/home/runner/work/gear-optimizer/gear-optimizer/build_mod/NGULiveSync.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj",
+        "projectUniqueName": "/home/runner/work/gear-optimizer/gear-optimizer/build_mod/NGULiveSync.csproj",
         "projectName": "NGULiveSync",
-        "projectPath": "/home/leonardo/Documents/gear-optimizer-master/build_mod/NGULiveSync.csproj",
-        "packagesPath": "/home/leonardo/.nuget/packages/",
-        "outputPath": "/home/leonardo/Documents/gear-optimizer-master/build_mod/obj/",
+        "projectPath": "/home/runner/work/gear-optimizer/gear-optimizer/build_mod/NGULiveSync.csproj",
+        "packagesPath": "/tmp/codeql-scratch-f3c5665c4fd9e9ea/dbs/csharp/working/packages",
+        "outputPath": "/home/runner/work/gear-optimizer/gear-optimizer/build_mod/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/leonardo/.nuget/NuGet/NuGet.Config"
+          "/home/runner/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net46"
@@ -32,7 +32,13 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net46": {
@@ -45,7 +51,7 @@
               "autoReferenced": true
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.124/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.102/RuntimeIdentifierGraph.json"
         }
       }
     }

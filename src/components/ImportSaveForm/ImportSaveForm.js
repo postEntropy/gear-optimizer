@@ -440,30 +440,68 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     // Initialize liveSyncEnabled from persisted state or default to true
     const liveSyncEnabled = optimizerState.liveSyncEnabled !== false;
 
-    // Live Sync Listener
-    React.useEffect(() => {
-        let eventSource;
+    // Reconnection delay in milliseconds
+    const RECONNECT_DELAY_MS = 10000;
 
-        // Only connect if enabled
+    // Refs to avoid stale closures inside async SSE handlers
+    const liveSyncEnabledRef = useRef(liveSyncEnabled);
+    const retryTimerRef = useRef(null);
+    const eventSourceRef = useRef(null);
+
+    // Keep liveSyncEnabledRef current on every render (no extra effect needed)
+    liveSyncEnabledRef.current = liveSyncEnabled;
+
+    // Live Sync Connection
+    React.useEffect(() => {
+        // Cancel any pending reconnect from a previous run
+        if (retryTimerRef.current) {
+            clearTimeout(retryTimerRef.current);
+            retryTimerRef.current = null;
+        }
+
         if (!liveSyncEnabled) {
+            // Close existing connection if any
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
             setSyncStatus('disconnected');
+            dispatch(Settings("liveSync", {
+                ...(stateRef.current.liveSync || {}),
+                status: 'disconnected'
+            }));
             if (onSyncStatusChange) onSyncStatusChange('disconnected');
             return;
         }
 
         const connect = () => {
-            eventSource = new EventSource('http://localhost:3005/events');
+            // Close any existing connection before opening a new one
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
 
-            eventSource.onopen = () => {
+            // Signal that a connection attempt is in progress
+            setSyncStatus('connecting');
+            dispatch(Settings("liveSync", {
+                ...(stateRef.current.liveSync || {}),
+                status: 'connecting'
+            }));
+            if (onSyncStatusChange) onSyncStatusChange('connecting');
+
+            const es = new EventSource('http://localhost:3005/events');
+            eventSourceRef.current = es;
+
+            es.onopen = () => {
                 setSyncStatus('connected');
                 dispatch(Settings("liveSync", {
-                    ...optimizerState.liveSync,
+                    ...(stateRef.current.liveSync || {}),
                     status: 'connected'
                 }));
                 if (onSyncStatusChange) onSyncStatusChange('connected');
             };
 
-            eventSource.onmessage = (event) => {
+            es.onmessage = (event) => {
                 try {
                     let data;
                     if (event.data.trim().startsWith('{')) {
@@ -472,7 +510,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                     } else {
                         // New Base64 format (native save)
                         const extracted = handleFileRead({ name: "LiveSync.txt" }, event.data);
-                        if (extracted && extracted.fullData) {
+                        if (extracted?.fullData) {
                             data = extracted.fullData;
                         }
                     }
@@ -492,21 +530,31 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                             label: `Sync #${newCount}`,
                             detail: `NGUs: ${nguCount} | Hacks: ${hackCount} | Rebirths: ${data.rebirths ?? data.numberRebirths ?? '?'}`
                         };
-                        const newLogs = [...prevLogs, newLog].slice(-50);
 
-                        // Update Redux Metrics
                         dispatch(Settings("liveSync", {
                             status: 'connected',
                             lastUpdate: Date.now(),
                             updateCount: newCount,
-                            logs: newLogs
+                            logs: [...prevLogs, newLog].slice(-50)
                         }));
 
                         applyData(data, true);
+                    } else {
+                        // Data arrived but could not be parsed – log it
+                        const prevLogs = stateRef.current.liveSync?.logs || [];
+                        const errLog = {
+                            ts: Date.now(),
+                            ok: false,
+                            label: 'Parse Error',
+                            detail: 'Received data could not be deserialized'
+                        };
+                        dispatch(Settings("liveSync", {
+                            ...(stateRef.current.liveSync || {}),
+                            logs: [...prevLogs, errLog].slice(-50)
+                        }));
                     }
                 } catch (err) {
                     console.error("❌ Error parsing live sync data:", err);
-                    // Log the error too
                     const prevLogs = stateRef.current.liveSync?.logs || [];
                     const errLog = {
                         ts: Date.now(),
@@ -515,26 +563,36 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                         detail: err.message?.slice(0, 60) || 'unknown error'
                     };
                     dispatch(Settings("liveSync", {
-                        ...stateRef.current.liveSync,
+                        ...(stateRef.current.liveSync || {}),
                         logs: [...prevLogs, errLog].slice(-50)
                     }));
                 }
             };
 
-            eventSource.onerror = (err) => {
-                console.warn("⚠️ Live Sync connection error. Current state:", eventSource.readyState);
-                if (eventSource.readyState === 2) {
-                }
+            es.onerror = () => {
+                console.warn("⚠️ Live Sync connection error. ReadyState:", es.readyState);
                 setSyncStatus('error');
                 dispatch(Settings("liveSync", {
-                    ...optimizerState.liveSync,
+                    ...(stateRef.current.liveSync || {}),
                     status: 'error'
                 }));
                 if (onSyncStatusChange) onSyncStatusChange('error');
-                eventSource.close();
-                // Retry after 10 seconds only if still enabled
-                if (liveSyncEnabled) {
-                    setTimeout(connect, 10000);
+                es.close();
+                eventSourceRef.current = null;
+
+                // Schedule reconnect only if still enabled (use ref for up-to-date value)
+                if (liveSyncEnabledRef.current) {
+                    setSyncStatus('reconnecting');
+                    dispatch(Settings("liveSync", {
+                        ...(stateRef.current.liveSync || {}),
+                        status: 'reconnecting'
+                    }));
+                    retryTimerRef.current = setTimeout(() => {
+                        retryTimerRef.current = null;
+                        if (liveSyncEnabledRef.current) {
+                            connect();
+                        }
+                    }, RECONNECT_DELAY_MS);
                 }
             };
         };
@@ -542,9 +600,18 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
         connect();
 
         return () => {
-            if (eventSource) eventSource.close();
+            // Cancel any pending reconnect timer
+            if (retryTimerRef.current) {
+                clearTimeout(retryTimerRef.current);
+                retryTimerRef.current = null;
+            }
+            // Close the active EventSource
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+                eventSourceRef.current = null;
+            }
         };
-    }, [liveSyncEnabled]); // Run when enabled state changes
+    }, [liveSyncEnabled]); // Re-run only when the enabled toggle changes
 
     const toggleLiveSync = () => {
         const newValue = !liveSyncEnabled;
@@ -666,7 +733,11 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                         }
                     }}
                 >
-                    Live Sync {liveSyncEnabled && (syncStatus === 'connected' ? '🟢' : '🔴')}
+                    Live Sync {liveSyncEnabled && (
+                        syncStatus === 'connected' ? '🟢' :
+                        syncStatus === 'connecting' || syncStatus === 'reconnecting' ? '🟡' :
+                        '🔴'
+                    )}
                 </Button>
             </Box>
 
@@ -742,23 +813,45 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>📡 Live Sync Setup Guide</Typography>
                         <Box sx={{
                             px: 1.5, py: 0.5, borderRadius: 50,
-                            bgcolor: syncStatus === 'connected' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 61, 0, 0.1)',
+                            bgcolor: syncStatus === 'connected'
+                                ? 'rgba(76, 175, 80, 0.1)'
+                                : (syncStatus === 'connecting' || syncStatus === 'reconnecting')
+                                    ? 'rgba(255, 167, 38, 0.1)'
+                                    : 'rgba(255, 61, 0, 0.1)',
                             border: '1px solid',
-                            borderColor: syncStatus === 'connected' ? 'success.main' : 'error.main',
+                            borderColor: syncStatus === 'connected'
+                                ? 'success.main'
+                                : (syncStatus === 'connecting' || syncStatus === 'reconnecting')
+                                    ? 'warning.main'
+                                    : 'error.main',
                             display: 'flex', alignItems: 'center', gap: 1
                         }}>
                             <Box sx={{
                                 width: 8, height: 8, borderRadius: '50%',
-                                bgcolor: syncStatus === 'connected' ? 'success.main' : 'error.main',
-                                animation: syncStatus === 'connected' ? 'pulse 2s infinite' : 'none',
+                                bgcolor: syncStatus === 'connected'
+                                    ? 'success.main'
+                                    : (syncStatus === 'connecting' || syncStatus === 'reconnecting')
+                                        ? 'warning.main'
+                                        : 'error.main',
+                                animation: (syncStatus === 'connected' || syncStatus === 'connecting' || syncStatus === 'reconnecting') ? 'pulse 2s infinite' : 'none',
                                 '@keyframes pulse': {
                                     '0%': { opacity: 1, transform: 'scale(1)' },
                                     '50%': { opacity: 0.4, transform: 'scale(1.2)' },
                                     '100%': { opacity: 1, transform: 'scale(1)' }
                                 }
                             }} />
-                            <Typography variant="caption" sx={{ fontWeight: 'bold', color: syncStatus === 'connected' ? 'success.main' : 'error.main' }}>
-                                {syncStatus === 'connected' ? 'CONNECTED' : 'WAITING FOR GAME...'}
+                            <Typography variant="caption" sx={{
+                                fontWeight: 'bold',
+                                color: syncStatus === 'connected'
+                                    ? 'success.main'
+                                    : (syncStatus === 'connecting' || syncStatus === 'reconnecting')
+                                        ? 'warning.main'
+                                        : 'error.main'
+                            }}>
+                                {syncStatus === 'connected' ? 'CONNECTED'
+                                    : syncStatus === 'connecting' ? 'CONNECTING...'
+                                    : syncStatus === 'reconnecting' ? 'RECONNECTING IN 10s...'
+                                    : 'WAITING FOR GAME...'}
                             </Typography>
                         </Box>
                     </Box>
