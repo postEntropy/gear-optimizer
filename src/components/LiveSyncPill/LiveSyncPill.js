@@ -216,6 +216,21 @@ const LiveSyncPill = ({ collapsed }) => {
                                         {entry.detail}
                                     </Typography>
                                 )}
+                                {entry.diffs && entry.diffs.length > 0 && (
+                                    <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {entry.diffs.map((diff, i) => (
+                                            <Typography key={i} variant="caption" sx={{
+                                                bgcolor: 'rgba(76, 175, 80, 0.1)',
+                                                color: 'success.main',
+                                                px: 0.6, py: 0.2, borderRadius: 1,
+                                                fontSize: '0.55rem', fontWeight: 700,
+                                                border: '1px solid rgba(76, 175, 80, 0.2)'
+                                            }}>
+                                                {diff}
+                                            </Typography>
+                                        ))}
+                                    </Box>
+                                )}
                             </Box>
                         ))
                     )}
