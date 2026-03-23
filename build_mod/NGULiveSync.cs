@@ -17,6 +17,8 @@ namespace NGULiveSync {
         public static Character Character;
         private static float _lastBroadcastTime = -999f;
         private const float DEBOUNCE_SECONDS = 5f;
+        private Timer _heartbeatTimer;
+        private const int HEARTBEAT_INTERVAL_MS = 15000;
 
         void Awake() {
             var harmony = new Harmony("com.leonardo.ngu.livesync");
@@ -24,7 +26,14 @@ namespace NGULiveSync {
             _serverThread = new Thread(StartServer);
             _serverThread.IsBackground = true;
             _serverThread.Start();
-            Logger.LogInfo("NGU Live Sync v1.2.0 loaded! Broadcasts driven by game saves.");
+            
+            _heartbeatTimer = new Timer(SendHeartbeat, null, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS);
+            Logger.LogInfo("NGU Live Sync v1.3.0 loaded! Broadcasts driven by game saves.");
+        }
+
+        void OnDestroy() {
+            try { _heartbeatTimer?.Dispose(); } catch { }
+            try { _listener?.Stop(); } catch { }
         }
 
         void StartServer() {
@@ -54,7 +63,7 @@ namespace NGULiveSync {
                             res.Headers.Add("Cache-Control", "no-cache");
                             res.Headers.Add("Connection", "keep-alive");
                             
-                            byte[] ok = Encoding.UTF8.GetBytes(": ok\n\n");
+                            byte[] ok = Encoding.UTF8.GetBytes(": connected\n\n");
                             res.OutputStream.Write(ok, 0, ok.Length);
                             res.OutputStream.Flush();
 
@@ -96,6 +105,21 @@ namespace NGULiveSync {
                     }
                 }
             } catch { }
+        }
+
+        private static void SendHeartbeat(object state) {
+            byte[] ping = Encoding.UTF8.GetBytes(": ping\n\n");
+            lock (_clients) {
+                for (int i = _clients.Count - 1; i >= 0; i--) {
+                    try {
+                        _clients[i].OutputStream.Write(ping, 0, ping.Length);
+                        _clients[i].OutputStream.Flush();
+                    } catch {
+                        try { _clients[i].Close(); } catch { }
+                        _clients.RemoveAt(i);
+                    }
+                }
+            }
         }
     }
 

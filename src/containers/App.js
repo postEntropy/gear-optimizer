@@ -4,6 +4,7 @@ import ReactGA from 'react-ga';
 import { HashRouter } from 'react-router-dom';
 
 import { default as AppLayout } from '../components/AppLayout/AppLayout';
+import LiveSyncEngine from '../components/LiveSyncEngine/LiveSyncEngine';
 
 import { AugmentAsync, AugmentSettings } from '../actions/Augment'
 import { HackAsync } from '../actions/Hack'
@@ -177,6 +178,7 @@ const App = () => {
 
     return (
         <HashRouter>
+            <LiveSyncEngine />
             <AppLayout {...props} {...handlers} />
         </HashRouter>
     );

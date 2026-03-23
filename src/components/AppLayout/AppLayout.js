@@ -3,7 +3,7 @@ import CookieBanner from 'react-cookie-banner';
 import { NavLink, useLocation, useMatch, useParams } from 'react-router-dom';
 
 import { alpha, Box, CssBaseline, ThemeProvider, Typography, IconButton, useMediaQuery, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Drawer, Tooltip, Divider, Avatar } from '@mui/material';
-import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Calculate, Settings as SettingsIcon } from '@mui/icons-material';
+import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Calculate, Settings as SettingsIcon, CloudSync as CloudSyncIcon } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
 
 import { allowed_zone, get_limits } from '../../util';
@@ -23,6 +23,7 @@ import HistoryComponent from '../Content/History/index';
 import PerksComponent from '../Perks/Perks';
 import SettingsComponent from '../Content/Settings';
 import ExpCalculator from '../Content/ExpCalculator/ExpCalculator';
+import LiveSyncHistory from '../Content/LiveSyncHistory';
 
 // import AdvancedTrainingCalculator from '../Content/AdvancedTrainingCalculator';
 // import AboutComponent from '../About/About';
@@ -200,7 +201,7 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
 });
 
 // IMPROVED Page Content: Unmount inactive pages for performance
-const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isPerks, isSettings, isExpCalculator, props, loadoutParams, fadeAnimation }) => {
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isLiveSyncHistory, isPerks, isSettings, isExpCalculator, props, loadoutParams, fadeAnimation }) => {
     return (
         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto', ...fadeAnimation }}>
             {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
@@ -209,6 +210,7 @@ const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWis
             {isHacks && <HackComponent {...props} className='app_body' />}
             {isWishes && <WishComponent {...props} className='app_body' />}
             {isHistory && <HistoryComponent {...props} className='app_body' />}
+            {isLiveSyncHistory && <LiveSyncHistory {...props} className='app_body' />}
             {isPerks && <PerksComponent {...props} className='app_body' />}
             {isSettings && <SettingsComponent {...props} className='app_body' />}
             {/* {isAdvancedTraining && <AdvancedTrainingCalculator {...props} className='app_body' />} */}
@@ -302,6 +304,7 @@ const AppLayout = (props) => {
     const isHacks = path.startsWith('/hacks');
     const isWishes = path.startsWith('/wishes');
     const isHistory = path.startsWith('/history');
+    const isLiveSyncHistory = path.startsWith('/livesync');
     const isPerks = path.startsWith('/perks');
     // const isAdvancedTraining = path.startsWith('/advanced-training-calculator');
     const isExpCalculator = path.startsWith('/exp-calculator');
@@ -408,6 +411,7 @@ const AppLayout = (props) => {
                             {/* <NavItem open={open} to="/advanced-training-calculator" label="Adv. Training" icon={<AutoAwesome />} isActive={location.pathname.startsWith('/advanced-training-calculator')} /> */}
                             <NavItem open={open} to="/exp-calculator" label="EXP Calculator" icon={<Calculate />} isActive={location.pathname.startsWith('/exp-calculator')} />
                             <NavItem open={open} to="/history" label="History" icon={<History />} isActive={location.pathname.startsWith('/history')} />
+                            <NavItem open={open} to="/livesync" label="Live Sync" icon={<CloudSyncIcon />} isActive={location.pathname.startsWith('/livesync')} />
                         </List>
 
 
@@ -450,6 +454,7 @@ const AppLayout = (props) => {
                             isHacks={isHacks}
                             isWishes={isWishes}
                             isHistory={isHistory}
+                            isLiveSyncHistory={isLiveSyncHistory}
                             isPerks={isPerks}
                             // isAdvancedTraining={isAdvancedTraining}
                             isExpCalculator={isExpCalculator}

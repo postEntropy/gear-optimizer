@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NGULiveSync")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ef45fc1422c5452ba92291b87daa3e27426b9fab")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2dc167a2102b516b79ca11f52cfa35688781ce50")]
 [assembly: System.Reflection.AssemblyProductAttribute("NGULiveSync")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NGULiveSync")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
