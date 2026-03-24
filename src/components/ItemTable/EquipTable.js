@@ -68,6 +68,7 @@ const BonusLine = ({ factor, factors, itemdata, equip, savedequip, compactbonus,
     let fontWeight = 'normal';
 
     for (let idx = 0; idx < factors.length; idx++) {
+        if (!Factors[factors[idx]]) continue;
         if (stat === Factors[factors[idx]][0]) {
             priority = true;
             fontWeight = 'bold';
