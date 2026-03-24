@@ -18,8 +18,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     const dispatch = useDispatch();
 
     const optimizerState = useSelector(state => state.optimizer);
-    const [disableItems, setDisableItems] = useState(true);
-    const disableItemsRef = useRef(true); // ref para evitar stale closure no SSE listener
+    const disableItems = optimizerState.disableUnowned !== false;
     const [syncStatus, setSyncStatus] = useState('disconnected'); // 'disconnected', 'connected', 'error'
     const [guideOpen, setGuideOpen] = useState(false);
     const [hasReceivedData, setHasReceivedData] = useState(false);
@@ -28,7 +27,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     const inputElem = useRef(null);
 
     // Mantém a ref sempre atualizada quando o state muda
-    React.useEffect(() => { disableItemsRef.current = disableItems; }, [disableItems]);
+
 
     const handleFileRead = (file, content) => {
         let data;
@@ -305,7 +304,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                                     <Switch
                                         size="small"
                                         checked={disableItems}
-                                        onChange={() => setDisableItems(!disableItems)}
+                                        onChange={() => dispatch(Settings("disableUnowned", !disableItems))}
                                     />
                                 }
                                 label="Disable unowned"
