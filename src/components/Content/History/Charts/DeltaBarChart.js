@@ -62,36 +62,74 @@ const DeltaBarChart = ({ title, icon, color, prefix, names }) => {
             const sorted = [...payload].filter(p => p.value > 0).sort((a, b) => b.value - a.value);
             const useGrid = sorted.length > 8;
             return (
-                <Paper elevation={10} sx={{ p: 1.5, bgcolor: alpha(theme.palette.background.paper, 0.95), backdropFilter: 'blur(8px)', border: `1px solid ${theme.palette.divider}`, borderRadius: 2, width: useGrid ? 450 : 320, maxHeight: 400, overflowY: 'auto' }}>
+                <Paper
+                    elevation={10}
+                    sx={{
+                        p: 1.5,
+                        bgcolor: alpha(theme.palette.background.paper, 0.95),
+                        backdropFilter: 'blur(8px)',
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        width: useGrid ? 600 : 380,
+                        maxHeight: 550,
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                        '&::-webkit-scrollbar': {
+                            width: '6px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: alpha(theme.palette.text.secondary, 0.2),
+                            borderRadius: '3px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                            backgroundColor: 'transparent',
+                        }
+                    }}
+                >
                     <Box sx={{ mb: 1.5, borderBottom: `1px solid ${theme.palette.divider}`, pb: 0.5 }}>
                         <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: 'text.secondary' }}>{new Date(label).toLocaleString('pt-BR')}</Typography>
                         <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: 'primary.main' }}>Snapshot at Rebirth #{payload[0]?.payload?.rebirths || '?'}</Typography>
                     </Box>
-                    <Box sx={{ display: useGrid ? 'grid' : 'flex', flexDirection: 'column', gridTemplateColumns: useGrid ? '1fr 1fr' : 'none', gap: useGrid ? 1.5 : 0.5 }}>
+                    <Box sx={{
+                        display: useGrid ? 'grid' : 'flex',
+                        flexDirection: 'column',
+                        gridTemplateColumns: useGrid ? '1fr 1fr' : 'none',
+                        gap: useGrid ? 2 : 0.5
+                    }}>
                         {sorted.map((entry, index) => {
                             const i = parseInt(entry.dataKey.split('_').pop());
                             const actualLevel = entry.payload[`${entry.dataKey}_actual`];
                             const prevLevel = entry.payload[`${entry.dataKey}_prev`];
-                            
+
                             const suffix = (prefix === 'ngu_e' || prefix === 'ngu_m') ? 'x' : '%';
                             const currentBonus = getBonusValue(prefix, i, actualLevel);
                             const prevBonus = getBonusValue(prefix, i, prevLevel !== undefined ? prevLevel : actualLevel);
                             const bonusDelta = Math.max(0, currentBonus - prevBonus);
-                            
+
                             const bonusStr = `${shorten(currentBonus, 2)}${suffix}`;
                             const bonusDeltaStr = bonusDelta > 0 ? `(+${shorten(bonusDelta, 2)}${suffix})` : '';
 
                             return (
-                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, minWidth: 0 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flex: 1 }}>
                                         <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
-                                        <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.75rem' }}>{entry.name}</Typography>
+                                        <Typography variant="caption" sx={{
+                                            color: 'text.primary',
+                                            fontWeight: 700,
+                                            fontSize: '0.75rem',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            maxWidth: useGrid ? '100px' : 'none'
+                                        }}>
+                                            {entry.name}
+                                        </Typography>
                                     </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', fontSize: '0.65rem' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+                                        <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>
                                             Lvl {shorten(actualLevel)} ({bonusStr})
                                         </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, minWidth: 70, justifyContent: 'flex-end' }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, minWidth: 60, justifyContent: 'flex-end' }}>
                                             <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace', color: 'success.main', fontSize: '0.8rem' }}>
                                                 +{shorten(entry.value)}
                                             </Typography>
