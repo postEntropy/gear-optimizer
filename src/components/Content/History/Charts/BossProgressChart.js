@@ -9,7 +9,6 @@ import { EmojiEvents } from '@mui/icons-material';
 const CustomTooltip = React.memo(({ active, payload, label, theme }) => {
         if (active && payload && payload.length) {
             const entry = payload[0];
-            const rawValue = entry.value;
             let displayLabel = "";
             if (entry.payload.highestSadisticBoss > 1) displayLabel = `Sadistic ${entry.payload.highestSadisticBoss}`;
             else if (entry.payload.highestHardBoss > 0) displayLabel = `Evil ${entry.payload.highestHardBoss}`;
@@ -20,18 +19,18 @@ const CustomTooltip = React.memo(({ active, payload, label, theme }) => {
                     elevation={10}
                     sx={{
                         p: 1.5,
-                        bgcolor: alpha(theme.palette.background.paper, 0.9),
+                        bgcolor: alpha(theme.palette.background.paper, 0.95),
                         backdropFilter: 'blur(8px)',
                         border: `1px solid ${theme.palette.divider}`,
                         borderRadius: 2
                     }}
                 >
-                    <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 700, color: 'text.secondary' }}>
-                        {new Date(label).toLocaleString()}
+                    <Typography variant="caption" sx={{ mb: 1.5, display: 'block', fontWeight: 800, color: 'text.secondary', borderBottom: `1px solid ${theme.palette.divider}`, pb: 0.5 }}>
+                        {new Date(label).toLocaleString('pt-BR')}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: theme.palette.secondary.main }}>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.secondary.main, fontSize: '0.8rem' }}>
                             {displayLabel}
                         </Typography>
                     </Box>

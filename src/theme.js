@@ -7,9 +7,9 @@ const getTheme = (mode, colorObj) => {
     const primaryMain = colorObj ? colorObj.main : (isDark ? '#8b5cf6' : '#6366f1');
     const secondaryMain = isDark ? alpha(primaryMain, 0.7) : alpha(primaryMain, 0.8);
 
-    // Backgrounds: True Black/White
-    // Dark: Pure Black
-    const darkGradient = '#000000';
+    // Backgrounds: Softened Dark Gray
+    // Dark: Dark Slate
+    const darkGradient = '#121212';
     // Light: Clean White to Soft Silver
     const lightGradient = 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)';
 
@@ -24,14 +24,14 @@ const getTheme = (mode, colorObj) => {
                 main: secondaryMain,
             },
             background: {
-                default: isDark ? '#000000' : '#ffffff',
-                paper: isDark ? alpha('#121212', 0.8) : alpha('#ffffff', 0.9),
+                default: isDark ? '#121212' : '#ffffff',
+                paper: isDark ? alpha('#1e1e1e', 0.8) : alpha('#ffffff', 0.9),
             },
             text: {
-                primary: isDark ? '#ffffff' : '#0f172a',
-                secondary: isDark ? '#a3a3a3' : '#64748b',
+                primary: isDark ? '#f1f5f9' : '#0f172a',
+                secondary: isDark ? '#94a3b8' : '#64748b',
             },
-            divider: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+            divider: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
         },
         typography: {
             fontFamily: "'Outfit', sans-serif",
@@ -70,10 +70,10 @@ const getTheme = (mode, colorObj) => {
                             width: '8px',
                         },
                         '&::-webkit-scrollbar-track': {
-                            background: isDark ? '#000000' : '#f1f5f9',
+                            background: isDark ? '#121212' : '#f1f5f9',
                         },
                         '&::-webkit-scrollbar-thumb': {
-                            background: isDark ? '#333333' : '#cbd5e1',
+                            background: isDark ? '#3f3f46' : '#cbd5e1',
                             borderRadius: '4px',
                         },
                     }
@@ -83,7 +83,7 @@ const getTheme = (mode, colorObj) => {
                 styleOverrides: {
                     root: {
                         // Removed global backdropFilter from root - too expensive for multiple cards
-                        border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)',
+                        border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.05)',
                         backgroundImage: 'none',
                     }
                 }
@@ -105,7 +105,7 @@ const getTheme = (mode, colorObj) => {
                         borderRadius: 12,
                         transition: 'transform 0.2s, box-shadow 0.2s',
                         '&:hover': {
-                            boxShadow: isDark ? '0 8px 16px rgba(0,0,0,0.4)' : '0 8px 16px rgba(0,0,0,0.08)',
+                            boxShadow: isDark ? '0 8px 16px rgba(0,0,0,0.5)' : '0 8px 16px rgba(0,0,0,0.08)',
                         }
                     }
                 }
@@ -115,7 +115,7 @@ const getTheme = (mode, colorObj) => {
                     root: {
                         '& .MuiOutlinedInput-root': {
                             borderRadius: 6,
-                            backgroundColor: isDark ? alpha('#000', 0.1) : alpha('#fff', 0.5),
+                            backgroundColor: isDark ? alpha('#000', 0.2) : alpha('#fff', 0.5),
                         }
                     }
                 }
@@ -123,7 +123,7 @@ const getTheme = (mode, colorObj) => {
             MuiMenu: {
                 styleOverrides: {
                     paper: {
-                        backgroundColor: isDark ? alpha('#121212', 0.95) : alpha('#ffffff', 0.95),
+                        backgroundColor: isDark ? alpha('#1e1e1e', 0.95) : alpha('#ffffff', 0.95),
                         backdropFilter: 'blur(12px)',
                     }
                 }
@@ -131,7 +131,7 @@ const getTheme = (mode, colorObj) => {
             MuiAutocomplete: {
                 styleOverrides: {
                     paper: {
-                        backgroundColor: isDark ? alpha('#121212', 0.95) : alpha('#ffffff', 0.95),
+                        backgroundColor: isDark ? alpha('#1e1e1e', 0.95) : alpha('#ffffff', 0.95),
                         backdropFilter: 'blur(12px)',
                     }
                 }

@@ -42,26 +42,39 @@ const CustomTooltip = React.memo(({ active, payload, label, theme }) => {
                 elevation={10}
                 sx={{
                     p: 1.5,
-                    bgcolor: alpha(theme.palette.background.paper, 0.9),
+                    bgcolor: alpha(theme.palette.background.paper, 0.95),
                     backdropFilter: 'blur(8px)',
                     border: `1px solid ${theme.palette.divider}`,
-                    borderRadius: 2
+                    borderRadius: 2,
+                    minWidth: 220,
+                    '&::-webkit-scrollbar': {
+                        width: '6px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: alpha(theme.palette.text.secondary, 0.2),
+                        borderRadius: '3px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                        backgroundColor: 'transparent',
+                    }
                 }}
             >
-                <Typography variant="caption" sx={{ mb: 1, display: 'block', fontWeight: 700, color: 'text.secondary' }}>
-                    {new Date(label).toLocaleString()}
+                <Typography variant="caption" sx={{ mb: 1.5, display: 'block', fontWeight: 800, color: 'text.secondary', borderBottom: `1px solid ${theme.palette.divider}`, pb: 0.5 }}>
+                    {new Date(label).toLocaleString('pt-BR')}
                 </Typography>
-                {[...payload].sort((a, b) => b.value - a.value).map((entry, index) => (
-                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 0.5 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
-                            <Typography variant="body2" sx={{ color: entry.color, fontWeight: 600 }}>{entry.name}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    {[...payload].sort((a, b) => b.value - a.value).map((entry, index) => (
+                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
+                                <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 700, fontSize: '0.75rem' }}>{entry.name}</Typography>
+                            </Box>
+                            <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace', color: entry.color, fontSize: '0.8rem' }}>
+                                {shorten(entry.value)}
+                            </Typography>
                         </Box>
-                        <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
-                            {shorten(entry.value)}
-                        </Typography>
-                    </Box>
-                ))}
+                    ))}
+                </Box>
             </Paper>
         );
     }

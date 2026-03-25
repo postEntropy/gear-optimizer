@@ -51,16 +51,55 @@ const StackedAreaChart = ({ title, icon, color, prefix, names, baseColorHue = 0 
             const sorted = [...payload].sort((a, b) => b.value - a.value);
             const useGrid = sorted.length > 8;
             return (
-                <Paper elevation={10} sx={{ p: 1.5, bgcolor: alpha(theme.palette.background.paper, 0.9), backdropFilter: 'blur(8px)', border: `1px solid ${theme.palette.divider}`, borderRadius: 2, width: useGrid ? 350 : 200, maxHeight: 400, overflowY: 'auto' }}>
+                <Paper
+                    elevation={10}
+                    sx={{
+                        p: 1.5,
+                        bgcolor: alpha(theme.palette.background.paper, 0.95),
+                        backdropFilter: 'blur(8px)',
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        width: useGrid ? 500 : 300,
+                        maxHeight: 500,
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                        '&::-webkit-scrollbar': {
+                            width: '6px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: alpha(theme.palette.text.secondary, 0.2),
+                            borderRadius: '3px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                            backgroundColor: 'transparent',
+                        }
+                    }}
+                >
                     <Typography variant="caption" sx={{ mb: 1.5, display: 'block', fontWeight: 800, color: 'text.secondary', borderBottom: `1px solid ${theme.palette.divider}`, pb: 0.5 }}>{new Date(label).toLocaleString('pt-BR')}</Typography>
-                    <Box sx={{ display: useGrid ? 'grid' : 'flex', flexDirection: 'column', gridTemplateColumns: useGrid ? '1fr 1fr' : 'none', gap: useGrid ? 1.5 : 0.5 }}>
+                    <Box sx={{
+                        display: useGrid ? 'grid' : 'flex',
+                        flexDirection: 'column',
+                        gridTemplateColumns: useGrid ? '1fr 1fr' : 'none',
+                        gap: useGrid ? 2 : 0.5
+                    }}>
                         {sorted.map((entry, index) => (
-                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, minWidth: 0 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flex: 1 }}>
                                     <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
-                                    <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.7rem' }}>{entry.name}</Typography>
+                                    <Typography variant="caption" sx={{
+                                        color: 'text.primary',
+                                        fontWeight: 700,
+                                        fontSize: '0.75rem',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>
+                                        {entry.name}
+                                    </Typography>
                                 </Box>
-                                <Typography variant="caption" sx={{ fontWeight: 800, fontFamily: 'monospace', color: entry.color, fontSize: '0.75rem' }}>{viewMode === 'gains' && entry.value > 0 ? '+' : ''}{shorten(entry.value)}</Typography>
+                                <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace', color: entry.color, fontSize: '0.8rem', flexShrink: 0 }}>
+                                    {viewMode === 'gains' && entry.value > 0 ? '+' : ''}{shorten(entry.value)}
+                                </Typography>
                             </Box>
                         ))}
                     </Box>
