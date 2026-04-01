@@ -3,9 +3,7 @@ import ReactGA from 'react-ga';
 import {
     TextField, Table, TableBody, TableCell, TableHead, TableRow, Checkbox,
     FormControlLabel, Paper, Box, Grid, Typography, Divider, Button, InputAdornment, Select, MenuItem,
-    Accordion, AccordionSummary, AccordionDetails
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Wish } from '../../Wish';
 import { Wishes } from '../../assets/ItemAux';
 import ResourcePriorityForm from '../ResourcePriorityForm/ResourcePriorityForm';
@@ -13,7 +11,6 @@ import WishForm from '../WishForm/WishForm';
 import { default as Crement } from '../Crement/Crement';
 import { shortenExponential, toTime } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
-import WishesGeminiChat from '../WishesGeminiChat/WishesGeminiChat';
 
 import Loading from '../Loading/Loading';
 
@@ -371,44 +368,11 @@ class WishComponent extends Component {
             </>
         );
 
-        // ── LEGACY MODE ──────────────────────────────────────────────
-        if (legacyMode) {
-            return (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
-                    <form onSubmit={this.handleSubmit}>
-                        {optimizerForm}
-                    </form>
-                    <WishesGeminiChat
-                        wishstats={this.props.wishstats}
-                        liveSync={this.props.liveSync}
-                        geminiApiKey={this.props.geminiApiKey}
-                        optimizerResults={{ scores, assignments, remaining }}
-                    />
-                </Box>
-            );
-        }
-
-        // ── GEMINI MODE (default) ─────────────────────────────────────
         return (
             <Box sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
-                <Accordion disableGutters elevation={2} sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography variant="subtitle2" fontWeight={600}>⚙ Optimizer Settings</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <form onSubmit={this.handleSubmit}>
-                            {optimizerForm}
-                        </form>
-                    </AccordionDetails>
-                </Accordion>
-
-                <WishesGeminiChat
-                    wishstats={this.props.wishstats}
-                    liveSync={this.props.liveSync}
-                    geminiApiKey={this.props.geminiApiKey}
-                    optimizerResults={{ scores, assignments, remaining }}
-                    fullPage
-                />
+                <form onSubmit={this.handleSubmit}>
+                    {optimizerForm}
+                </form>
             </Box>
         );
     };

@@ -18,7 +18,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
     const dispatch = useDispatch();
 
     const optimizerState = useSelector(state => state.optimizer);
-    const disableItems = optimizerState.disableUnowned !== false;
+    const [disableItems, setDisableItems] = useState(true);
     const [syncStatus, setSyncStatus] = useState('disconnected'); // 'disconnected', 'connected', 'error'
     const [guideOpen, setGuideOpen] = useState(false);
     const [hasReceivedData, setHasReceivedData] = useState(false);
@@ -304,7 +304,7 @@ const ImportSaveForm = ({ hideSwitch = false, onSyncStatusChange, children, mini
                                     <Switch
                                         size="small"
                                         checked={disableItems}
-                                        onChange={() => dispatch(Settings("disableUnowned", !disableItems))}
+                                        onChange={() => setDisableItems(!disableItems)}
                                     />
                                 }
                                 label="Disable unowned"
