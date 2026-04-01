@@ -117,11 +117,7 @@ const updateNgus = (data, optimizerState, dispatch) => {
 const updateEquipped = (data, optimizerState, dispatch) => {
     if (!optimizerState.syncEquip) return;
     const inv = data.inventory;
-    const hasOffhand = inv.weapon2 && inv.weapon2.id > 0;
-    // Preserve user's configured offhand %. Only override if offhand presence changed:
-    // - no weapon2 → set to 0 (remove slot)
-    // - has weapon2 → keep user's value (or default to 1=5% if was 0)
-    const offhand = hasOffhand ? Math.max(1, optimizerState.offhand) : 0;
+    const offhand = inv.weapon2 && inv.weapon2.id > 0 ? 1 : 0;
     const accSlots = inv.accs.length;
     let newEquip = ItemNameContainer(accSlots, offhand);
     const setItem = (slot, idx, item) => {

@@ -9,7 +9,8 @@ const ResetItemsButton = () => {
     const onClick = () => {
         let newItemData = { ...itemdata }
         for (let i of Object.keys(newItemData)) {
-            newItemData[i] = { ...newItemData[i], disable: false, level: 100 }
+            newItemData[i].disable = false
+            newItemData[i].level = 100
         }
 
         dispatch(MassUpdate(newItemData))
