@@ -292,7 +292,6 @@ class WishComponent extends Component {
                                                     endAdornment: <InputAdornment position="end">{['E', 'M', 'R'][jdx]}</InputAdornment>
                                                 }}
                                                 onClick={this.copyToClipboard}
-                                                sx={{ width: '12ch' }}
                                             />
                                         </TableCell>
                                     ))}
@@ -322,7 +321,6 @@ class WishComponent extends Component {
                                         endAdornment: <InputAdornment position="end">{['E', 'M', 'R'][jdx]}</InputAdornment>
                                     }}
                                     onClick={this.copyToClipboard}
-                                    sx={{ width: '12ch' }}
                                 />
                             </Grid>
                         ))}
