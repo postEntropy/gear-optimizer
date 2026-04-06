@@ -258,6 +258,7 @@ class WishComponent extends Component {
                                         onChange={(e) => this.handleChange(e, 'start', pos)}
                                         onFocus={this.handleFocus}
                                         inputProps={{ step: "any" }}
+                                        sx={{ minWidth: 80 }}
                                     />
                                 </Grid>
                                 <Grid item xs={6}>
@@ -269,6 +270,7 @@ class WishComponent extends Component {
                                         onChange={(e) => this.handleChange(e, 'goal', pos)}
                                         onFocus={this.handleFocus}
                                         inputProps={{ step: "any" }}
+                                        sx={{ minWidth: 80 }}
                                     />
                                 </Grid>
                             </Grid>
@@ -292,6 +294,7 @@ class WishComponent extends Component {
                                                     endAdornment: <InputAdornment position="end">{['E', 'M', 'R'][jdx]}</InputAdornment>
                                                 }}
                                                 onClick={this.copyToClipboard}
+                                                sx={{ minWidth: 80 }}
                                             />
                                         </TableCell>
                                     ))}
@@ -321,6 +324,7 @@ class WishComponent extends Component {
                                         endAdornment: <InputAdornment position="end">{['E', 'M', 'R'][jdx]}</InputAdornment>
                                     }}
                                     onClick={this.copyToClipboard}
+                                    sx={{ minWidth: 80 }}
                                 />
                             </Grid>
                         ))}

@@ -409,17 +409,17 @@ class NGUComponent extends Component {
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].normal}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'normal', pos, isMagic)}
-                                                            inputProps={{ step: "any" }} size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ minWidth: 60 }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].evil}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'evil', pos, isMagic)}
-                                                            inputProps={{ step: "any" }} size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ minWidth: 60 }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].sadistic}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'sadistic', pos, isMagic)}
-                                                            inputProps={{ step: "any" }} size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ minWidth: 60 }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell sx={isBestAny ? { fontWeight: 'bold' } : {}}>{'×' + shorten(bonus * 100) + '%'}</TableCell>
                                                     <TableCell sx={isBestNormal ? { fontWeight: 'bold' } : {}}>
