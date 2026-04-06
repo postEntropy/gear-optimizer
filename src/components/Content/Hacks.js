@@ -545,12 +545,12 @@ class HackComponent extends Component {
                                                     <TableCell>
                                                         <TextField type="number" value={reducer}
                                                             onChange={(e) => this.handleChange(e, 'reducer', pos)} onFocus={this.handleFocus}
-                                                            inputProps={{ step: "any" }} sx={{ minWidth: 50 }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ width: 60 }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={level}
                                                             onChange={(e) => this.handleChange(e, 'level', pos)} onFocus={this.handleFocus}
-                                                            inputProps={{ step: "any" }} sx={{ minWidth: 70 }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ width: 90 }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>{shorten(currBonus, 2)}%</TableCell>
 
@@ -558,7 +558,7 @@ class HackComponent extends Component {
                                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                             <TextField type="number" value={target}
                                                                 onChange={(e) => this.handleChange(e, 'goal', pos)} onFocus={this.handleFocus}
-                                                                inputProps={{ step: "any" }} sx={{ minWidth: 80, mr: 1 }} hiddenLabel size="small" />
+                                                                inputProps={{ step: "any" }} sx={{ width: 100, mr: 1 }} hiddenLabel size="small" />
                                                             <IconButton size="small" onClick={(e) => this.handleChange(e, 'msdown', pos)}><RemoveIcon fontSize="small" /></IconButton>
                                                             <IconButton size="small" onClick={(e) => this.handleChange(e, 'msup', pos)}><AddIcon fontSize="small" /></IconButton>
                                                         </Box>
