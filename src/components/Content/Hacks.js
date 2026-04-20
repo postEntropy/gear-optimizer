@@ -545,22 +545,24 @@ class HackComponent extends Component {
                                                     <TableCell>
                                                         <TextField type="number" value={reducer}
                                                             onChange={(e) => this.handleChange(e, 'reducer', pos)} onFocus={this.handleFocus}
-                                                            inputProps={{ step: "any" }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(4, String(reducer).length + 1)}ch`, minWidth: '40px' }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={level}
                                                             onChange={(e) => this.handleChange(e, 'level', pos)} onFocus={this.handleFocus}
-                                                            inputProps={{ step: "any" }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(level).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>{shorten(currBonus, 2)}%</TableCell>
 
                                                     {(option === '0' || option === 0) && <TableCell>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                             <TextField type="number" value={target}
                                                                 onChange={(e) => this.handleChange(e, 'goal', pos)} onFocus={this.handleFocus}
-                                                                inputProps={{ step: "any" }} hiddenLabel size="small" />
-                                                            <IconButton size="small" onClick={(e) => this.handleChange(e, 'msdown', pos)}><RemoveIcon fontSize="small" /></IconButton>
-                                                            <IconButton size="small" onClick={(e) => this.handleChange(e, 'msup', pos)}><AddIcon fontSize="small" /></IconButton>
+                                                                inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(target).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
+                                                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                                                <IconButton size="small" onClick={(e) => this.handleChange(e, 'msup', pos)} sx={{ p: 0 }}><AddIcon fontSize="inherit" /></IconButton>
+                                                                <IconButton size="small" onClick={(e) => this.handleChange(e, 'msdown', pos)} sx={{ p: 0 }}><RemoveIcon fontSize="inherit" /></IconButton>
+                                                            </Box>
                                                         </Box>
                                                     </TableCell>}
                                                     {(option !== '0' && option !== 0) && <TableCell>{target}</TableCell>}

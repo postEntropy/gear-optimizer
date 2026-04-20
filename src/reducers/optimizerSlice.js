@@ -248,6 +248,7 @@ const INITIAL_STATE = {
     highlightBest: false,
     highlightEquipped: true,
     showGraphs: true,
+    disableUnowned: true,
     showR3History: true,
     historyChartMode: 'absolute', // absolute, stacked, relative
     liveSync: {

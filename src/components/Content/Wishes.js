@@ -291,6 +291,7 @@ class WishComponent extends Component {
                                                     readOnly: true,
                                                     endAdornment: <InputAdornment position="end">{['E', 'M', 'R'][jdx]}</InputAdornment>
                                                 }}
+                                                sx={{ width: `${Math.max(10, shortenExponential(val).length + 4)}ch`, minWidth: '100px' }}
                                                 onClick={this.copyToClipboard}
                                             />
                                         </TableCell>
@@ -320,6 +321,7 @@ class WishComponent extends Component {
                                         readOnly: true,
                                         endAdornment: <InputAdornment position="end">{['E', 'M', 'R'][jdx]}</InputAdornment>
                                     }}
+                                    sx={{ width: `${Math.max(10, shortenExponential(val).length + 4)}ch`, minWidth: '100px' }}
                                     onClick={this.copyToClipboard}
                                 />
                             </Grid>

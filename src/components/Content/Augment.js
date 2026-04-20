@@ -123,14 +123,17 @@ class AugmentComponent extends Component {
 
     }
 
-    input(val, args, width = 100) {
+    input(val, args, width = '10ch') {
+        const calculatedWidth = typeof width === 'number' ? `${width}px` : width;
+        const dynamicWidth = (val && String(val).length > 8) ? `${String(val).length + 2}ch` : calculatedWidth;
+
         return (
             <TextField
                 type="number"
                 value={val}
                 onFocus={this.handleFocus}
                 onChange={(e) => this.handleChange(e, ...args)}
-                sx={{ width: width, m: 0.5 }}
+                sx={{ width: dynamicWidth, minWidth: '80px', m: 0.5 }}
                 inputProps={{ step: "any" }}
                 hiddenLabel
                 size="small"
