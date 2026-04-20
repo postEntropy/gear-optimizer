@@ -212,7 +212,7 @@ class Optimizer extends Component {
                                                                 onFocus={this.handleFocus}
                                                                 onChange={(e) => this.handleChange(e, ['base', statname])}
                                                                 inputProps={{ step: "any" }}
-                                                                sx={{ width: '10ch' }}
+                                                                sx={{ width: `${Math.max(8, String(this.props.basestats[statname]).length + 1)}ch`, minWidth: '8ch' }}
                                                             />
                                                         </TableCell>
                                                     </TableRow>
@@ -228,7 +228,7 @@ class Optimizer extends Component {
                                                                 onFocus={this.handleFocus}
                                                                 onChange={(e) => this.handleChange(e, ['cube', statname])}
                                                                 inputProps={{ step: "any" }}
-                                                                sx={{ width: '10ch' }}
+                                                                sx={{ width: `${Math.max(8, String(this.props.cubestats[statname]).length + 1)}ch`, minWidth: '8ch' }}
                                                             />
                                                         </TableCell>
                                                     </TableRow>
@@ -258,7 +258,7 @@ class Optimizer extends Component {
                                                                     onFocus={this.handleFocus}
                                                                     onChange={(e) => this.handleChange(e, ['cap', statname])}
                                                                     inputProps={{ step: "any" }}
-                                                                    sx={{ width: '10ch' }}
+                                                                    sx={{ width: `${Math.max(8, String(this.props.capstats[statname]).length + 1)}ch`, minWidth: '8ch' }}
                                                                 />
                                                             </TableCell>
                                                         </TableRow>

@@ -116,7 +116,14 @@ const getTheme = (mode, colorObj) => {
                         '& .MuiOutlinedInput-root': {
                             borderRadius: 6,
                             backgroundColor: isDark ? alpha('#000', 0.2) : alpha('#fff', 0.5),
-                        }
+                        },
+                        // Hide spinners for type=number
+                        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                            display: 'none',
+                        },
+                        '& input[type=number]': {
+                            MozAppearance: 'textfield',
+                        },
                     }
                 }
             },
