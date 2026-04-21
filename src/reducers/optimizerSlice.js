@@ -637,10 +637,10 @@ const optimizerSlice = createSlice({
             })
             .addCase(OPTIMIZE_GEAR, (state, action) => {
                 if (!state.running) return;
-                // console.log('worker finished')
-                // state.equip = action.payload.equip; // Do not overwrite current equip
-                state.optimizedEquip = action.payload.equip;
-                // state.lastequip = state.equip; // Leave lastequip alone too
+                // Automatically apply equipment as in original Items.js
+                state.lastequip = state.equip;
+                state.equip = action.payload.equip;
+                state.optimizedEquip = null; // We don't need a preview anymore
                 state.running = false;
             })
             .addCase(OPTIMIZE_SAVES, (state, action) => {
@@ -662,15 +662,17 @@ const optimizerSlice = createSlice({
                 }
             })
             .addCase(SAVE_SLOT, (state) => {
+                const equipToSave = state.equip; // No more preview
                 const locked = {};
+                
                 Object.keys(state.locked).forEach(slot => {
-                    locked[slot] = state.locked[slot].map(idx => state.equip[slot][idx]);
+                    locked[slot] = (state.locked[slot] || []).map(idx => equipToSave[slot][idx]);
                 });
 
                 if (state.savedequip[state.savedidx]) {
                     // We need to overwrite the current save slot with current state.equip + metadata
                     const newSave = {
-                        ...state.equip,
+                        ...equipToSave,
                         locked: locked,
                         factors: state.factors,
                         maxslots: state.maxslots,
@@ -691,7 +693,24 @@ const optimizerSlice = createSlice({
                 const save = state.savedequip[state.savedidx];
                 if (save) {
                     state.equip = { ...save }; // Copy it
-                    // The original code used cleanState here.
+                    // Restore factors and maxslots too!
+                    if (save.factors) state.factors = [...save.factors];
+                    if (save.maxslots) state.maxslots = [...save.maxslots];
+                    
+                    // Restore locked status
+                    if (save.locked) {
+                        const newLocked = {};
+                        Object.getOwnPropertyNames(save.locked).forEach(slot => {
+                            const slotLower = slot.toLowerCase();
+                            if (state.equip[slotLower]) {
+                                newLocked[slotLower] = save.locked[slot].map(id => {
+                                    return state.equip[slotLower].indexOf(id);
+                                }).filter(idx => idx !== -1);
+                            }
+                        });
+                        state.locked = newLocked;
+                    }
+                    state.optimizedEquip = null;
                 }
             })
             .addCase(DELETE_SLOT, (state) => {
