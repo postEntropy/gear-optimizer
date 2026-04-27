@@ -62,6 +62,7 @@ const INITIAL_STATE = {
     items: ITEMS.names,
     offhand: offhand,
     equip: ItemNameContainer(accslots, offhand),
+    liveEquip: ItemNameContainer(accslots, offhand),
     optimizedEquip: null,
     locked: {},
     lastequip: ItemNameContainer(accslots, offhand),

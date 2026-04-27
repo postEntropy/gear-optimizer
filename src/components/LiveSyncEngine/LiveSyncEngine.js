@@ -115,7 +115,7 @@ const LiveSyncEngine = () => {
                             lastSnapshot: newSnapshot
                         }));
 
-                        applySaveData(data, stateRef.current, stateRef.current.disableUnowned, dispatch);
+                        applySaveData(data, stateRef.current, stateRef.current.disableUnowned, dispatch, "liveEquip");
                     } else {
                         const prevLogs = stateRef.current.liveSync?.logs || [];
                         const errLog = {

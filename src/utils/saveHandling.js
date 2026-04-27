@@ -114,7 +114,7 @@ const updateNgus = (data, optimizerState, dispatch) => {
     dispatch(Settings("ngustats", newState));
 }
 
-const updateEquipped = (data, optimizerState, dispatch) => {
+const updateEquipped = (data, optimizerState, dispatch, targetEquip = "equip") => {
     if (!optimizerState.syncEquip) return;
     const inv = data.inventory;
     const offhand = inv.weapon2 && inv.weapon2.id > 0 ? 1 : 0;
@@ -131,7 +131,7 @@ const updateEquipped = (data, optimizerState, dispatch) => {
     if (offhand) setItem('weapon', 1, inv.weapon2);
     inv.accs.forEach((acc, i) => { if (i < accSlots) setItem('accessory', i, acc); });
     dispatch(Settings("offhand", offhand));
-    dispatch(Settings("equip", newEquip));
+    dispatch(Settings(targetEquip, newEquip));
 }
 
 const disableUnownedItems = (foundIds, newData) => {
@@ -282,7 +282,7 @@ export const calculateDiffs = (newData, oldSnapshot) => {
 };
 
 
-export const applySaveData = (data, optimizerState, disableItems, dispatch) => {
+export const applySaveData = (data, optimizerState, disableItems, dispatch, targetEquip = "equip") => {
     let newItemData = {};
     Object.keys(optimizerState.itemdata).forEach(key => {
         const item = optimizerState.itemdata[key];
@@ -303,7 +303,7 @@ export const applySaveData = (data, optimizerState, disableItems, dispatch) => {
     try { updateHackTab(data, optimizerState, dispatch); } catch(e) {}
     try { updateWishTab(data, optimizerState, dispatch); } catch(e) {}
     try { updatePerkTab(data, dispatch); } catch(e) {}
-    try { updateEquipped(data, optimizerState, dispatch); } catch(e) {}
+    try { updateEquipped(data, optimizerState, dispatch, targetEquip); } catch(e) {}
 
     dispatch(Settings("resourceStats", {
         energyPower: data.energyPower || 0,

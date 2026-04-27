@@ -59,6 +59,7 @@ const App = () => {
         items: state.items,
         offhand: state.offhand,
         equip: state.equip,
+        liveEquip: state.liveEquip,
         locked: state.locked,
         lastequip: state.lastequip,
         savedequip: state.savedequip,

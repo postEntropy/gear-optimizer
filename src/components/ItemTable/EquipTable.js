@@ -282,32 +282,45 @@ const EquipTable = (props) => {
     );
 
     const equip = props.equip;
+    const liveEquip = props.liveEquip || props.equip;
     const savedequip = props.savedequip[props.savedidx];
 
     const loadoutURIs = useMemo(() => ({
         current: equip2url(equip, itemdata),
+        live: equip2url(liveEquip, itemdata),
         saved: equip2url(savedequip, itemdata)
-    }), [equip, savedequip, itemdata]);
+    }), [equip, liveEquip, savedequip, itemdata]);
 
     const renderCurrent = () => (
         <Grid item xs={12}>
             <Paper elevation={2} sx={{ p: 2, border: '1px solid', borderColor: 'primary.light' }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center' }}>
-                    ⚔️ Current Equipment (In Use)
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                        ⚔️ Current Equipment (In Use)
+                    </Typography>
+                    <Button 
+                        variant="outlined" 
+                        size="small" 
+                        onClick={() => props.handleSettings('equip', liveEquip)}
+                        sx={{ fontSize: '0.7rem' }}
+                    >
+                        Copy to Optimizer
+                    </Button>
+                </Box>
 
                 <EquipmentSection
-                    equip={equip}
+                    equip={liveEquip}
                     prefix=""
                     itemdata={itemdata}
                     group={props.group}
                     locked={props.locked}
-                    handleClickItem={props.handleClickItem}
-                    handleCtrlClickItem={props.handleCtrlClickItem}
-                    handleShiftClickItem={(itemId) => props.handleEditItem(itemId, -1)}
-                    handleRightClickItem={props.handleRightClickItem}
-                    handleDropItem={props.handleDropItem}
-                    lockable={true}
+                    handleClickItem={() => {}} // Read-only for live sync
+                    handleCtrlClickItem={() => {}}
+                    handleShiftClickItem={() => {}}
+                    handleRightClickItem={() => {}}
+                    handleDropItem={() => {}}
+                    lockable={false}
+                    bgColor="rgba(0, 255, 0, 0.02)"
                 />
             </Paper>
         </Grid>
