@@ -119,7 +119,7 @@ class HackComponent extends Component {
                 ...hacks[idx],
                 goal: this.milestone(
                     {
-                        level: hacks[idx].goal,
+                        level: Math.max(hacks[idx].goal, hacks[idx].level),
                         hackidx: idx
                     }
                 )
@@ -135,7 +135,7 @@ class HackComponent extends Component {
                 ...hacks[idx],
                 goal: this.milestone(
                     {
-                        level: hacks[idx].goal,
+                        level: Math.max(hacks[idx].goal, hacks[idx].level),
                         hackidx: idx,
                         next: true
                     }
@@ -459,7 +459,7 @@ class HackComponent extends Component {
                                             const currBonus = hackOptimizer.bonus(level, pos);
                                             let target = 0;
                                             if (option === '0' || option === 0) {
-                                                target = this.props.hackstats.hacks[pos].goal;
+                                                target = Math.max(this.props.hackstats.hacks[pos].goal, level);
                                             } else {
                                                 target = hackOptimizer.reachable(level, hacktime, pos);
                                                 if (option === '2' || option === 2) {
