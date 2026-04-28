@@ -550,7 +550,7 @@ class HackComponent extends Component {
                                                     <TableCell>
                                                         <TextField type="number" value={level}
                                                             onChange={(e) => this.handleChange(e, 'level', pos)} onFocus={this.handleFocus}
-                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(level).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(8, String(level).length + 1)}ch`, minWidth: '80px' }} hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>{shorten(currBonus, 2)}%</TableCell>
 
@@ -558,7 +558,7 @@ class HackComponent extends Component {
                                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                             <TextField type="number" value={target}
                                                                 onChange={(e) => this.handleChange(e, 'goal', pos)} onFocus={this.handleFocus}
-                                                                inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(target).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
+                                                                inputProps={{ step: "any" }} sx={{ width: `${Math.max(8, String(target).length + 1)}ch`, minWidth: '80px' }} hiddenLabel size="small" />
                                                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                                                 <IconButton size="small" onClick={(e) => this.handleChange(e, 'msup', pos)} sx={{ p: 0 }}><AddIcon fontSize="inherit" /></IconButton>
                                                                 <IconButton size="small" onClick={(e) => this.handleChange(e, 'msdown', pos)} sx={{ p: 0 }}><RemoveIcon fontSize="inherit" /></IconButton>
