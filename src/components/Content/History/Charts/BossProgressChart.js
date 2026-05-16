@@ -97,7 +97,7 @@ const BossProgressChart = () => {
             color="secondary"
             detailsContent={detailsContent}
         >
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                     data={filteredData}
                     onMouseMove={handleMouseMove}

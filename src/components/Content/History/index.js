@@ -1,20 +1,42 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Container, Grid, Typography, useTheme, alpha, Paper, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Tooltip } from '@mui/material';
+import { Box, Container, Grid, Typography, useTheme, alpha, Paper, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Tooltip, Tabs, Tab } from '@mui/material';
 import { HistoryProvider, useHistoryContext } from './HistoryContext';
 import { useHistoryData } from './hooks/useHistoryData';
 import SummaryCards from './SummaryCards';
+import ProgressionHeatmap from './Components/ProgressionHeatmap';
 import LazyChart from './Components/LazyChart';
 import MainProgressChart from './Charts/MainProgressChart';
 import BossProgressChart from './Charts/BossProgressChart';
 import ResourceChart from './Charts/ResourceChart';
+import EfficiencyChart from './Charts/EfficiencyChart';
 import StackedAreaChart from './Charts/StackedAreaChart';
 import DeltaBarChart from './Charts/DeltaBarChart';
-import HistoryTable from './HistoryTable';
+import HistoryTimeline from './HistoryTimeline';
 import CustomRangePicker from './Components/CustomRangePicker';
-import { History as HistoryIcon, Analytics, FlashOn, AutoFixHigh, Code, DeleteSweep } from '@mui/icons-material';
+import { History as HistoryIcon, Analytics, FlashOn, AutoFixHigh, Code, DeleteSweep, TrendingUp, ViewList, Science, Layers } from '@mui/icons-material';
 import ImportSaveForm from '../../ImportSaveForm/ImportSaveForm';
 import { useDispatch } from 'react-redux';
 import { ClearHistory } from '../../../actions/History';
+
+const TabPanel = (props) => {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`history-tabpanel-${index}`}
+            aria-labelledby={`history-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{ pt: 3 }}>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
+};
 
 // Inner layout component to access Context
 const DashboardLayout = () => {
@@ -23,11 +45,17 @@ const DashboardLayout = () => {
     const { timeRange, setTimeRange, customRange, setCustomRange } = useHistoryContext();
     const { sortedHistory, filteredData } = useHistoryData(timeRange, customRange);
     const [clearDialogOpen, setClearDialogOpen] = useState(false);
+    const [currentTab, setCurrentTab] = useState(0);
+
+    const handleTabChange = (event, newValue) => {
+        setCurrentTab(newValue);
+    };
 
     // Memoize arrays before any early returns (hooks must be called unconditionally)
     const nguNames = useMemo(() => ['Augments', 'Wandoos', 'Respawn', 'Gold', 'Adventure α', 'Power α', 'Drop Chance', 'Magic NGU', 'PP'], []);
     const magicNguNames = useMemo(() => ['Yggdrasil', 'Exp', 'Power β', 'Number', 'Time Machine', 'Energy NGU', 'Adventure β'], []);
     const hackNames = useMemo(() => ['Stats', 'Adventure', 'TM', 'Drop', 'Augment', 'ENGU', 'MNGU', 'Blood', 'QP', 'Daycare', 'EXP', 'Number', 'PP', 'Hack', 'Wish'], []);
+    const beardNames = useMemo(() => ["Nekkid", "Curly", "Glorious", "Long", "Lady", "Mega", "Golden"], []);
 
     const handleClearClick = () => {
         setClearDialogOpen(true);
@@ -180,102 +208,154 @@ const DashboardLayout = () => {
                 </Box>
             </Box>
 
-            {/* Top Level Metrics */}
-            <SummaryCards history={filteredData} />
-
-            {/* Resource Charts Row */}
-            <Grid container spacing={3} sx={{ mb: 6 }}>
-                <Grid item xs={12} md={4}>
-                    <LazyChart height={400}>
-                        <ResourceChart type="energy" />
-                    </LazyChart>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <LazyChart height={400}>
-                        <ResourceChart type="magic" />
-                    </LazyChart>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <LazyChart height={400}>
-                        <ResourceChart type="res3" />
-                    </LazyChart>
-                </Grid>
-            </Grid>
-
-            <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, px: 1, borderLeft: '4px solid', borderColor: 'secondary.main' }}>
-                Progression Breakdown
-            </Typography>
-
-            <Grid container spacing={3}>
-                {/* ---------- HACKS ROW ---------- */}
-                <Grid item xs={12} lg={6}>
-                    <LazyChart height={450}>
-                        <StackedAreaChart
-                            title="Hack Levels Timeline"
-                            icon={Code}
-                            color="success"
-                            prefix="hack"
-                            names={hackNames}
-                            baseColorHue={120}
-                        />
-                    </LazyChart>
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                    <LazyChart height={450}>
-                        <DeltaBarChart
-                            title="Gains Per Rebirth"
-                            icon={Code}
-                            color="success"
-                            prefix="hack"
-                            names={hackNames}
-                        />
-                    </LazyChart>
-                </Grid>
-
-                {/* ---------- ENERGY NGU ROW ---------- */}
-                <Grid item xs={12} lg={6}>
-                    <LazyChart height={450}>
-                        <StackedAreaChart
-                            title="Energy NGU Progression"
-                            icon={FlashOn}
-                            color="secondary"
-                            prefix="ngu_e"
-                            names={nguNames}
-                            baseColorHue={0}
-                        />
-                    </LazyChart>
-                </Grid>
-
-                {/* ---------- MAGIC NGU ROW ---------- */}
-                <Grid item xs={12} lg={6}>
-                    <LazyChart height={450}>
-                        <StackedAreaChart
-                            title="Magic NGU Progression"
-                            icon={AutoFixHigh}
-                            color="info"
-                            prefix="ngu_m"
-                            names={magicNguNames}
-                            baseColorHue={180}
-                        />
-                    </LazyChart>
-                </Grid>
-
-                {/* Less important charts moved here */}
-                <Grid item xs={12} lg={8} sx={{ mt: 4 }}>
-                    <LazyChart height={400}>
-                        <MainProgressChart />
-                    </LazyChart>
-                </Grid>
-                <Grid item xs={12} lg={4} sx={{ mt: 4 }}>
-                    <LazyChart height={400}>
-                        <BossProgressChart />
-                    </LazyChart>
-                </Grid>
-            </Grid>
-
-            <Box sx={{ mt: 8 }}>
-                <HistoryTable history={filteredData} />
+            {/* Navigation Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs
+                    value={currentTab}
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    sx={{
+                        '& .MuiTab-root': {
+                            textTransform: 'none',
+                            fontWeight: 700,
+                            fontSize: '0.9rem',
+                            minHeight: 48,
+                        }
+                    }}
+                >
+                    <Tab icon={<TrendingUp sx={{ fontSize: '1.2rem' }} />} iconPosition="start" label="Overview" />
+                    <Tab icon={<FlashOn sx={{ fontSize: '1.2rem' }} />} iconPosition="start" label="Resources" />
+                    <Tab icon={<Layers sx={{ fontSize: '1.2rem' }} />} iconPosition="start" label="NGUs" />
+                    <Tab icon={<Science sx={{ fontSize: '1.2rem' }} />} iconPosition="start" label="Hacks / Beards" />
+                    <Tab icon={<ViewList sx={{ fontSize: '1.2rem' }} />} iconPosition="start" label="Timeline" />
+                </Tabs>
             </Box>
+
+            {/* OVERVIEW TAB */}
+            <TabPanel value={currentTab} index={0}>
+                <SummaryCards history={filteredData} />
+                <Grid container spacing={2}>
+                    <Grid item xs={12} lg={4} sx={{ display: 'flex' }}>
+                        <Box sx={{ width: '100%', height: 300 }}>
+                            <ProgressionHeatmap history={sortedHistory} />
+                        </Box>
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={4}>
+                        <LazyChart height={300}>
+                            <MainProgressChart />
+                        </LazyChart>
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={4}>
+                        <LazyChart height={300}>
+                            <BossProgressChart />
+                        </LazyChart>
+                    </Grid>
+                </Grid>
+            </TabPanel>
+{/* RESOURCES TAB */}
+<TabPanel value={currentTab} index={1}>
+    <Grid container spacing={2}>
+        <Grid item xs={12}>
+            <LazyChart height={450}>
+                <EfficiencyChart />
+            </LazyChart>
+        </Grid>
+        <Grid item xs={12}>
+            <LazyChart height={500}>
+                <ResourceChart type="energy" />
+            </LazyChart>
+        </Grid>
+                    <Grid item xs={12}>
+                        <LazyChart height={500}>
+                            <ResourceChart type="magic" />
+                        </LazyChart>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <LazyChart height={500}>
+                            <ResourceChart type="res3" />
+                        </LazyChart>
+                    </Grid>
+                </Grid>
+            </TabPanel>
+
+            {/* NGUs TAB */}
+            <TabPanel value={currentTab} index={2}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <LazyChart height={500}>
+                            <StackedAreaChart
+                                title="Energy NGU Progression"
+                                icon={FlashOn}
+                                color="secondary"
+                                prefix="ngu_e"
+                                names={nguNames}
+                                baseColorHue={0}
+                            />
+                        </LazyChart>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <LazyChart height={500}>
+                            <StackedAreaChart
+                                title="Magic NGU Progression"
+                                icon={AutoFixHigh}
+                                color="info"
+                                prefix="ngu_m"
+                                names={magicNguNames}
+                                baseColorHue={180}
+                            />
+                        </LazyChart>
+                    </Grid>
+                </Grid>
+            </TabPanel>
+
+            {/* HACKS / BEARDS TAB */}
+            <TabPanel value={currentTab} index={3}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <LazyChart height={500}>
+                            <DeltaBarChart
+                                title="Gains Per Rebirth"
+                                icon={Code}
+                                color="success"
+                                prefix="hack"
+                                names={hackNames}
+                            />
+                        </LazyChart>
+                    </Grid>
+                    <Grid item xs={12} lg={6}>
+                        <LazyChart height={500}>
+                            <StackedAreaChart
+                                title="Hack Levels Timeline"
+                                icon={Code}
+                                color="success"
+                                prefix="hack"
+                                names={hackNames}
+                                baseColorHue={120}
+                            />
+                        </LazyChart>
+                    </Grid>
+                    <Grid item xs={12} lg={6}>
+                        <LazyChart height={500}>
+                            <StackedAreaChart
+                                title="Beard Progression (Permanent Levels)"
+                                icon={Layers}
+                                color="warning"
+                                prefix="beard"
+                                names={beardNames}
+                                baseColorHue={30}
+                            />
+                        </LazyChart>
+                    </Grid>
+                </Grid>
+            </TabPanel>
+
+            {/* TIMELINE TAB */}
+            <TabPanel value={currentTab} index={4}>
+                <Box sx={{ mt: 2 }}>
+                    <HistoryTimeline history={filteredData} />
+                </Box>
+            </TabPanel>
 
             {/* Clear History Confirmation Dialog */}
             <Dialog

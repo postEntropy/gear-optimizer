@@ -32,7 +32,7 @@ const LazyChart = ({ children, height = 400 }) => {
     }, [hasLoaded]);
 
     return (
-        <Box ref={ref} sx={{ minHeight: height }}>
+        <Box ref={ref} sx={{ height: height, minHeight: height }}>
             {isVisible ? (
                 children
             ) : (

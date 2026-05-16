@@ -126,7 +126,7 @@ const MainProgressChart = () => {
             color="primary"
             detailsContent={detailsContent}
         >
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                     data={filteredData}
                     onMouseMove={handleMouseMove}
@@ -163,7 +163,7 @@ const MainProgressChart = () => {
                         style={{ pointerEvents: 'none' }}
                     />
                     <Tooltip content={<CustomTooltip theme={theme} />} />
-                    <Legend />
+                    <Legend wrapperStyle={{ fontSize: '0.75rem', fontWeight: 700 }} />
 
                     <Area
                         yAxisId="exp"
