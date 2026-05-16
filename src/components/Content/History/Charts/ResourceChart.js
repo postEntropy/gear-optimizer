@@ -159,7 +159,7 @@ const ResourceChart = ({ type = 'energy' }) => {
             subtitle="Power, Cap, and Bars progression"
             detailsContent={detailsContent}
         >
-            <Box sx={{ height: 350, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {/* TOP CHART: Power & Bars */}
                 <ResponsiveContainer width="100%" height="65%">
                     <LineChart
@@ -274,11 +274,11 @@ const ResourceChart = ({ type = 'energy' }) => {
                                 sx={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 1,
+                                    gap: 0.9,
                                     cursor: 'pointer',
-                                    px: 1.5,
-                                    py: 0.8,
-                                    borderRadius: 1.5,
+                                    px: 1.2,
+                                    py: 0.5,
+                                    borderRadius: 1.2,
                                     bgcolor: isHidden ? 'transparent' : alpha(colorCode, 0.08),
                                     border: `1px solid ${isHidden ? alpha(theme.palette.divider, 0.2) : alpha(colorCode, 0.3)}`,
                                     opacity: isHidden ? 0.4 : (activeSeries && activeSeries !== seriesKey ? 0.6 : 1),
@@ -295,15 +295,15 @@ const ResourceChart = ({ type = 'energy' }) => {
                                 }}
                             >
                                 <Box sx={{
-                                    width: 10,
-                                    height: 10,
+                                    width: 8,
+                                    height: 8,
                                     borderRadius: '50%',
                                     bgcolor: isHidden ? theme.palette.action.disabled : colorCode,
                                     boxShadow: isHidden ? 'none' : `0 0 8px ${alpha(colorCode, 0.5)}`,
                                     pointerEvents: 'none'
                                 }} />
                                 <Typography variant="caption" sx={{
-                                    fontSize: '0.85rem',
+                                    fontSize: '0.75rem',
                                     fontWeight: 800,
                                     color: isHidden ? 'text.disabled' : 'text.primary',
                                     textDecoration: isHidden ? 'line-through' : 'none',

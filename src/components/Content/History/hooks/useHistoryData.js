@@ -41,12 +41,16 @@ export const useHistoryData = (timeRange, customRange) => {
                     (entry.highestHardBoss > 0 ? (entry.highestHardBoss * 1000) : 0) +
                     entry.highestBoss,
 
-                // Correctly identify the highest tier
-                highestBossLabel: entry.highestSadisticBoss > 0
-                    ? `Sadistic ${entry.highestSadisticBoss}`
-                    : (entry.highestHardBoss > 0
-                        ? `Evil ${entry.highestHardBoss}`
-                        : `Normal ${entry.highestBoss}`)
+                // Efficiency Calculation: XP gain / Total Power
+                // We use the gain from the previous entry to see "how much this power produced"
+                efficiencyXP: (() => {
+                    const idx = sortedHistory.findIndex(h => h.timestamp === entry.timestamp);
+                    if (idx <= 0) return 0;
+                    const prev = sortedHistory[idx - 1];
+                    const gain = Math.max(0, entry.exp - prev.exp);
+                    const totalPower = (entry.energyPower || 1) + (entry.magicPower || 1);
+                    return (gain / totalPower) * 1e6; // Multiplying by 1e6 to get a readable number
+                })(),
             };
 
             // Helpers for flattening complex nested levels
@@ -71,7 +75,9 @@ export const useHistoryData = (timeRange, customRange) => {
             }
             if (entry.beardLevels) {
                 entry.beardLevels.forEach((level, i) => {
-                    data[`beard_${i}`] = level;
+                    // Check if level is an object with permLevel or just a number
+                    const val = typeof level === 'object' ? (level.permLevel || 0) : level;
+                    data[`beard_${i}`] = val;
                 });
             }
 

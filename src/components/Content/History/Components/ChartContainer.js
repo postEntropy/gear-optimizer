@@ -21,42 +21,42 @@ const ChartContainer = ({ title, subtitle, icon: Icon, children, controls, foote
             height: '100%',
             p: 0,
             overflow: 'hidden',
-            borderRadius: 4,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            bgcolor: alpha(theme.palette.background.paper, 0.4),
-            backdropFilter: 'blur(10px)',
+            borderRadius: 3,
+            border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+            bgcolor: alpha(theme.palette.background.paper, 0.3),
+            backdropFilter: 'blur(8px)',
             display: 'flex',
             flexDirection: 'column',
-            transition: 'all 0.3s ease',
+            transition: 'all 0.2s ease',
             '&:hover': {
-                boxShadow: `0 8px 32px -8px ${alpha(theme.palette.common.black, 0.2)}`,
-                borderColor: alpha(theme.palette[color].main, 0.3)
+                borderColor: alpha(theme.palette[color].main, 0.4)
             }
         }}>
             {/* Header */}
             <Box sx={{
-                p: 2.5,
+                px: 2,
+                py: 1.5,
                 borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                background: `linear-gradient(90deg, ${alpha(theme.palette[color].main, 0.05)} 0%, transparent 100%)`
             }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                     <Box sx={{
-                        p: 1,
-                        borderRadius: 2,
-                        bgcolor: alpha(theme.palette[color].main, 0.1),
-                        color: theme.palette[color].main
+                        p: 0.8,
+                        borderRadius: 1.5,
+                        bgcolor: alpha(theme.palette[color].main, 0.08),
+                        color: theme.palette[color].main,
+                        display: 'flex'
                     }}>
-                        <Icon fontSize="small" />
+                        <Icon sx={{ fontSize: '1.1rem' }} />
                     </Box>
                     <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, fontSize: '1rem' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
                             {title}
                         </Typography>
                         {subtitle && (
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500, fontSize: '0.65rem', display: 'block', mt: 0.2 }}>
                                 {subtitle}
                             </Typography>
                         )}
@@ -83,7 +83,7 @@ const ChartContainer = ({ title, subtitle, icon: Icon, children, controls, foote
             </Box>
 
             {/* Chart Content */}
-            <Box sx={{ flexGrow: 1, p: 2, position: 'relative' }}>
+            <Box sx={{ flexGrow: 1, p: 1, position: 'relative' }}>
                 {children}
             </Box>
 

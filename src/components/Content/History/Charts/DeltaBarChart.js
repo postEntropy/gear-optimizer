@@ -19,7 +19,7 @@ const DeltaBarChart = ({ title, icon, color, prefix, names }) => {
 
     const chartData = useMemo(() => {
         if (!filteredData || filteredData.length === 0) return [];
-        return filteredData.map((d, index) => {
+        const results = filteredData.map((d, index) => {
             const currentRecord = d;
             let prevRecord = null;
             if (index > 0) prevRecord = filteredData[index - 1];
@@ -28,121 +28,61 @@ const DeltaBarChart = ({ title, icon, color, prefix, names }) => {
                 if (globalIndex > 0) prevRecord = sortedHistory[globalIndex - 1];
             }
             const safeData = { timestamp: d.timestamp, date: d.date, dateTime: d.dateTime, rebirths: d.rebirths };
+            let totalGain = 0;
             visibleSeries.forEach(({ i }) => {
                 const key = `${prefix}_${i}`;
                 const currVal = Number(currentRecord[key]) || 0;
                 const prevVal = prevRecord ? (Number(prevRecord[key]) || 0) : currVal;
-                safeData[key] = Math.max(0, currVal - prevVal);
+                const gain = Math.max(0, currVal - prevVal);
+                safeData[key] = gain;
                 safeData[`${key}_actual`] = currVal;
                 safeData[`${key}_prev`] = prevVal;
+                totalGain += gain;
             });
+            safeData.totalGain = totalGain;
             return safeData;
         });
+
+        return results.filter(r => r.totalGain > 0);
     }, [filteredData, sortedHistory, visibleSeries, prefix]);
 
-    const getBonusValue = (prefix, i, level) => {
-        if (prefix === 'ngu_e') {
-            const ngu = NGUs.energy[i];
-            return 1 + level * ngu.normal.bonus;
-        }
-        if (prefix === 'ngu_m') {
-            const ngu = NGUs.magic[i];
-            return 1 + level * ngu.normal.bonus;
-        }
-        if (prefix === 'hack') {
-            const hack = Hacks[i];
-            const milestones = Math.floor(level / hack[4]);
-            return (level * hack[2] + 100) * (hack[3] ** milestones);
-        }
-        return 0;
-    };
-
-    const CustomTooltip = ({ active, payload, label }) => {
+    const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             const sorted = [...payload].filter(p => p.value > 0).sort((a, b) => b.value - a.value);
-            const useGrid = sorted.length > 8;
             return (
                 <Paper
                     elevation={10}
                     sx={{
                         p: 1.5,
-                        bgcolor: alpha(theme.palette.background.paper, 0.95),
-                        backdropFilter: 'blur(8px)',
-                        border: `1px solid ${theme.palette.divider}`,
+                        bgcolor: alpha(theme.palette.background.paper, 0.98), // Nearly opaque
+                        backdropFilter: 'blur(10px)',
+                        border: `1px solid ${theme.palette.divider}`, // More solid border
                         borderRadius: 2,
-                        width: useGrid ? 600 : 380,
-                        maxHeight: 550,
-                        overflowY: 'auto',
-                        overflowX: 'hidden',
-                        '&::-webkit-scrollbar': {
-                            width: '6px',
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: alpha(theme.palette.text.secondary, 0.2),
-                            borderRadius: '3px',
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            backgroundColor: 'transparent',
-                        }
+                        width: 200,
+                        boxShadow: '0 12px 32px rgba(0,0,0,0.5)', // Stronger shadow for separation
+                        transform: 'translateY(-70px)', 
+                        pointerEvents: 'none',
+                        zIndex: 1000
                     }}
                 >
-                    <Box sx={{ mb: 1.5, borderBottom: `1px solid ${theme.palette.divider}`, pb: 0.5 }}>
-                        <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: 'text.secondary' }}>{new Date(label).toLocaleString('pt-BR')}</Typography>
-                        <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: 'primary.main' }}>Snapshot at Rebirth #{payload[0]?.payload?.rebirths || '?'}</Typography>
-                    </Box>
-                    <Box sx={{
-                        display: useGrid ? 'grid' : 'flex',
-                        flexDirection: 'column',
-                        gridTemplateColumns: useGrid ? '1fr 1fr' : 'none',
-                        gap: useGrid ? 2 : 0.5
-                    }}>
-                        {sorted.map((entry, index) => {
-                            const i = parseInt(entry.dataKey.split('_').pop());
-                            const actualLevel = entry.payload[`${entry.dataKey}_actual`];
-                            const prevLevel = entry.payload[`${entry.dataKey}_prev`];
+                    <Typography variant="caption" sx={{ fontWeight: 900, color: 'primary.main', display: 'block', mb: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`, pb: 0.5 }}>
+                        Rebirth #{payload[0].payload.rebirths}
+                    </Typography>
 
-                            const suffix = (prefix === 'ngu_e' || prefix === 'ngu_m') ? 'x' : '%';
-                            const currentBonus = getBonusValue(prefix, i, actualLevel);
-                            const prevBonus = getBonusValue(prefix, i, prevLevel !== undefined ? prevLevel : actualLevel);
-                            const bonusDelta = Math.max(0, currentBonus - prevBonus);
-
-                            const bonusStr = `${shorten(currentBonus, 2)}${suffix}`;
-                            const bonusDeltaStr = bonusDelta > 0 ? `(+${shorten(bonusDelta, 2)}${suffix})` : '';
-
-                            return (
-                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, minWidth: 0 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flex: 1 }}>
-                                        <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
-                                        <Typography variant="caption" sx={{
-                                            color: 'text.primary',
-                                            fontWeight: 700,
-                                            fontSize: '0.75rem',
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            maxWidth: useGrid ? '100px' : 'none'
-                                        }}>
-                                            {entry.name}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
-                                        <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', fontSize: '0.65rem', whiteSpace: 'nowrap' }}>
-                                            Lvl {shorten(actualLevel)} ({bonusStr})
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, minWidth: 60, justifyContent: 'flex-end' }}>
-                                            <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace', color: 'success.main', fontSize: '0.8rem' }}>
-                                                +{shorten(entry.value)}
-                                            </Typography>
-                                            {bonusDelta > 0 && (
-                                                <Typography variant="caption" sx={{ fontWeight: 800, fontFamily: 'monospace', color: alpha(theme.palette.success.main, 0.8), fontSize: '0.65rem' }}>
-                                                    {bonusDeltaStr}
-                                                </Typography>
-                                            )}
-                                        </Box>
-                                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+                        {sorted.map((entry, index) => (
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, minWidth: 0, flex: 1 }}>
+                                    <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: entry.color, flexShrink: 0 }} />
+                                    <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '0.7rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {entry.name}
+                                    </Typography>
                                 </Box>
-                            );
-                        })}
+                                <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace', color: 'success.main', fontSize: '0.8rem', flexShrink: 0 }}>
+                                    +{shorten(entry.value)}
+                                </Typography>
+                            </Box>
+                        ))}
                     </Box>
                 </Paper>
             );
@@ -151,16 +91,16 @@ const DeltaBarChart = ({ title, icon, color, prefix, names }) => {
     };
 
     const legend = (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1, p: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 0.8, p: 1.5, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
             {visibleSeries.map(({ name, i }) => {
                 const seriesKey = `${prefix}_${i}`;
                 const isHidden = hiddenSeries.has(seriesKey);
                 const hue = (i * (360 / Math.max(visibleSeries.length, 1))) % 360;
                 const colorCode = `hsl(${hue}, 70%, 50%)`;
                 return (
-                    <Box key={name} sx={{ display: 'flex', alignItems: 'center', gap: 0.8, opacity: isHidden ? 0.3 : (activeSeries && activeSeries !== seriesKey ? 0.6 : 1), transition: 'all 0.15s ease-out', cursor: 'pointer', bgcolor: isHidden ? 'transparent' : alpha(colorCode, 0.08), px: 1, py: 0.3, borderRadius: 1.5, border: `1px solid ${isHidden ? alpha(theme.palette.divider, 0.2) : alpha(colorCode, 0.3)}`, userSelect: 'none', '&:hover': { bgcolor: alpha(colorCode, 0.15), transform: 'translateY(-1px)' } }} onClick={() => isolateSeries(seriesKey, visibleSeries.map(s => `${prefix}_${s.i}`))} onMouseEnter={() => !isHidden && setActiveSeries(seriesKey)} onMouseLeave={() => setActiveSeries(null)}>
+                    <Box key={name} sx={{ display: 'flex', alignItems: 'center', gap: 0.7, opacity: isHidden ? 0.3 : (activeSeries && activeSeries !== seriesKey ? 0.6 : 1), transition: 'all 0.15s ease-out', cursor: 'pointer', bgcolor: isHidden ? 'transparent' : alpha(colorCode, 0.08), px: 1, py: 0.4, borderRadius: 1.2, border: `1px solid ${isHidden ? alpha(theme.palette.divider, 0.2) : alpha(colorCode, 0.3)}`, userSelect: 'none', '&:hover': { bgcolor: alpha(colorCode, 0.15), transform: 'translateY(-1px)' } }} onClick={() => isolateSeries(seriesKey, visibleSeries.map(s => `${prefix}_${s.i}`))} onMouseEnter={() => !isHidden && setActiveSeries(seriesKey)} onMouseLeave={() => setActiveSeries(null)}>
                         <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: isHidden ? theme.palette.action.disabled : colorCode, pointerEvents: 'none' }} />
-                        <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: isHidden ? 'text.disabled' : 'text.primary', pointerEvents: 'none' }}>{name}</Typography>
+                        <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: isHidden ? 'text.disabled' : 'text.primary', pointerEvents: 'none' }}>{name}</Typography>
                     </Box>
                 );
             })}
@@ -169,28 +109,34 @@ const DeltaBarChart = ({ title, icon, color, prefix, names }) => {
 
     return (
         <ChartContainer title={title} icon={icon} color={color} subtitle="Levels gained per Rebirth snapshot" footer={legend}>
-            <Box sx={{ px: 1 }}>
-                <ResponsiveContainer width="100%" height={380}>
-                    <BarChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} style={{ pointerEvents: 'none' }} />
-                        <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={(t) => new Date(t).toLocaleDateString('pt-BR')} stroke={theme.palette.text.secondary} fontSize={10} />
-                        <YAxis tickFormatter={(v) => `+${shorten(v)}`} stroke={theme.palette.text.secondary} fontSize={10} width={55} tick={{ dx: -5 }} />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: alpha(theme.palette.divider, 0.1) }} />
-                        {visibleSeries.map(({ name, i }) => {
-                            const seriesKey = `${prefix}_${i}`;
-                            const isHidden = hiddenSeries.has(seriesKey);
-                            if (isHidden) return null;
-                            const hue = (i * (360 / Math.max(visibleSeries.length, 1))) % 360;
-                            const fillColor = `hsl(${hue}, 70%, 50%)`;
-                            return (
-                                <Bar key={seriesKey} dataKey={seriesKey} name={name} stackId="1" fill={fillColor} onMouseEnter={() => setActiveSeries(seriesKey)} onMouseLeave={() => setActiveSeries(null)}>
-                                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={fillColor} fillOpacity={activeSeries ? (activeSeries === seriesKey ? 1 : 0.2) : 0.9} />)}
-                                </Bar>
-                            );
-                        })}
-                    </BarChart>
-                </ResponsiveContainer>
-            </Box>
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                    data={chartData} 
+                    margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} style={{ pointerEvents: 'none' }} />
+                    <XAxis 
+                        dataKey="timestamp" 
+                        tickFormatter={(t) => new Date(t).toLocaleDateString([], { month: 'numeric', day: 'numeric' })} 
+                        stroke={theme.palette.text.secondary} 
+                        fontSize={10} 
+                    />
+                    <YAxis tickFormatter={(v) => `+${shorten(v)}`} stroke={theme.palette.text.secondary} fontSize={10} width={50} tick={{ dx: -5 }} />
+                    <Tooltip content={<CustomTooltip />} isAnimationActive={false} cursor={{ fill: alpha(theme.palette.divider, 0.05) }} />
+                    {visibleSeries.map(({ name, i }) => {
+                        const seriesKey = `${prefix}_${i}`;
+                        const isHidden = hiddenSeries.has(seriesKey);
+                        if (isHidden) return null;
+                        const hue = (i * (360 / Math.max(visibleSeries.length, 1))) % 360;
+                        const fillColor = `hsl(${hue}, 70%, 50%)`;
+                        return (
+                            <Bar key={seriesKey} dataKey={seriesKey} name={name} stackId="1" fill={fillColor} onMouseEnter={() => setActiveSeries(seriesKey)} onMouseLeave={() => setActiveSeries(null)} isAnimationActive={false}>
+                                {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={fillColor} fillOpacity={activeSeries ? (activeSeries === seriesKey ? 1 : 0.2) : 0.9} />)}
+                            </Bar>
+                        );
+                    })}
+                </BarChart>
+            </ResponsiveContainer>
         </ChartContainer>
     );
 };
