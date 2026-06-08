@@ -1,22 +1,68 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Paper, Typography, alpha, Grid, IconButton, Tooltip } from '@mui/material';
 import { TargetItem } from '../Item/Item';
 import { Slot } from '../../assets/ItemAux';
 
-const Paperdoll = ({ equip, optimizedEquip, itemdata, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, locked, offhand, syncStatus = 'disconnected', onShare, highlightEquipped }) => {
+const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, locked, offhand, syncStatus = 'disconnected', onShare, highlightEquipped }) => {
 
     // Use optimizedEquip for display if available, otherwise fallback to current equip
     const displayEquip = optimizedEquip || equip;
+    
+    // Determine the actual current equipment setup we are checking against (liveSync if connected, fallback to active optimizer equip)
+    const currentEquip = (syncStatus === 'connected' && liveEquip) ? liveEquip : equip;
+
+    const isAllEquipped = useMemo(() => {
+        if (!currentEquip || !displayEquip || !itemdata) {
+            return false;
+        }
+
+        const isEmpty = (id) => !id || !itemdata[id] || itemdata[id].empty;
+
+        // Check main slots: weapon, head, chest, pants, boots
+        const mainSlots = ['weapon', 'head', 'chest', 'pants', 'boots'];
+        for (const slot of mainSlots) {
+            const displayList = displayEquip[slot] || [];
+            const liveList = currentEquip[slot] || [];
+            
+            const maxIdx = slot === 'weapon' ? (offhand > 0 ? 2 : 1) : 1;
+            for (let i = 0; i < maxIdx; i++) {
+                const itemId = displayList[i];
+                if (!isEmpty(itemId)) {
+                    if (!liveList.includes(itemId)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Check accessories
+        const displayAccs = (displayEquip.accessory || []).filter(id => !isEmpty(id));
+        const liveAccs = (currentEquip.accessory || []).filter(id => !isEmpty(id));
+
+        const liveCountMap = {};
+        for (const id of liveAccs) {
+            liveCountMap[id] = (liveCountMap[id] || 0) + 1;
+        }
+
+        for (const id of displayAccs) {
+            if (!liveCountMap[id] || liveCountMap[id] <= 0) {
+                return false;
+            }
+            liveCountMap[id]--;
+        }
+
+        return true;
+    }, [displayEquip, currentEquip, itemdata, offhand]);
 
     const renderSlot = (slotType, index = 0) => {
         const itemId = displayEquip[slotType][index];
         const item = itemdata[itemId];
         const isActive = !!(item && !item.empty);
 
-        // Check if item is currently equipped in the actual 'equip' loadout
+        // Check if item is currently equipped in the active/live loadout
         let isEquipped = false;
-        if (isActive && equip && equip[slotType]) {
-            isEquipped = equip[slotType].includes(itemId);
+        if (isActive && currentEquip && currentEquip[slotType]) {
+            isEquipped = currentEquip[slotType].includes(itemId);
         }
         const showHighlight = highlightEquipped && isEquipped;
 
@@ -62,14 +108,55 @@ const Paperdoll = ({ equip, optimizedEquip, itemdata, handleClickItem, handleCtr
             flexDirection: 'column',
             gap: 1.5,
             border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2
+            borderColor: isAllEquipped ? 'success.main' : 'divider',
+            borderRadius: 2,
+            bgcolor: (theme) => isAllEquipped ? alpha(theme.palette.success.main, 0.12) : 'background.paper',
+            background: (theme) => isAllEquipped 
+                ? `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.15)} 0%, ${alpha(theme.palette.success.main, 0.03)} 100%)` 
+                : 'background.paper',
+            boxShadow: isAllEquipped ? '0 0 16px rgba(76, 175, 80, 0.3)' : 'none',
+            transition: 'all 0.3s ease-in-out',
+            animation: isAllEquipped ? 'pulse-border 2s infinite ease-in-out' : 'none',
+            '@keyframes pulse-border': {
+                '0%': {
+                    boxShadow: '0 0 8px rgba(76, 175, 80, 0.25), inset 0 0 4px rgba(76, 175, 80, 0.05)',
+                },
+                '50%': {
+                    boxShadow: '0 0 18px rgba(76, 175, 80, 0.45), inset 0 0 8px rgba(76, 175, 80, 0.15)',
+                },
+                '100%': {
+                    boxShadow: '0 0 8px rgba(76, 175, 80, 0.25), inset 0 0 4px rgba(76, 175, 80, 0.05)',
+                }
+            }
         }}>
             {/* Header / Title */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: -0.5 }}>
-                <Typography variant="overline" sx={{ fontWeight: 'bold', lineHeight: 1 }}>
-                    Gear Optimizer
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="overline" sx={{ fontWeight: 'bold', lineHeight: 1 }}>
+                        Gear Optimizer
+                    </Typography>
+                    {isAllEquipped && (
+                        <Typography 
+                            variant="caption" 
+                            sx={{ 
+                                fontWeight: 'bold', 
+                                color: 'success.main', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 0.5,
+                                fontSize: '0.7rem',
+                                bgcolor: (theme) => alpha(theme.palette.success.main, 0.15),
+                                px: 1,
+                                py: 0.2,
+                                borderRadius: 1,
+                                textTransform: 'uppercase',
+                                letterSpacing: 0.5
+                            }}
+                        >
+                            ✓ Tudo Equipado
+                        </Typography>
+                    )}
+                </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {/* Status Dot */}

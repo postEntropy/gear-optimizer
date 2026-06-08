@@ -139,6 +139,7 @@ class Optimizer extends Component {
                                 <Grid item xs={12} md="auto" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     <Paperdoll
                                         equip={this.props.equip}
+                                        liveEquip={this.props.liveEquip}
                                         itemdata={this.itemdata}
                                         handleClickItem={this.props.handleUnequipItem}
                                         handleCtrlClickItem={this.props.handleDisableItem}
