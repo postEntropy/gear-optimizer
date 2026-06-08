@@ -19,6 +19,7 @@ const LiveSyncEngine = () => {
     const liveSyncEnabledRef = useRef(liveSyncEnabled);
     const retryTimerRef = useRef(null);
     const eventSourceRef = useRef(null);
+    const lastSnapshotHashRef = useRef(null);
 
     liveSyncEnabledRef.current = liveSyncEnabled;
 
@@ -74,6 +75,7 @@ const LiveSyncEngine = () => {
             eventSourceRef.current = es;
 
             es.onopen = () => {
+                lastSnapshotHashRef.current = null; // reset so first sync always processes
                 dispatch(Settings("liveSync", {
                     ...(stateRef.current.liveSync || {}),
                     status: 'connected'
@@ -93,11 +95,23 @@ const LiveSyncEngine = () => {
                     }
 
                     if (data) {
+                        const newSnapshot = extractSnapshot(data);
+                        const snapshotHash = JSON.stringify(newSnapshot);
+
+                        // Skip heavy processing if game state hasn't changed
+                        if (snapshotHash === lastSnapshotHashRef.current) {
+                            dispatch(Settings("liveSync", {
+                                ...(stateRef.current.liveSync || {}),
+                                lastUpdate: Date.now()
+                            }));
+                            return;
+                        }
+                        lastSnapshotHashRef.current = snapshotHash;
+
                         const newCount = (stateRef.current.liveSync?.updateCount || 0) + 1;
                         const prevLogs = stateRef.current.liveSync?.logs || [];
                         
                         const diffs = calculateDiffs(data, stateRef.current.liveSync?.lastSnapshot);
-                        const newSnapshot = extractSnapshot(data);
 
                         const newLog = {
                             ts: Date.now(),
