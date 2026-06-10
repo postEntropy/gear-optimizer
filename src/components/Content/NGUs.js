@@ -85,8 +85,17 @@ const formatValue = (val, isPercent = true) => {
 class NGUComponent extends Component {
     constructor(props) {
         super(props);
+        let savedSortConfig = null;
+        try {
+            const saved = localStorage.getItem('ngus-sort-config');
+            if (saved) {
+                savedSortConfig = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Failed to parse ngus-sort-config', e);
+        }
         this.state = {
-            sortConfig: { key: 'reachable_level', direction: 'descending' },
+            sortConfig: savedSortConfig || { key: 'reachable_level', direction: 'descending' },
             timeUnit: 'minutes',
             isReady: false,
             expandedRows: {} // Store expanded state like { 'energy-0': true }
@@ -106,7 +115,9 @@ class NGUComponent extends Component {
         if (this.state.sortConfig.key === key && this.state.sortConfig.direction === 'descending') {
             direction = 'ascending';
         }
-        this.setState({ sortConfig: { key, direction } });
+        const sortConfig = { key, direction };
+        this.setState({ sortConfig });
+        localStorage.setItem('ngus-sort-config', JSON.stringify(sortConfig));
     }
 
     handleFocus(event) {

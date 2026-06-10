@@ -56,9 +56,18 @@ const DebouncedTextField = ({ value, onChange, ...props }) => {
 class HackComponent extends Component {
     constructor(props) {
         super(props);
+        let savedSortConfig = null;
+        try {
+            const saved = localStorage.getItem('hacks-sort-config');
+            if (saved) {
+                savedSortConfig = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Failed to parse hacks-sort-config', e);
+        }
         this.state = {
             hackoption: this.props.hackstats.hackoption,
-            sortConfig: { key: 'change', direction: 'descending' },
+            sortConfig: savedSortConfig || { key: 'change', direction: 'descending' },
             isReady: false,
             expandedRows: {},
             timeUnit: 'hours'
@@ -86,7 +95,9 @@ class HackComponent extends Component {
         if (this.state.sortConfig.key === key && this.state.sortConfig.direction === 'descending') {
             direction = 'ascending';
         }
-        this.setState({ sortConfig: { key, direction } });
+        const sortConfig = { key, direction };
+        this.setState({ sortConfig });
+        localStorage.setItem('hacks-sort-config', JSON.stringify(sortConfig));
     }
 
     handleFocus(event) {
