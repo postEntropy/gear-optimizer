@@ -22,7 +22,7 @@ A modernized, high-performance fork of the original **Gear Optimizer** for NGU I
 
 ---
 
-## 📡 Live Sync (New!)
+## 📡 Live Sync
 Stop manually exporting and importing saves! **Live Sync** connects the optimizer directly to your game.
 
 ![Live Sync Setup](src/assets/readme/live_sync_setup.png)
