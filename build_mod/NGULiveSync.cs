@@ -136,6 +136,25 @@ namespace NGULiveSync {
                 }
             }
         }
+
+        void OnGUI() {
+            // Desenha um indicador bem discreto no canto superior esquerdo
+            bool isConnected;
+            lock (_clients) {
+                isConnected = _clients.Count > 0;
+            }
+
+            GUIStyle style = new GUIStyle();
+            if (isConnected) {
+                style.normal.textColor = new Color(0f, 1f, 0f, 0.25f); // Verde translúcido (25% opacidade)
+            } else {
+                style.normal.textColor = new Color(1f, 0f, 0f, 0.15f); // Vermelho quase invisível (15% opacidade)
+            }
+            style.fontSize = 10;
+            
+            // "LS" = Live Sync
+            GUI.Label(new Rect(2, 2, 50, 20), "LS", style);
+        }
     }
 
     [HarmonyPatch(typeof(Character), "Start")]
