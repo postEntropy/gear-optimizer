@@ -37,7 +37,7 @@ function group(a, b, g) {
     return a[g][0].substring(0, a[g][0].length - 2) !== b[g][0].substring(0, b[g][0].length - 2);
 }
 
-const ItemSection = ({ groupName, items, hidden, handleZoneClick }) => {
+const ItemSection = React.memo(({ groupName, items, hidden, handleZoneClick }) => {
     if (items.length === 0) return null;
 
     return (
@@ -180,7 +180,7 @@ const ItemTable = (props) => {
         flushBuffer(compactitemlist ? Infinity : lastZoneId, compactitemlist ? 'Items' : lastGroupName);
 
         return buffer;
-    }, [items, itemdata, groupBy, compactitemlist, showunused, savedequip, equip, hidden, limits]);
+    }, [items, itemdata, groupBy, compactitemlist, showunused, savedequip, equip, hidden, limits, handleZoneClick, handleClickItem, handleCtrlClickItem, handleEditItem, handleRightClickItem, highlightEquipped]);
 
     return (
         <Box sx={{ width: '100%', height: '72vh', margin: 'auto', overflowY: 'auto', p: 1 }}>
@@ -189,6 +189,21 @@ const ItemTable = (props) => {
             </Grid>
         </Box>
     );
-}
+};
 
-export default ItemTable;
+export default React.memo(ItemTable, (prevProps, nextProps) => {
+    return (
+        prevProps.itemdata === nextProps.itemdata &&
+        prevProps.items === nextProps.items &&
+        prevProps.compactitemlist === nextProps.compactitemlist &&
+        prevProps.showunused === nextProps.showunused &&
+        prevProps.savedequip === nextProps.savedequip &&
+        prevProps.equip === nextProps.equip &&
+        prevProps.hidden === nextProps.hidden &&
+        prevProps.zone === nextProps.zone &&
+        prevProps.titanversion === nextProps.titanversion &&
+        prevProps.looty === nextProps.looty &&
+        prevProps.pendant === nextProps.pendant &&
+        prevProps.highlightEquipped === nextProps.highlightEquipped
+    );
+});

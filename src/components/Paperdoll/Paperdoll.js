@@ -203,4 +203,15 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
     );
 };
 
-export default Paperdoll;
+export default React.memo(Paperdoll, (prevProps, nextProps) => {
+    return (
+        prevProps.equip === nextProps.equip &&
+        prevProps.liveEquip === nextProps.liveEquip &&
+        prevProps.optimizedEquip === nextProps.optimizedEquip &&
+        prevProps.itemdata === nextProps.itemdata &&
+        prevProps.locked === nextProps.locked &&
+        prevProps.offhand === nextProps.offhand &&
+        prevProps.syncStatus === nextProps.syncStatus &&
+        prevProps.highlightEquipped === nextProps.highlightEquipped
+    );
+});

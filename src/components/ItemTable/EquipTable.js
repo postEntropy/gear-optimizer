@@ -198,8 +198,7 @@ const EquipmentSection = ({ equip, prefix, itemdata, group, locked, handleClickI
     );
 };
 
-// Export ConditionalSection for use in Optimizer.js
-export const ConditionalSection = ({ condition, title, items, itemdata, equip, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, highlightEquipped }) => {
+export const ConditionalSection = React.memo(({ condition, title, items, itemdata, equip, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, highlightEquipped }) => {
     // Default to collapsed (hidden)
     const [expanded, setExpanded] = useState(false);
 
@@ -230,7 +229,7 @@ export const ConditionalSection = ({ condition, title, items, itemdata, equip, h
                     />
                 );
             });
-    }, [items, itemdata, equip, condition, expanded, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem]);
+    }, [items, itemdata, equip, condition, expanded, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, highlightEquipped]);
 
     // Calculate count even if collapsed to show in header
     const count = useMemo(() => {
@@ -270,9 +269,9 @@ export const ConditionalSection = ({ condition, title, items, itemdata, equip, h
             </Paper>
         </Grid>
     );
-};
+});
 
-const EquipTable = (props) => {
+const EquipTable = React.memo((props) => {
     const { viewMode = 'full' } = props;
 
     // Keep heavy data calculation memoized
@@ -399,6 +398,24 @@ const EquipTable = (props) => {
             </Grid>
         </Box>
     );
-};
+});
 
-export default EquipTable;
+// Use a custom comparison for the EquipTable to ensure it doesn't re-render on irrelevant prop changes
+export default React.memo(EquipTable, (prevProps, nextProps) => {
+    return (
+        prevProps.equip === nextProps.equip &&
+        prevProps.liveEquip === nextProps.liveEquip &&
+        prevProps.savedequip === nextProps.savedequip &&
+        prevProps.savedidx === nextProps.savedidx &&
+        prevProps.itemdata === nextProps.itemdata &&
+        prevProps.cubestats === nextProps.cubestats &&
+        prevProps.basestats === nextProps.basestats &&
+        prevProps.capstats === nextProps.capstats &&
+        prevProps.offhand === nextProps.offhand &&
+        prevProps.locked === nextProps.locked &&
+        prevProps.factors === nextProps.factors &&
+        prevProps.compactbonus === nextProps.compactbonus &&
+        prevProps.viewMode === nextProps.viewMode &&
+        prevProps.highlightEquipped === nextProps.highlightEquipped
+    );
+});
