@@ -100,10 +100,7 @@ const LiveSyncEngine = () => {
 
                         // Skip heavy processing if game state hasn't changed
                         if (snapshotHash === lastSnapshotHashRef.current) {
-                            dispatch(Settings("liveSync", {
-                                ...(stateRef.current.liveSync || {}),
-                                lastUpdate: Date.now()
-                            }));
+                            // Do not dispatch lastUpdate on every tick to prevent UI re-render spam
                             return;
                         }
                         lastSnapshotHashRef.current = snapshotHash;
