@@ -420,17 +420,53 @@ class NGUComponent extends Component {
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].normal}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'normal', pos, isMagic)}
-                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(stats[pos].normal).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} 
+                                                            sx={{ 
+                                                                width: `${Math.max(8, String(stats[pos].normal).length + 3.5)}ch`, 
+                                                                minWidth: '70px',
+                                                                '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                                                                    WebkitAppearance: 'none',
+                                                                    margin: 0
+                                                                },
+                                                                '& input[type=number]': {
+                                                                    MozAppearance: 'textfield'
+                                                                }
+                                                            }} 
+                                                            hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].evil}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'evil', pos, isMagic)}
-                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(stats[pos].evil).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} 
+                                                            sx={{ 
+                                                                width: `${Math.max(8, String(stats[pos].evil).length + 3.5)}ch`, 
+                                                                minWidth: '70px',
+                                                                '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                                                                    WebkitAppearance: 'none',
+                                                                    margin: 0
+                                                                },
+                                                                '& input[type=number]': {
+                                                                    MozAppearance: 'textfield'
+                                                                }
+                                                            }} 
+                                                            hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell>
                                                         <TextField type="number" value={stats[pos].sadistic}
                                                             onFocus={this.handleFocus} onChange={(e) => this.handleChange(e, 'sadistic', pos, isMagic)}
-                                                            inputProps={{ step: "any" }} sx={{ width: `${Math.max(6, String(stats[pos].sadistic).length + 1)}ch`, minWidth: '60px' }} hiddenLabel size="small" />
+                                                            inputProps={{ step: "any" }} 
+                                                            sx={{ 
+                                                                width: `${Math.max(8, String(stats[pos].sadistic).length + 3.5)}ch`, 
+                                                                minWidth: '70px',
+                                                                '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button': {
+                                                                    WebkitAppearance: 'none',
+                                                                    margin: 0
+                                                                },
+                                                                '& input[type=number]': {
+                                                                    MozAppearance: 'textfield'
+                                                                }
+                                                            }} 
+                                                            hiddenLabel size="small" />
                                                     </TableCell>
                                                     <TableCell sx={isBestAny ? { fontWeight: 'bold' } : {}}>{'×' + shorten(bonus * 100) + '%'}</TableCell>
                                                     <TableCell sx={isBestNormal ? { fontWeight: 'bold' } : {}}>
