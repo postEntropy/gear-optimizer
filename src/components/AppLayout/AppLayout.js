@@ -290,6 +290,7 @@ const AppLayout = (props) => {
     }, []);
 
     const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light', THEME_COLORS[selectedColorKey]), [darkMode, selectedColorKey]);
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const location = useLocation();
     const path = location.pathname;
@@ -323,10 +324,72 @@ const AppLayout = (props) => {
                     <Box className="scanline" />
                     <CookieBanner
                         styles={{
-                            banner: { height: 'auto', zIndex: 9999 },
-                            message: { fontWeight: 400 }
+                            banner: {
+                                position: 'fixed',
+                                bottom: '24px',
+                                left: '50%',
+                                right: 'auto',
+                                transform: 'translateX(-50%)',
+                                width: isMobile ? 'calc(100% - 32px)' : 'auto',
+                                minWidth: isMobile ? 'none' : '450px',
+                                maxWidth: '750px',
+                                height: 'auto',
+                                padding: isMobile ? '16px 20px' : '10px 24px',
+                                borderRadius: isMobile ? '20px' : '30px',
+                                background: theme.palette.mode === 'dark' ? 'rgba(45, 45, 65, 0.96)' : 'rgba(240, 244, 250, 0.98)',
+                                backdropFilter: 'blur(16px)',
+                                border: '1px solid',
+                                borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.12)',
+                                boxShadow: theme.palette.mode === 'dark'
+                                    ? '0 12px 48px rgba(0,0,0,0.9)'
+                                    : '0 12px 48px rgba(0,0,0,0.18)',
+                                zIndex: 9999,
+                                display: 'flex',
+                                flexDirection: isMobile ? 'column' : 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: isMobile ? '12px' : '20px',
+                                boxSizing: 'border-box',
+                            },
+                            message: {
+                                color: theme.palette.text.primary,
+                                fontSize: '0.82rem',
+                                lineHeight: '1.4',
+                                fontWeight: 500,
+                                margin: 0,
+                                textAlign: isMobile ? 'center' : 'left',
+                                fontFamily: theme.typography.fontFamily,
+                            },
+                            button: {
+                                position: 'static',
+                                top: 'auto',
+                                right: 'auto',
+                                transform: 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '36px',
+                                margin: 0,
+                                alignSelf: isMobile ? 'center' : 'auto',
+                                background: theme.palette.primary.main,
+                                color: theme.palette.primary.contrastText,
+                                border: 'none',
+                                borderRadius: '20px',
+                                padding: '0 20px',
+                                fontSize: '0.8rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                whiteSpace: 'nowrap',
+                                boxShadow: theme.palette.mode === 'dark'
+                                    ? '0 4px 12px rgba(0,0,0,0.4)'
+                                    : '0 4px 12px rgba(0,0,0,0.1)',
+                            }
                         }}
                         message='This page wants to use local storage and a cookie to respectively keep track of your configuration and consent.'
+                        buttonMessage="Got it"
                     />
 
                     {/* SIDEBAR */}

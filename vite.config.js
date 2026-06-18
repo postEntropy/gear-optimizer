@@ -9,10 +9,11 @@ export default defineConfig({
     },
     server: {
         open: true,
+        port: 5180,
     },
     esbuild: {
         loader: "jsx",
-        include: /src\/.*\.js$/,
+        include: /src\/.*\.(js|jsx)$/,
         exclude: [],
     },
     optimizeDeps: {
@@ -21,6 +22,14 @@ export default defineConfig({
                 '.js': 'jsx',
             },
         },
-        include: ['html2canvas'],
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        server: {
+            deps: {
+                inline: [/@mui\/material/, /@mui\/x-date-pickers/],
+            },
+        },
     },
 });
