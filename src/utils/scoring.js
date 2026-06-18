@@ -11,16 +11,18 @@ export function score_vals(vals, factors) {
     return vals.reduce((res, val) => res * val, 1);
 }
 
+const SLOT_KEYS = Object.getOwnPropertyNames(Slot);
+
 export function get_raw_vals(data, equip, factors, offhand) {
     const stats = factors[1];
-    const sorted = Object.getOwnPropertyNames(Slot).reduce((res, slot) => {
+    const sorted = SLOT_KEYS.reduce((res, slot) => {
         if (equip[Slot[slot][0]] !== undefined) {
             return res.concat(equip[Slot[slot][0]]);
         }
         return res;
     }, []);
     let vals = [];
-    for (let idx in stats) {
+    for (let idx = 0; idx < stats.length; idx++) {
         const stat = stats[idx];
         if (stat === 'Respawn' || stat === 'Power' || stat === 'Toughness') {
             vals[idx] = 0;
@@ -28,7 +30,7 @@ export function get_raw_vals(data, equip, factors, offhand) {
             vals[idx] = 100;
         }
         let mainhand = true;
-        for (let jdx in sorted) {
+        for (let jdx = 0; jdx < sorted.length; jdx++) {
             const name = sorted[jdx];
             if (data[name] === undefined) {
                 // console.log(name, data[name])
