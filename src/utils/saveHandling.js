@@ -293,6 +293,7 @@ export const applySaveData = (data, optimizerState, disableItems, dispatch, targ
     dispatch(Settings("zone", zone));
     resetItems(newItemData);
     let found = updateItemLevels(data, newItemData, dispatch);
+    dispatch(Settings("ownedItemIds", found));
     
     if (disableItems) disableUnownedItems(found, newItemData);
     

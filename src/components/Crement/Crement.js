@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Typography, IconButton } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 
-const Crement = ({ header, value, name, handleClick, min, max, size }) => {
+const Crement = ({ header, value, name, handleClick, min, max, size, allowInfinity = false }) => {
     const isInfinity = value === Infinity;
     const displayValue = isInfinity ? '∞' : value;
 
@@ -31,7 +31,7 @@ const Crement = ({ header, value, name, handleClick, min, max, size }) => {
             <IconButton
                 onClick={() => handleClick(name, 1, min, max)}
                 size="small"
-                disabled={!isInfinity && value >= max}
+                disabled={isInfinity || (!allowInfinity && value >= max)}
             >
                 <Add fontSize="small" />
             </IconButton>
@@ -45,7 +45,8 @@ Crement.propTypes = {
     value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     name: PropTypes.any,
     min: PropTypes.number,
-    max: PropTypes.number
+    max: PropTypes.number,
+    allowInfinity: PropTypes.bool
 };
 
 export default Crement;
