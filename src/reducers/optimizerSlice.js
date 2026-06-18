@@ -250,6 +250,7 @@ const INITIAL_STATE = {
     highlightEquipped: true,
     showGraphs: true,
     disableUnowned: true,
+    ownedItemIds: [],
     showR3History: true,
     historyChartMode: 'absolute', // absolute, stacked, relative
     liveSync: {
@@ -375,6 +376,34 @@ const optimizerSlice = createSlice({
                     };
 
                     return cleanState(stateToClean);
+                }
+                if (action.payload.statname === 'disableUnowned') {
+                    const newValue = action.payload.stats;
+                    state.disableUnowned = newValue;
+                    
+                    const ownedIds = state.ownedItemIds || [];
+                    if (ownedIds.length > 0) {
+                        const newItemData = {};
+                        Object.keys(state.itemdata).forEach(key => {
+                            const item = state.itemdata[key];
+                            const newItem = Object.assign(Object.create(Object.getPrototypeOf(item)), item);
+                            if (!newItem.empty && newItem.id < 1000) {
+                                const isOwned = ownedIds.includes(newItem.id);
+                                if (newValue) {
+                                    if (!isOwned) {
+                                        newItem.disable = true;
+                                    }
+                                } else {
+                                    if (!isOwned && newItem.disable) {
+                                        newItem.disable = false;
+                                    }
+                                }
+                            }
+                            newItemData[key] = newItem;
+                        });
+                        state.itemdata = newItemData;
+                    }
+                    return;
                 }
                 state[action.payload.statname] = action.payload.stats;
             })

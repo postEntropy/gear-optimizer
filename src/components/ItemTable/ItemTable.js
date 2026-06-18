@@ -56,7 +56,8 @@ const ItemSection = React.memo(({ groupName, items, hidden, handleZoneClick }) =
             </Paper>
         </Grid>
     );
-};
+});
+
 
 const ItemTable = (props) => {
     const {

@@ -154,6 +154,7 @@ const FactorForm = (props) => {
                     handleClick={handleCrement}
                     min={0}
                     max={accslots}
+                    allowInfinity
                 />
             </Box>
         </Box>

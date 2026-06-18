@@ -139,6 +139,8 @@ const Optimizer = (props) => {
                                     optimizedEquip={props.optimizedEquip}
                                     onShare={null}
                                     highlightEquipped={props.highlightEquipped}
+                                    factors={props.factors}
+                                    maxslots={props.maxslots}
                                 />
 
                                 {/* Data Integration (Below Paperdoll) */}
