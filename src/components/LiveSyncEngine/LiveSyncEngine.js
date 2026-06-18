@@ -9,7 +9,7 @@ const LiveSyncEngine = () => {
     const optimizerState = useSelector(state => state.optimizer);
     
     const liveSyncEnabled = optimizerState.liveSyncEnabled !== false;
-    const RECONNECT_DELAY_MS = 10000;
+    const RECONNECT_DELAY_MS = 3000;
 
     const stateRef = useRef(optimizerState);
     useEffect(() => {

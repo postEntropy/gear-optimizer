@@ -121,17 +121,25 @@ namespace NGULiveSync {
                 }
             }
         }
+        private float _syncTimer = 0f;
+
+        void Update() {
+            if (Character != null && Character.importExport != null) {
+                _syncTimer += Time.unscaledDeltaTime;
+                // Force sync every 5 seconds independently of auto-saves
+                if (_syncTimer >= 5f) {
+                    _syncTimer = 0f;
+                    try {
+                        PlayerData pd = Character.importExport.gameStateToData();
+                        BroadcastData(pd);
+                    } catch { }
+                }
+            }
+        }
     }
 
     [HarmonyPatch(typeof(Character), "Start")]
     public static class Patch_Character_Start {
         static void Postfix(Character __instance) { LiveSyncPlugin.Character = __instance; }
-    }
-
-    [HarmonyPatch(typeof(ImportExport), "gameStateToData")]
-    public static class Patch_Save {
-        static void Postfix(PlayerData __result) {
-            LiveSyncPlugin.BroadcastData(__result);
-        }
     }
 }
