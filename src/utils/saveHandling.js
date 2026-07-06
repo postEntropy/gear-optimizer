@@ -51,7 +51,7 @@ const updateHackTab = (data, optimizerState, dispatch) => {
 
 const updateItemLevels = (data, newData, dispatch) => {
     let equipped = data.inventory
-    equipped.accs = equipped.accs.filter(x => x && !isNaN(x.id));
+    equipped.accs = (equipped.accs || []).map(x => (x && typeof x === 'object') ? x : { id: 0, level: 0 });
     let foundIds = []
     const lootys = [67, 128, 169, 230, 296, 389, 431, 505]
     const pendants = [53, 76, 94, 142, 170, 229, 295, 388, 430, 504]

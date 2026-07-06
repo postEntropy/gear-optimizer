@@ -41,7 +41,7 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
     const currentEquip = (syncStatus === 'connected' && liveEquip) ? liveEquip : equip;
 
     const isAllEquipped = useMemo(() => {
-        if (!currentEquip || !displayEquip || !itemdata) {
+        if (!optimizedEquip || !currentEquip || !displayEquip || !itemdata) {
             return false;
         }
 
@@ -81,7 +81,7 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
         }
 
         return true;
-    }, [displayEquip, currentEquip, itemdata, offhand]);
+    }, [optimizedEquip, displayEquip, currentEquip, itemdata, offhand]);
 
     const formatFactorName = (name) => {
         if (!name) return '';
