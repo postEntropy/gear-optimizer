@@ -35,8 +35,10 @@ export class Deserializer {
     }
 
     static membersArrayToArray(tag, obj) {
-        const arr = obj.get("_items").map((x, i) => Deserializer.convertData(tag + i, x));
-        return arr.filter((_, index) => index in arr)
+        const size = Number(obj.get("_size"));
+        const items = obj.get("_items") || [];
+        const arr = items.slice(0, size).map((x, i) => Deserializer.convertData(tag + i, x));
+        return arr.filter((_, index) => index in arr);
     }
 
     static convertData(tag, entry) {
