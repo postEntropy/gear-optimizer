@@ -1,0 +1,185 @@
+npm warn Unknown global config "python". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> gear-optimizer@0.10.2 start
+> vite
+
+Failed to resolve dependency: html2canvas, present in client 'optimizeDeps.include'
+
+  VITE v7.3.0  ready in 494 ms
+
+  ➜  Local:   http://localhost:5173/gear-optimizer/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+9:59:07 AM [vite] (client) Pre-transform error: Failed to resolve import "../Content/AdvancedTrainingCalculator" from "src/components/AppLayout/AppLayout.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/AppLayout/AppLayout.js:27:39
+  21 |  import SettingsComponent from "../Content/Settings";
+  22 |  import ExpCalculator from "../Content/ExpCalculator/ExpCalculator";
+  23 |  import AdvancedTrainingCalculator from "../Content/AdvancedTrainingCalculator";
+     |                                          ^
+  24 |  const glob = /* #__PURE__ */ Object.assign({"../../assets/img/'The Cricket'.png": __vite_glob_0_0,"../../assets/img/1...
+  25 |  const images = Object.fromEntries(
+9:59:07 AM [vite] (client) Pre-transform error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+9:59:11 AM [vite] Internal server error: Failed to resolve import "../Content/AdvancedTrainingCalculator" from "src/components/AppLayout/AppLayout.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/AppLayout/AppLayout.js:27:39
+  21 |  import SettingsComponent from "../Content/Settings";
+  22 |  import ExpCalculator from "../Content/ExpCalculator/ExpCalculator";
+  23 |  import AdvancedTrainingCalculator from "../Content/AdvancedTrainingCalculator";
+     |                                          ^
+  24 |  const glob = /* #__PURE__ */ Object.assign({"../../assets/img/'The Cricket'.png": __vite_glob_0_0,"../../assets/img/1...
+  25 |  const images = Object.fromEntries(
+      at TransformPluginContext._formatLog (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28998:43)
+      at TransformPluginContext.error (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28995:14)
+      at normalizeUrl (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27118:18)
+      at async file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27176:32
+      at async Promise.all (index 422)
+      at async TransformPluginContext.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27144:4)
+      at async EnvironmentPluginContainer.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28796:14)
+      at async loadAndTransform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:22669:26)
+      at async viteTransformMiddleware (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:24541:20)
+9:59:11 AM [vite] (client) Pre-transform error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+10:00:03 AM [vite] (client) page reload src/components/AppLayout/AppLayout.js
+10:00:03 AM [vite] (client) Pre-transform error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+10:00:05 AM [vite] Internal server error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+      at TransformPluginContext._formatLog (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28998:43)
+      at TransformPluginContext.error (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28995:14)
+      at normalizeUrl (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27118:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27176:32
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27144:4)
+      at async EnvironmentPluginContainer.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28796:14)
+      at async loadAndTransform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:22669:26)
+      at async viteTransformMiddleware (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:24541:20)
+10:00:25 AM [vite] (client) page reload src/components/AppLayout/AppLayout.js
+10:00:25 AM [vite] (client) Pre-transform error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+10:00:25 AM [vite] Internal server error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+      at TransformPluginContext._formatLog (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28998:43)
+      at TransformPluginContext.error (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28995:14)
+      at normalizeUrl (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27118:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27176:32
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27144:4)
+      at async EnvironmentPluginContainer.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28796:14)
+      at async loadAndTransform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:22669:26)
+      at async viteTransformMiddleware (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:24541:20)
+10:00:37 AM [vite] (client) page reload server_logs2.txt
+10:00:37 AM [vite] (client) Pre-transform error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+10:00:38 AM [vite] Internal server error: Failed to resolve import "../../util" from "src/components/Content/ExpCalculator/ExpCalculator.js". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:21:24
+  20 |    Button
+  21 |  } from "@mui/material";
+  22 |  import { shorten } from "../../util";
+     |                           ^
+  23 |  const RES_TYPES = [
+  24 |    { id: "energy", label: "Energy", powerLabel: "Energy Power", capLabel: "Energy Cap", barsLabel: "Energy Bars" },
+      at TransformPluginContext._formatLog (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28998:43)
+      at TransformPluginContext.error (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28995:14)
+      at normalizeUrl (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27118:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27176:32
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:27144:4)
+      at async EnvironmentPluginContainer.transform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:28796:14)
+      at async loadAndTransform (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:22669:26)
+      at async viteTransformMiddleware (file:///home/leonardo/Documents/gear-optimizer-master/node_modules/vite/dist/node/chunks/config.js:24541:20)
+10:01:08 AM [vite] (client) page reload src/components/Content/ExpCalculator/ExpCalculator.js
+10:38:05 AM [vite] (client) page reload src/components/Content/ExpCalculator/ExpCalculator.js
+10:51:23 AM [vite] (client) page reload src/components/Content/ExpCalculator/ExpCalculator.js
+10:55:47 AM [vite] (client) page reload src/components/Content/ExpCalculator/ExpCalculator.js
+10:55:47 AM [vite] (client) Pre-transform error: Transform failed with 1 error:
+/home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:18:7: ERROR: Expected "as" but found "{"
+  Plugin: vite:esbuild
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:18:7
+  
+  Expected "as" but found "{"
+  16 |      Button,
+  17 |      Stack,
+  18 |  import { UploadFile, TrendingUp, InfoOutlined } from '@mui/icons-material';
+     |         ^
+  19 |  import { shorten } from '../../../util';
+  20 |  import CardItem from '../../CardItem/CardItem';
+  
+10:55:47 AM [vite] Internal server error: Transform failed with 1 error:
+/home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:18:7: ERROR: Expected "as" but found "{"
+  Plugin: vite:esbuild
+  File: /home/leonardo/Documents/gear-optimizer-master/src/components/Content/ExpCalculator/ExpCalculator.js:18:7
+  
+  Expected "as" but found "{"
+  16 |      Button,
+  17 |      Stack,
+  18 |  import { UploadFile, TrendingUp, InfoOutlined } from '@mui/icons-material';
+     |         ^
+  19 |  import { shorten } from '../../../util';
+  20 |  import CardItem from '../../CardItem/CardItem';
+  
+      at failureErrorWithLog (/home/leonardo/Documents/gear-optimizer-master/node_modules/esbuild/lib/main.js:1467:15)
+      at /home/leonardo/Documents/gear-optimizer-master/node_modules/esbuild/lib/main.js:736:50
+      at responseCallbacks.<computed> (/home/leonardo/Documents/gear-optimizer-master/node_modules/esbuild/lib/main.js:603:9)
+      at handleIncomingPacket (/home/leonardo/Documents/gear-optimizer-master/node_modules/esbuild/lib/main.js:658:12)
+      at Socket.readFromStdout (/home/leonardo/Documents/gear-optimizer-master/node_modules/esbuild/lib/main.js:581:7)
+      at Socket.emit (node:events:519:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+10:56:12 AM [vite] (client) page reload src/components/Content/ExpCalculator/ExpCalculator.js

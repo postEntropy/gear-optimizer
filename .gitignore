@@ -75,3 +75,9 @@ licenses.json
 
 # --- data intermediates ---
 items/items.ts
+
+# --- old patterns (kept for compatibility) ---
+ngu-sync-bridge.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
