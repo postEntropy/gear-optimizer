@@ -1,44 +1,77 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
+# --- dependencies ---
+node_modules/
+.pnp
 .pnp.js
 
-# testing
-/coverage
+# --- testing ---
+coverage/
 
-# production
+# --- production build ---
 /build
+/dist
 
-# misc
-.DS_Store
+# --- environment files ---
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# --- IDE / editor ---
+.idea/
+.vscode/
+*.code-workspace
 
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- debug assets ---
+/src/assets/debug/
+
+# --- C# build artifacts (ngu-live-sync mod) ---
+build_mod/bin/
+build_mod/obj/
+output/
+
+# --- binary DLLs ---
+*.dll
+
+# --- log / output files ---
+*.log
 *.out
-items/items.ts
+*_log.txt
+*_logs.txt
+*out.txt
+*install_logs.txt
+server_logs*
+test_watchdog*
 
+# --- screenshots ---
+Captura de tela*.png
+Pasted image*.png
+Screenshot*.png
+
+# --- scratch / generated files ---
+refactor.js
+wishes.csv
+wiki_content.html
+wish-optimizer.html
+
+# --- AI/agent config (may contain API keys) ---
+.openclaude-profile.json
+.claude/settings.json
+
+# --- git scripts ---
 _git_commit.js
 _version.js
 
+# --- tags ---
 .tags*
+
+# --- license dump ---
 licenses.json
 
-.idea
-
-# debug
-/src/assets/debug/
-
-# compile_mod.ps1
-ngu-sync-bridge.js
-*.code-workspace
-# Local Feature: Advanced Training Calculator
-src/components/Content/AdvancedTrainingCalculator.jsCaptura de tela*.png
-Captura de tela*.png
+# --- data intermediates ---
+items/items.ts
