@@ -1,7 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+import { ThemeProvider, useTheme } from '@mui/material/styles';
 import { Box, Paper, Typography, alpha, Grid, IconButton, Tooltip } from '@mui/material';
+import { PictureInPictureAlt as PictureInPictureAltIcon } from '@mui/icons-material';
 import { TargetItem } from '../Item/Item';
 import { Slot, Factors } from '../../assets/ItemAux';
+
+const glob = import.meta.glob('../../assets/img/*.{png,jpg,jpeg,svg}', { eager: true });
+const images = Object.fromEntries(
+    Object.entries(glob).map(([path, module]) => {
+        const fileName = path.split('/').pop().replace(/\.[^/.]+$/, '');
+        return [fileName, module.default];
+    })
+);
+
+const copyStylesToPip = (pipWindow) => {
+    const pipHead = pipWindow.document.head;
+    document.head.querySelectorAll('link[rel="stylesheet"], style').forEach((el) => {
+        pipHead.appendChild(el.cloneNode(true));
+    });
+};
 
 const getBracePathAt = (x, w, y_offset = 0, h = 10, tipX = null) => {
     const r = 5;
@@ -32,13 +52,70 @@ const itemMatchesFactor = (item, factorKey, FactorsObject) => {
     return item.statnames && item.statnames.some(stat => factorStats.includes(stat));
 };
 
-const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, locked, offhand, syncStatus = 'disconnected', onShare, highlightEquipped, factors, maxslots }) => {
+const Paperdoll = (props) => {
+    const {
+        equip, liveEquip, optimizedEquip, itemdata, handleClickItem, handleCtrlClickItem,
+        handleShiftClickItem, handleRightClickItem, handleDropItem, locked, offhand,
+        syncStatus = 'disconnected', onShare, highlightEquipped, factors, maxslots, pipMode = false
+    } = props;
+
+    const theme = useTheme();
+    const [pip, setPip] = useState(null);
+    const pipWindowRef = useRef(null);
+    const pipSupported = typeof window !== 'undefined' && 'documentPictureInPicture' in window;
 
     // Use optimizedEquip for display if available, otherwise fallback to current equip
     const displayEquip = optimizedEquip || equip;
     
     // Determine the actual current equipment setup we are checking against (liveSync if connected, fallback to active optimizer equip)
     const currentEquip = (syncStatus === 'connected' && liveEquip) ? liveEquip : equip;
+
+    const getItemImage = (item) => {
+        let imgname = item.id;
+        if (images[imgname] === undefined) {
+            imgname = item.name ? item.name.replace(/</g, '').replace(/!/g, '') : '';
+        }
+        return images[imgname];
+    };
+
+    const openPip = useCallback(async () => {
+        if (pipWindowRef.current || !pipSupported) return;
+        try {
+            const accCount = (displayEquip && displayEquip.accessory ? displayEquip.accessory : []).length;
+            const width = Math.max(340, Math.min(620, accCount * 52 + 76));
+            const win = await window.documentPictureInPicture.requestWindow({ width, height: 380 });
+            win.document.title = 'Picture in picture';
+            copyStylesToPip(win);
+            const body = win.document.body;
+            body.style.margin = '0';
+            body.style.overflow = 'hidden';
+            body.style.background = theme.palette.mode === 'dark' ? '#121212' : '#ffffff';
+            body.style.fontFamily = "'Outfit', sans-serif";
+            const cache = createCache({ key: 'css', container: win.document.head });
+            win.addEventListener('pagehide', () => {
+                pipWindowRef.current = null;
+                setPip(null);
+            });
+            pipWindowRef.current = win;
+            setPip({ win, cache });
+        } catch (err) {
+            console.warn('Failed to open Picture-in-Picture', err);
+        }
+    }, [pipSupported, displayEquip, theme]);
+
+    const closePip = useCallback(() => {
+        if (pipWindowRef.current) {
+            try { pipWindowRef.current.close(); } catch (err) { }
+        }
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            if (pipWindowRef.current) {
+                try { pipWindowRef.current.close(); } catch (err) { }
+            }
+        };
+    }, []);
 
     const isAllEquipped = useMemo(() => {
         if (!optimizedEquip || !currentEquip || !displayEquip || !itemdata) {
@@ -152,18 +229,27 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
                     </Box>
                 )}
                 {isActive ? (
-                    <TargetItem
-                        item={item}
-                        idx={index}
-                        lockable={true}
-                        locked={locked}
-                        handleClickItem={handleClickItem}
-                        handleCtrlClickItem={handleCtrlClickItem}
-                        handleShiftClickItem={handleShiftClickItem}
-                        handleRightClickItem={handleRightClickItem}
-                        handleDropItem={handleDropItem}
-                        size="medium"
-                    />
+                    pipMode ? (
+                        <img
+                            src={getItemImage(item)}
+                            alt={item.id}
+                            draggable={false}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                        />
+                    ) : (
+                        <TargetItem
+                            item={item}
+                            idx={index}
+                            lockable={true}
+                            locked={locked}
+                            handleClickItem={handleClickItem}
+                            handleCtrlClickItem={handleCtrlClickItem}
+                            handleShiftClickItem={handleShiftClickItem}
+                            handleRightClickItem={handleRightClickItem}
+                            handleDropItem={handleDropItem}
+                            size="medium"
+                        />
+                    )
                 ) : (
                     <Box sx={{ width: '100%', height: '100%', bgcolor: 'action.hover' }} />
                 )}
@@ -275,7 +361,8 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
     }, [p1Blocks, p2Blocks]);
 
     return (
-        <Paper elevation={0} sx={{
+        <>
+            <Paper elevation={0} sx={{
             p: 1.5,
             width: '100%',
             maxWidth: '100%',
@@ -341,6 +428,17 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
                             bgcolor: 'success.main',
                             boxShadow: (theme) => `0 0 4px ${theme.palette.success.main}`
                         }} />
+                    )}
+                    {!pipMode && pipSupported && (
+                        <Tooltip title={pip ? 'Fechar Picture-in-Picture' : 'Abrir em Picture-in-Picture'}>
+                            <IconButton
+                                size="small"
+                                onClick={pip ? closePip : openPip}
+                                sx={{ color: pip ? 'primary.main' : 'text.secondary' }}
+                            >
+                                <PictureInPictureAltIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
                     )}
                 </Box>
             </Box>
@@ -506,11 +604,21 @@ const Paperdoll = ({ equip, liveEquip, optimizedEquip, itemdata, handleClickItem
                 </Box>
             </Box>
         </Paper>
+        {!pipMode && pip && createPortal(
+            <CacheProvider value={pip.cache}>
+                <ThemeProvider theme={theme}>
+                    <Paperdoll {...props} pipMode />
+                </ThemeProvider>
+            </CacheProvider>,
+            pip.win.document.body
+        )}
+    </>
     );
 };
 
 export default React.memo(Paperdoll, (prevProps, nextProps) => {
     return (
+        prevProps.pipMode === nextProps.pipMode &&
         prevProps.equip === nextProps.equip &&
         prevProps.liveEquip === nextProps.liveEquip &&
         prevProps.optimizedEquip === nextProps.optimizedEquip &&
