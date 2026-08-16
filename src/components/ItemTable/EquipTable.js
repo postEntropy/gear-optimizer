@@ -6,6 +6,8 @@ import { cubeBaseItemData, score_equip, shorten } from '../../util'
 
 import { default as SaveButtons } from './SaveButtons'
 
+const noop = () => {};
+
 function equip2url(equip, itemdata) {
     const base = window.location.href
     let url = base.substring(0, base.indexOf('#') + 1) + '/loadout/'
@@ -56,7 +58,7 @@ const formatted = (val, stat, d) => {
     return pf + num + sf
 };
 
-const BonusLine = ({ factor, factors, itemdata, equip, savedequip, compactbonus, offhand, capstats }) => {
+const BonusLine = React.memo(({ factor, factors, itemdata, equip, savedequip, compactbonus, offhand, capstats }) => {
     const diffclass = (old, val) => {
         if (old < val) return 'success.main';
         if (old > val) return 'error.main';
@@ -108,10 +110,19 @@ const BonusLine = ({ factor, factors, itemdata, equip, savedequip, compactbonus,
             <br />
         </>
     );
-};
+}, (prevProps, nextProps) => (
+    prevProps.factor === nextProps.factor &&
+    prevProps.factors === nextProps.factors &&
+    prevProps.itemdata === nextProps.itemdata &&
+    prevProps.equip === nextProps.equip &&
+    prevProps.savedequip === nextProps.savedequip &&
+    prevProps.compactbonus === nextProps.compactbonus &&
+    prevProps.offhand === nextProps.offhand &&
+    prevProps.capstats === nextProps.capstats
+));
 
 // Simplified component without heavy memoization overhead for cleaner fast renders
-const EquipmentSection = ({ equip, prefix, itemdata, group, locked, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, lockable, bgColor = 'transparent' }) => {
+const EquipmentSection = React.memo(({ equip, prefix, itemdata, group, locked, handleClickItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, lockable, bgColor = 'transparent' }) => {
 
     // Calculate sections immediately - optimized enough without useMemo for this amount of data
     // to avoid overhead of dependency checking on every prop change
@@ -196,7 +207,20 @@ const EquipmentSection = ({ equip, prefix, itemdata, group, locked, handleClickI
             </Grid>
         </Paper>
     );
-};
+}, (prevProps, nextProps) => (
+    prevProps.equip === nextProps.equip &&
+    prevProps.prefix === nextProps.prefix &&
+    prevProps.itemdata === nextProps.itemdata &&
+    prevProps.group === nextProps.group &&
+    prevProps.locked === nextProps.locked &&
+    prevProps.handleClickItem === nextProps.handleClickItem &&
+    prevProps.handleCtrlClickItem === nextProps.handleCtrlClickItem &&
+    prevProps.handleShiftClickItem === nextProps.handleShiftClickItem &&
+    prevProps.handleRightClickItem === nextProps.handleRightClickItem &&
+    prevProps.handleDropItem === nextProps.handleDropItem &&
+    prevProps.lockable === nextProps.lockable &&
+    (prevProps.bgColor || 'transparent') === (nextProps.bgColor || 'transparent')
+));
 
 export const ConditionalSection = React.memo(({ condition, title, items, itemdata, equip, handleEquipItem, handleCtrlClickItem, handleShiftClickItem, handleRightClickItem, handleDropItem, highlightEquipped }) => {
     // Default to collapsed (hidden)
@@ -313,11 +337,11 @@ const EquipTable = React.memo((props) => {
                     itemdata={itemdata}
                     group={props.group}
                     locked={props.locked}
-                    handleClickItem={() => {}} // Read-only for live sync
-                    handleCtrlClickItem={() => {}}
-                    handleShiftClickItem={() => {}}
-                    handleRightClickItem={() => {}}
-                    handleDropItem={() => {}}
+                    handleClickItem={noop} // Read-only for live sync
+                    handleCtrlClickItem={noop}
+                    handleShiftClickItem={noop}
+                    handleRightClickItem={noop}
+                    handleDropItem={noop}
                     lockable={false}
                     bgColor="rgba(0, 255, 0, 0.02)"
                 />
@@ -342,7 +366,7 @@ const EquipTable = React.memo((props) => {
                         locked={props.locked}
                         handleClickItem={props.handleEquipItem}
                         handleCtrlClickItem={props.handleCtrlClickItem}
-                        handleShiftClickItem={() => { }}
+                        handleShiftClickItem={noop}
                         handleRightClickItem={props.handleRightClickItem}
                         handleDropItem={props.handleDropItem}
                         lockable={false}

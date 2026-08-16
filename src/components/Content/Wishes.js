@@ -109,11 +109,37 @@ class WishComponent extends Component {
         document.execCommand('copy');
     };
 
+    _computeWishResults() {
+        const props = this.props;
+        const wishstats = props.wishstats;
+        if (this._wishCache
+            && this._wishCache.wishstats === wishstats
+            && this._wishCache.itemdata === props.itemdata
+            && this._wishCache.cubestats === props.cubestats
+            && this._wishCache.basestats === props.basestats
+            && this._wishCache.savedequip === props.savedequip
+            && this._wishCache.offhand === props.offhand
+            && this._wishCache.capstats === props.capstats) {
+            return this._wishCache.results;
+        }
+        const results = new Wish(props).optimize();
+        this._wishCache = {
+            wishstats,
+            itemdata: props.itemdata,
+            cubestats: props.cubestats,
+            basestats: props.basestats,
+            savedequip: props.savedequip,
+            offhand: props.offhand,
+            capstats: props.capstats,
+            results
+        };
+        return results;
+    }
+
     render() {
         if (!this.state.isReady) return <Loading />;
         ReactGA.pageview('/wishes/');
-        let wishOptimizer = new Wish(this.props);
-        const results = wishOptimizer.optimize();
+        const results = this._computeWishResults();
         const score = toTime(Math.max(...results[0]));
         const scores = results[0];
         const assignments = results[1];

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import ReactGA from 'react-ga';
 import { Navigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
@@ -92,6 +92,16 @@ const Optimizer = (props) => {
         if (!props.loaded) return null;
         return cubeBaseItemData(props.itemdata, props.cubestats, props.basestats);
     }, [props.loaded, props.itemdata, props.cubestats, props.basestats]);
+
+    // Stable closures for ConditionalSection so its React.memo stays effective.
+    const notMaxedCondition = useCallback((id) => itemdata[id].level !== 100, [itemdata]);
+    const disabledCondition = useCallback((id) => itemdata[id].disable, [itemdata]);
+    const handleConditionalShiftClick = useCallback((itemId) => props.handleEditItem(itemId, -1), [props.handleEditItem]);
+    const handleConditionalRightClick = useCallback((itemId) => props.handleToggleModal('edit item', {
+        itemId: itemId,
+        lockable: false,
+        on: true
+    }), [props.handleToggleModal]);
 
     if (!isReady) {
         return <Loading />;
@@ -372,37 +382,29 @@ const Optimizer = (props) => {
 
                             {/* Conditional Sections - Filtered Items */}
                             <ConditionalSection
-                                condition={id => itemdata[id].level !== 100}
+                                condition={notMaxedCondition}
                                 title="Not maxed"
                                 items={props.items}
                                 itemdata={itemdata}
                                 equip={props.equip}
                                 handleEquipItem={props.handleEquipItem}
                                 handleCtrlClickItem={props.handleDisableItem}
-                                handleShiftClickItem={(itemId) => props.handleEditItem(itemId, -1)}
-                                handleRightClickItem={(itemId) => props.handleToggleModal('edit item', {
-                                    itemId: itemId,
-                                    lockable: false,
-                                    on: true
-                                })}
+                                handleShiftClickItem={handleConditionalShiftClick}
+                                handleRightClickItem={handleConditionalRightClick}
                                 handleDropItem={props.handleDropEquipItem}
                                 highlightEquipped={props.highlightEquipped}
                             />
 
                             <ConditionalSection
-                                condition={id => itemdata[id].disable}
+                                condition={disabledCondition}
                                 title="Disabled Items"
                                 items={props.items}
                                 itemdata={itemdata}
                                 equip={props.equip}
                                 handleEquipItem={props.handleEquipItem}
                                 handleCtrlClickItem={props.handleDisableItem}
-                                handleShiftClickItem={(itemId) => props.handleEditItem(itemId, -1)}
-                                handleRightClickItem={(itemId) => props.handleToggleModal('edit item', {
-                                    itemId: itemId,
-                                    lockable: false,
-                                    on: true
-                                })}
+                                handleShiftClickItem={handleConditionalShiftClick}
+                                handleRightClickItem={handleConditionalRightClick}
                                 handleDropItem={props.handleDropEquipItem}
                                 highlightEquipped={props.highlightEquipped}
                             />

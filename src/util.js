@@ -164,8 +164,28 @@ export function score_raw_equip(data, equip, factors, offhand) {
     return score_vals(get_raw_vals(data, equip, factors, offhand), factors);
 }
 
+// Memo cache for score_equip: keyed on (equip reference, factors reference) so
+// repeated calls with identical inputs skip recomputation. Remaining inputs
+// (data, offhand, capstats) are checked by reference/equality before reuse.
+const scoreEquipCache = new WeakMap();
+
 export function score_equip(data, equip, factors, offhand, capstats) {
-    return score_vals(get_vals(data, equip, factors, offhand, capstats), factors);
+    let factorCache = scoreEquipCache.get(equip);
+    if (factorCache !== undefined) {
+        const cached = factorCache.get(factors);
+        if (cached !== undefined &&
+            cached.data === data &&
+            cached.offhand === offhand &&
+            cached.capstats === capstats) {
+            return cached.value;
+        }
+    } else {
+        factorCache = new Map();
+        scoreEquipCache.set(equip, factorCache);
+    }
+    const value = score_vals(get_vals(data, equip, factors, offhand, capstats), factors);
+    factorCache.set(factors, { data, offhand, capstats, value });
+    return value;
 }
 
 export const shorten = (val, mfd = 2) => {

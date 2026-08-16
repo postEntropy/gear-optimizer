@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import CookieBanner from 'react-cookie-banner';
 import { NavLink, useLocation, useMatch, useParams } from 'react-router-dom';
 
@@ -13,17 +13,17 @@ import { THEME_COLORS } from '../../themeColors';
 import Loading from '../Loading/Loading';
 import LiveSyncPill from '../LiveSyncPill/LiveSyncPill';
 
-// Static Imports for Instant Navigation
-import Optimizer from '../Content/Optimizer';
-import Augment from '../Content/Augment';
-import NGUComponent from '../Content/NGUs';
-import HackComponent from '../Content/Hacks';
-import WishComponent from '../Content/Wishes';
-import HistoryComponent from '../Content/History/index';
-import PerksComponent from '../Perks/Perks';
-import SettingsComponent from '../Content/Settings';
-import ExpCalculator from '../Content/ExpCalculator/ExpCalculator';
-import LiveSyncHistory from '../Content/LiveSyncHistory';
+// Lazy Imports for Code Splitting
+const Optimizer = React.lazy(() => import('../Content/Optimizer'));
+const Augment = React.lazy(() => import('../Content/Augment'));
+const NGUComponent = React.lazy(() => import('../Content/NGUs'));
+const HackComponent = React.lazy(() => import('../Content/Hacks'));
+const WishComponent = React.lazy(() => import('../Content/Wishes'));
+const HistoryComponent = React.lazy(() => import('../Content/History/index'));
+const PerksComponent = React.lazy(() => import('../Perks/Perks'));
+const SettingsComponent = React.lazy(() => import('../Content/Settings'));
+const ExpCalculator = React.lazy(() => import('../Content/ExpCalculator/ExpCalculator'));
+const LiveSyncHistory = React.lazy(() => import('../Content/LiveSyncHistory'));
 
 // import AdvancedTrainingCalculator from '../Content/AdvancedTrainingCalculator';
 // import AboutComponent from '../About/About';
@@ -204,17 +204,19 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
 const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isLiveSyncHistory, isPerks, isSettings, isExpCalculator, props, loadoutParams, fadeAnimation }) => {
     return (
         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto', ...fadeAnimation }}>
-            {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
-            {isAugment && <Augment {...props} className='app_body' />}
-            {isNGUs && <NGUComponent {...props} className='app_body' />}
-            {isHacks && <HackComponent {...props} className='app_body' />}
-            {isWishes && <WishComponent {...props} className='app_body' />}
-            {isHistory && <HistoryComponent {...props} className='app_body' />}
-            {isLiveSyncHistory && <LiveSyncHistory {...props} className='app_body' />}
-            {isPerks && <PerksComponent {...props} className='app_body' />}
-            {isSettings && <SettingsComponent {...props} className='app_body' />}
-            {/* {isAdvancedTraining && <AdvancedTrainingCalculator {...props} className='app_body' />} */}
-            {isExpCalculator && <ExpCalculator {...props} className='app_body' />}
+            <Suspense fallback={<Loading />}>
+                {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
+                {isAugment && <Augment {...props} className='app_body' />}
+                {isNGUs && <NGUComponent {...props} className='app_body' />}
+                {isHacks && <HackComponent {...props} className='app_body' />}
+                {isWishes && <WishComponent {...props} className='app_body' />}
+                {isHistory && <HistoryComponent {...props} className='app_body' />}
+                {isLiveSyncHistory && <LiveSyncHistory {...props} className='app_body' />}
+                {isPerks && <PerksComponent {...props} className='app_body' />}
+                {isSettings && <SettingsComponent {...props} className='app_body' />}
+                {/* {isAdvancedTraining && <AdvancedTrainingCalculator {...props} className='app_body' />} */}
+                {isExpCalculator && <ExpCalculator {...props} className='app_body' />}
+            </Suspense>
         </Box>
     );
 });

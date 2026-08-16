@@ -34,7 +34,25 @@ export const TargetItem = (props) => {
     return (<div className="item-container" ref={drop}><SourceItem {...props} /></div>);
 }
 
-const Item = (props) => {
+// Custom comparator: only re-render when a prop that affects Item's output changes.
+// Drag/drop connector props (connectDragSource/connectDropTarget) never reach Item
+// (they are consumed inside SourceItem/TargetItem), and handleDropItem does not
+// affect rendering, so both are omitted.
+const arePropsEqual = (prevProps, nextProps) => (
+    prevProps.item === nextProps.item &&
+    prevProps.className === nextProps.className &&
+    prevProps.idx === nextProps.idx &&
+    prevProps.locked === nextProps.locked &&
+    prevProps.lockable === nextProps.lockable &&
+    prevProps.isEquipped === nextProps.isEquipped &&
+    prevProps.highlightEquipped === nextProps.highlightEquipped &&
+    prevProps.handleClickItem === nextProps.handleClickItem &&
+    prevProps.handleCtrlClickItem === nextProps.handleCtrlClickItem &&
+    prevProps.handleShiftClickItem === nextProps.handleShiftClickItem &&
+    prevProps.handleRightClickItem === nextProps.handleRightClickItem
+);
+
+const Item = React.memo((props) => {
     const { item, className, idx, locked: lockedProp, lockable, isEquipped, highlightEquipped = true } = props;
 
     // Tooltip content generation
@@ -115,7 +133,7 @@ const Item = (props) => {
             />
         </Tooltip>
     );
-};
+}, arePropsEqual);
 
 Item.propTypes = {
     item: PropTypes.shape({ name: PropTypes.string.isRequired, level: PropTypes.number }),

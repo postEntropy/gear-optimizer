@@ -152,16 +152,37 @@ class AugmentComponent extends Component {
         );
     }
 
+    _computeAugResults() {
+        const augstats = this.props.augstats;
+        if (this._augCache && this._augCache.augstats === augstats) {
+            return this._augCache.results;
+        }
+        const augmentOptimizer = new Augment(augstats, AUGS);
+        const results = AUGS.map((aug, pos) => {
+            const augresult = augmentOptimizer.reachable(pos, false);
+            const auglevel = augresult[0];
+            const goldlimited = augresult[1];
+            const upglevel = goldlimited
+                ? 0
+                : augmentOptimizer.reachable(pos, true)[0];
+            const boost = augmentOptimizer.boost(pos, auglevel, upglevel);
+            const energy = augmentOptimizer.energy(pos);
+            return {
+                auglevel,
+                upglevel,
+                boost,
+                energy
+            };
+        });
+        this._augCache = {
+            augstats,
+            results
+        };
+        return results;
+    }
+
     augment(augstats, aug, pos) {
-        let augmentOptimizer = new Augment(augstats, AUGS);
-        const augresult = augmentOptimizer.reachable(pos, false);
-        const auglevel = augresult[0];
-        const goldlimited = augresult[1];
-        const upglevel = goldlimited
-            ? 0
-            : augmentOptimizer.reachable(pos, true)[0];
-        const boost = augmentOptimizer.boost(pos, auglevel, upglevel);
-        const energy = augmentOptimizer.energy(pos);
+        const { auglevel, upglevel, boost, energy } = this._computeAugResults()[pos];
         return <TableRow key={pos}>
             <TableCell>{aug.name}</TableCell>
             <TableCell>{
