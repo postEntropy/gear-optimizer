@@ -918,7 +918,7 @@ const ItemsReducer = (state = INITIAL_STATE, action) => {
         }
 
         case EQUIP_ITEMS: {
-            const names = action.payload.names;
+            const names = action.payload.names ?? action.payload.ids ?? [];
             if (names.length === 0) {
                 return cleanState(state);
             }

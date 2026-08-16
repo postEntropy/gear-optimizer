@@ -16,7 +16,7 @@ function choose(e) {
     } else if (e.data.command === 'augment') {
         augment.call(this, e);
     } else if (e.data.command === 'wishes') {
-        augment.call(this, e);
+        wish.call(this, e);
     } else if (e.data.command === 'scanUseless') {
         scanUseless.call(this, e);
     } else {

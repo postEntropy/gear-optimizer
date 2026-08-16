@@ -4,6 +4,8 @@ import { Settings } from '../../actions/Settings';
 import { Deserializer } from '../ImportSaveForm/deserializeDotNet';
 import { applySaveData, calculateDiffs, extractSnapshot } from '../../utils/saveHandling';
 
+const LIVESYNC_URL = import.meta.env.VITE_LIVESYNC_URL || 'http://localhost:3005/events';
+
 const LiveSyncEngine = () => {
     const dispatch = useDispatch();
     const optimizerState = useSelector(state => state.optimizer);
@@ -71,7 +73,7 @@ const LiveSyncEngine = () => {
                 status: 'connecting'
             }));
 
-            const es = new EventSource('http://localhost:3005/events');
+            const es = new EventSource(LIVESYNC_URL);
             eventSourceRef.current = es;
 
             es.onopen = () => {

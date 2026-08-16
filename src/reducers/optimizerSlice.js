@@ -314,11 +314,13 @@ const optimizerSlice = createSlice({
             })
             .addCase(AUGMENT, (state, action) => {
                 if (!state.running) return;
+                if (!state.augment) state.augment = { lsc: 20, time: 1440 };
                 // console.log('worker finished')
                 state.augment.vals = action.payload.vals;
                 state.running = false;
             })
             .addCase(AUGMENT_SETTINGS, (state, action) => {
+                if (!state.augment) state.augment = { lsc: 20, time: 1440 };
                 let lsc = Number(action.payload.lsc);
                 let time = Number(action.payload.time);
                 if (isNaN(lsc)) lsc = 20;
@@ -478,6 +480,15 @@ const optimizerSlice = createSlice({
                 const item = state.itemdata[id];
                 // RTK allows direct mutation
                 if (item) item.disable = !item.disable;
+            })
+            .addCase(DISABLE_ZONE, (state, action) => {
+                const zoneid = action.payload.id;
+                Object.getOwnPropertyNames(state.itemdata).forEach(itemid => {
+                    const item = state.itemdata[itemid];
+                    if (item.zone !== undefined && item.zone[1] === zoneid) {
+                        item.disable = !item.disable;
+                    }
+                });
             })
             .addCase(LOCK_ITEM, (state, action) => {
                 const { lock, slot, idx } = action.payload;
@@ -761,7 +772,7 @@ const optimizerSlice = createSlice({
                 return loadState(state);
             })
             .addCase(EQUIP_ITEMS, (state, action) => {
-                const names = action.payload.names;
+                const names = action.payload.names ?? action.payload.ids ?? [];
                 if (names.length === 0) return cleanState(state);
 
                 // loadState returns a new state object (not draft friendly if we want to mutate, but typically it builds a new one)
