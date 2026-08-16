@@ -34,7 +34,6 @@ import { ClearHistory } from '../actions/History';
 
 import { MassDisable } from '../actions/MassDisable';
 
-import '../stylesheets/App.css';
 import { LOCALSTORAGE_NAME } from '../constants';
 
 ReactGA.initialize('UA-141463995-1');

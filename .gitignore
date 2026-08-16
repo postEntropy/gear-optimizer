@@ -13,6 +13,7 @@ coverage/
 /dist
 
 # --- environment files ---
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -74,7 +75,8 @@ _version.js
 licenses.json
 
 # --- data intermediates ---
-items/items.ts
+data/Items.js
+data/ngusave.json
 
 # --- old patterns (kept for compatibility) ---
 ngu-sync-bridge.js
