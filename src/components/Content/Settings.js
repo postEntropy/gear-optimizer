@@ -10,31 +10,23 @@ import {
     alpha,
     useTheme,
     Grid,
-    Tooltip,
-    Link,
-    InputAdornment,
-    IconButton
+    Tooltip
 } from '@mui/material';
 import {
     Settings as SettingsIcon,
     Person as PersonIcon,
     Wallpaper as WallpaperIcon,
     Info as InfoIcon,
-    Storage as StorageIcon,
-    AutoAwesome as GeminiIcon,
-    Visibility,
-    VisibilityOff
+    Storage as StorageIcon
 } from '@mui/icons-material';
 
 const Settings = (props) => {
     const theme = useTheme();
-    const [showApiKey, setShowApiKey] = React.useState(false);
     const {
         playerName,
         randomLogoFilterOwned,
         handleSettings,
         highlightBest,
-        geminiApiKey,
         wishesLegacyMode
     } = props;
 
@@ -79,12 +71,12 @@ const Settings = (props) => {
             </Box>
 
             <Grid container spacing={3}>
-                {/* Profile & AI Section */}
+                {/* Profile Section */}
                 <Grid item xs={12} md={6}>
                     <Paper sx={cardStyle}>
                         <Box sx={sectionHeaderStyle}>
                             <PersonIcon />
-                            <Typography variant="h6" fontWeight={700}>Profile & AI</Typography>
+                            <Typography variant="h6" fontWeight={700}>Profile</Typography>
                         </Box>
                         <TextField
                             fullWidth
@@ -95,42 +87,8 @@ const Settings = (props) => {
                             placeholder="Enter your name"
                             sx={{ mt: 1 }}
                         />
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 1, mt: 0.5, mb: 3 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 1, mt: 0.5, mb: 1 }}>
                             Your name will appear on shared Build Cards and loadouts.
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                            <GeminiIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
-                            <Typography variant="subtitle2" fontWeight={600}>Gemini AI Key</Typography>
-                        </Box>
-                        <TextField
-                            fullWidth
-                            label="Google Gemini API Key"
-                            variant="outlined"
-                            type={showApiKey ? 'text' : 'password'}
-                            value={geminiApiKey || ''}
-                            onChange={handleChange('geminiApiKey')}
-                            placeholder="AIza..."
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowApiKey(v => !v)}
-                                            edge="end"
-                                            size="small"
-                                        >
-                                            {showApiKey ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
-                        />
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 1, mt: 0.5 }}>
-                            Required to use the AI assistant on the Wishes page. Get your key at{' '}
-                            <Link href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">
-                                aistudio.google.com
-                            </Link>
-                            . The key is stored in your browser's local storage — do not share exported settings files as they will contain your API key.
                         </Typography>
 
                         <Box sx={{ mt: 2.5 }}>
