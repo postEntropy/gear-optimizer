@@ -138,7 +138,7 @@ const Optimizer = (props) => {
                                 />
 
                                 {/* Data Integration (Below Paperdoll) */}
-                                <Paper sx={{ p: 1.5, width: '100%' }}>
+                                <Paper sx={{ p: 1.5, width: '100%', borderRadius: 2 }}>
                                     <Typography variant="overline" sx={{ fontWeight: 'bold', display: 'block', color: 'primary.main', letterSpacing: 1.5, lineHeight: 1, mb: 1 }}>
                                         DATA INTEGRATION
                                     </Typography>
@@ -156,7 +156,7 @@ const Optimizer = (props) => {
                                 </Paper>
 
                                 {/* Stats Modifiers (Below Data Integration) */}
-                                <Paper sx={{ p: 2, width: '100%', overflow: 'auto' }}>
+                                <Paper sx={{ p: 2, width: '100%', overflow: 'auto', borderRadius: 2 }}>
                                     <Typography variant="overline" sx={{ fontWeight: 'bold', mb: 2, display: 'block' }}>Stats Modifiers</Typography>
                                     <Table size="small">
                                         <TableBody>

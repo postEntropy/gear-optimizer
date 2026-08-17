@@ -240,7 +240,7 @@ export const ConditionalSection = React.memo(({ condition, title, items, itemdat
 
     return (
         <Grid item xs={12}>
-            <Paper sx={{ p: 1, border: '1px solid', borderColor: 'divider' }}>
+            <Paper sx={{ p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                 <Box
                     onClick={() => setExpanded(!expanded)}
                     sx={{
@@ -292,7 +292,7 @@ const EquipTable = React.memo((props) => {
 
     const renderCurrent = () => (
         <Grid item xs={12}>
-            <Paper elevation={2} sx={{ p: 2, border: '1px solid', borderColor: 'primary.light' }}>
+            <Paper elevation={2} sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                         ⚔️ Current Equipment (In Use)
@@ -328,7 +328,7 @@ const EquipTable = React.memo((props) => {
     const renderSaved = () => (
         <>
             <Grid item xs={12}>
-                <Paper elevation={2} sx={{ p: 2, mb: 1, border: '1px solid', borderColor: 'primary.light' }}>
+                <Paper elevation={2} sx={{ p: 2, mb: 1, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
 
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1, display: 'flex', alignItems: 'center' }}>
                         💾 Saved Loadout

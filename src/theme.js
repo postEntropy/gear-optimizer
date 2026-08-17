@@ -44,7 +44,7 @@ const getTheme = (mode, colorObj) => {
             button: { fontWeight: 600, textTransform: 'none', letterSpacing: '0.01em' },
         },
         shape: {
-            borderRadius: 8, // Back to professional standard
+            borderRadius: 8,
         },
         shadows: isDark
             ? [
@@ -82,7 +82,7 @@ const getTheme = (mode, colorObj) => {
             MuiPaper: {
                 styleOverrides: {
                     root: {
-                        // Removed global backdropFilter from root - too expensive for multiple cards
+                        borderRadius: 16,
                         border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.05)',
                         backgroundImage: 'none',
                     }
@@ -91,7 +91,7 @@ const getTheme = (mode, colorObj) => {
             MuiButton: {
                 styleOverrides: {
                     root: {
-                        borderRadius: 6,
+                        borderRadius: 8,
                         transition: 'background-color 0.2s, transform 0.1s, box-shadow 0.2s',
                     },
                     contained: {
@@ -102,7 +102,7 @@ const getTheme = (mode, colorObj) => {
             MuiCard: {
                 styleOverrides: {
                     root: {
-                        borderRadius: 12,
+                        borderRadius: 16,
                         transition: 'transform 0.2s, box-shadow 0.2s',
                         '&:hover': {
                             boxShadow: isDark ? '0 8px 16px rgba(0,0,0,0.5)' : '0 8px 16px rgba(0,0,0,0.08)',
@@ -114,7 +114,7 @@ const getTheme = (mode, colorObj) => {
                 styleOverrides: {
                     root: {
                         '& .MuiOutlinedInput-root': {
-                            borderRadius: 6,
+                            borderRadius: 8,
                             backgroundColor: isDark ? alpha('#000', 0.2) : alpha('#fff', 0.5),
                         },
                         // Hide spinners for type=number
@@ -127,9 +127,24 @@ const getTheme = (mode, colorObj) => {
                     }
                 }
             },
+            MuiSelect: {
+                styleOverrides: {
+                    root: {
+                        borderRadius: 8,
+                    }
+                }
+            },
+            MuiDialog: {
+                styleOverrides: {
+                    paper: {
+                        borderRadius: 16,
+                    }
+                }
+            },
             MuiMenu: {
                 styleOverrides: {
                     paper: {
+                        borderRadius: 12,
                         backgroundColor: isDark ? alpha('#1e1e1e', 0.95) : alpha('#ffffff', 0.95),
                         backdropFilter: 'blur(12px)',
                     }
@@ -138,6 +153,7 @@ const getTheme = (mode, colorObj) => {
             MuiAutocomplete: {
                 styleOverrides: {
                     paper: {
+                        borderRadius: 12,
                         backgroundColor: isDark ? alpha('#1e1e1e', 0.95) : alpha('#ffffff', 0.95),
                         backdropFilter: 'blur(12px)',
                     }

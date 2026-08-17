@@ -42,7 +42,7 @@ const ItemSection = React.memo(({ groupName, items, hidden, handleZoneClick }) =
 
     return (
         <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Paper sx={{ p: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Paper sx={{ p: 1, height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2 }}>
                 <Typography
                     variant="subtitle2"
                     onClick={handleZoneClick}
