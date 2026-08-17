@@ -16,9 +16,6 @@ const doOptimize = (command, result, state, worker) => new Promise(async functio
         worker.onmessage = function (e) {
             resolve(e.data);
         };
-        worker.onerror = function (e) {
-            reject(e);
-        };
         worker.postMessage({ command: command, state: state });
     });
     await resolve(output[result]);
@@ -34,13 +31,7 @@ export function* optimizeAsync(action) {
     });
     const store = yield select();
     const state = store.optimizer;
-    let equip;
-    try {
-        equip = yield doOptimize('optimize', 'equip', state, worker);
-    } catch (e) {
-        yield put({ type: TERMINATE });
-        return;
-    }
+    let equip = yield doOptimize('optimize', 'equip', state, worker);
     yield put({
         type: OPTIMIZE_GEAR,
         payload: {
@@ -59,13 +50,7 @@ export function* optimizeSavesAsync(action) {
     });
     const store = yield select();
     const state = store.optimizer;
-    let savedequip;
-    try {
-        savedequip = yield doOptimize('optimizeSaves', 'savedequip', state, worker);
-    } catch (e) {
-        yield put({ type: TERMINATE });
-        return;
-    }
+    let savedequip = yield doOptimize('optimizeSaves', 'savedequip', state, worker);
     yield put({
         type: OPTIMIZE_SAVES,
         payload: {
@@ -85,13 +70,7 @@ export function* augmentAsync(action) {
     });
     const store = yield select();
     const state = store.optimizer;
-    let vals;
-    try {
-        vals = yield doOptimize('augment', 'vals', state, worker);
-    } catch (e) {
-        yield put({ type: TERMINATE });
-        return;
-    }
+    let vals = yield doOptimize('augment', 'vals', state, worker);
     yield put({
         type: AUGMENT,
         payload: {

@@ -172,12 +172,6 @@ const updateWishTab = (data, optimizerState, dispatch) => {
 
 export const extractSnapshot = (data) => {
     if (!data) return null;
-    const equipItem = (item) => {
-        if (Array.isArray(item)) return [item[0] || 0, item[1] || 0];
-        if (item && typeof item === 'object' && item.id) return [item.id, item.level || 0];
-        return [0, 0];
-    };
-    const inv = data.inventory || {};
     return {
         hacks: data.hacks?.hacks?.map(h => typeof h === 'object' ? (h?.level || 0) : (h || 0)) || [],
         eNgu: data.NGU?.skills?.map(s => s?.level || 0) || [],
@@ -191,16 +185,7 @@ export const extractSnapshot = (data) => {
         augments: data.augments?.augments?.map(a => a?.augLevel || 0) || [],
         upgrades: data.augments?.augments?.map(a => a?.upgradeLevel || 0) || [],
         rituals: data.bloodMagic?.rituals?.map(r => r?.level || 0) || [],
-        macGuffins: data.macGuffin?.macGuffins?.map(m => m?.level || 0) || [],
-        equip: {
-            head: equipItem(inv.head),
-            chest: equipItem(inv.chest),
-            legs: equipItem(inv.legs),
-            boots: equipItem(inv.boots),
-            weapon: equipItem(inv.weapon),
-            weapon2: equipItem(inv.weapon2),
-            accs: (inv.accs || []).map(equipItem)
-        }
+        macGuffins: data.macGuffin?.macGuffins?.map(m => m?.level || 0) || []
     };
 };
 

@@ -47,16 +47,7 @@ namespace NGULiveSync {
                         var req = ctx.Request;
                         var res = ctx.Response;
 
-                        string origin = req.Headers["Origin"];
-                        if (!IsOriginAllowed(origin)) {
-                            res.StatusCode = 403;
-                            res.Close();
-                            continue;
-                        }
-
-                        if (!string.IsNullOrEmpty(origin)) {
-                            res.AddHeader("Access-Control-Allow-Origin", origin);
-                        }
+                        res.AddHeader("Access-Control-Allow-Origin", "*");
                         res.AddHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
                         res.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
                         res.AddHeader("Access-Control-Max-Age", "3600");
@@ -81,21 +72,9 @@ namespace NGULiveSync {
                             res.StatusCode = 404;
                             res.Close(); 
                         }
-                    } catch (Exception ex) {
-                        Logger.LogError("NGULiveSync: " + ex);
-                    }
+                    } catch { }
                 }
-            } catch (Exception ex) {
-                Logger.LogError("NGULiveSync: " + ex);
-            }
-        }
-
-        private static bool IsOriginAllowed(string origin) {
-            if (string.IsNullOrEmpty(origin)) return true;
-            if (origin.StartsWith("http://localhost:")) return true;
-            if (origin.StartsWith("http://127.0.0.1:")) return true;
-            if (origin == "https://postEntropy.github.io") return true;
-            return false;
+            } catch { }
         }
 
         public static void BroadcastData(PlayerData pd) {
@@ -118,17 +97,14 @@ namespace NGULiveSync {
                             try { 
                                 _clients[i].OutputStream.Write(data, 0, data.Length); 
                                 _clients[i].OutputStream.Flush(); 
-                            } catch (Exception ex) { 
-                                Logger.LogError("NGULiveSync: " + ex);
+                            } catch { 
                                 try { _clients[i].Close(); } catch {}
                                 _clients.RemoveAt(i); 
                             }
                         }
                     }
                 }
-            } catch (Exception ex) {
-                Logger.LogError("NGULiveSync: " + ex);
-            }
+            } catch { }
         }
 
         private static void SendHeartbeat(object state) {
