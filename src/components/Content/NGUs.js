@@ -201,71 +201,10 @@ class NGUComponent extends Component {
         return () => this.requestSort(key);
     }
 
-    _computeNguData(resource) {
-        const props = this.props;
-        const ngustats = props.ngustats;
-        const stats = ngustats[resource].ngus;
-        const ngutime = ngustats.ngutime;
-        const quirk = ngustats.quirk;
-        if (this._nguCache
-            && this._nguCache.resource === resource
-            && this._nguCache.ngustats === ngustats
-            && this._nguCache.stats === stats
-            && this._nguCache.quirk === quirk
-            && this._nguCache.ngutime === ngutime
-            && this._nguCache.itemdata === props.itemdata
-            && this._nguCache.cubestats === props.cubestats
-            && this._nguCache.basestats === props.basestats
-            && this._nguCache.savedequip === props.savedequip
-            && this._nguCache.offhand === props.offhand
-            && this._nguCache.capstats === props.capstats) {
-            return this._nguCache.data;
-        }
-        const nguOptimizer = new NGU(props);
-        const isMagic = resource === 'magic' ? 1 : 0;
-        const data = NGUs[resource].map((ngu, pos) => {
-            const bonus = nguOptimizer.bonus(ngu, stats[pos]);
-            const reachable = nguOptimizer.reachableBonus(stats[pos], ngutime, pos, isMagic, quirk);
-
-            return {
-                pos,
-                ngu,
-                name: ngu.name,
-                normal: stats[pos].normal,
-                evil: stats[pos].evil,
-                sadistic: stats[pos].sadistic,
-                bonus: bonus,
-                reachable: reachable,
-                // Flattening somewhat for sorting
-                reachable_level: reachable.level.normal,
-                reachable_evil: reachable.level.evil,
-                reachable_sadistic: reachable.level.sadistic,
-                // Calculate change factors for sorting
-                reachable_normal_change: reachable.bonus.normal / bonus,
-                reachable_evil_change: reachable.bonus.evil / bonus,
-                reachable_sadistic_change: reachable.bonus.sadistic / bonus
-            };
-        });
-        this._nguCache = {
-            resource,
-            ngustats,
-            stats,
-            quirk,
-            ngutime,
-            itemdata: props.itemdata,
-            cubestats: props.cubestats,
-            basestats: props.basestats,
-            savedequip: props.savedequip,
-            offhand: props.offhand,
-            capstats: props.capstats,
-            data
-        };
-        return data;
-    }
-
     render() {
         if (!this.state.isReady) return <Loading />;
         ReactGA.pageview('/ngus/');
+        let nguOptimizer = new NGU(this.props);
         const energy = this.props.ngustats.energy;
         const magic = this.props.ngustats.magic;
         const ngutime = this.props.ngustats.ngutime;
@@ -418,7 +357,29 @@ class NGUComponent extends Component {
                                         let stats = this.props.ngustats[resource].ngus;
 
                                         // Pre-calculate data for sorting
-                                        let data = this._computeNguData(resource);
+                                        let data = NGUs[resource].map((ngu, pos) => {
+                                            const bonus = nguOptimizer.bonus(ngu, stats[pos]);
+                                            const reachable = nguOptimizer.reachableBonus(stats[pos], ngutime, pos, isMagic, this.props.ngustats.quirk);
+
+                                            return {
+                                                pos,
+                                                ngu,
+                                                name: ngu.name,
+                                                normal: stats[pos].normal,
+                                                evil: stats[pos].evil,
+                                                sadistic: stats[pos].sadistic,
+                                                bonus: bonus,
+                                                reachable: reachable,
+                                                // Flattening somewhat for sorting
+                                                reachable_level: reachable.level.normal,
+                                                reachable_evil: reachable.level.evil,
+                                                reachable_sadistic: reachable.level.sadistic,
+                                                // Calculate change factors for sorting
+                                                reachable_normal_change: reachable.bonus.normal / bonus,
+                                                reachable_evil_change: reachable.bonus.evil / bonus,
+                                                reachable_sadistic_change: reachable.bonus.sadistic / bonus
+                                            };
+                                        });
 
                                         // Sort
                                         if (this.state.sortConfig.key) {

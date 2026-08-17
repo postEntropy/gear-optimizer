@@ -272,80 +272,10 @@ class HackComponent extends Component {
         return () => this.requestSort(key);
     }
 
-    _computeHackData() {
-        const props = this.props;
-        const hackstats = props.hackstats;
-        if (this._hackCache
-            && this._hackCache.hackstats === hackstats
-            && this._hackCache.itemdata === props.itemdata
-            && this._hackCache.cubestats === props.cubestats
-            && this._hackCache.basestats === props.basestats
-            && this._hackCache.savedequip === props.savedequip
-            && this._hackCache.offhand === props.offhand
-            && this._hackCache.capstats === props.capstats) {
-            return this._hackCache.data;
-        }
-        const hackOptimizer = new Hack(props);
-        const hacktime = hackstats.hacktime;
-        const option = hackstats.hackoption;
-        const data = Hacks.map((hack, pos) => {
-            const reducer = hackstats.hacks[pos].reducer;
-            const level = hackstats.hacks[pos].level;
-            const currBonus = hackOptimizer.bonus(level, pos);
-            let target = 0;
-            if (option === '0' || option === 0) {
-                target = Math.max(hackstats.hacks[pos].goal, level);
-            } else {
-                target = hackOptimizer.reachable(level, hacktime, pos);
-                if (option === '2' || option === 2) {
-                    target = hackOptimizer.milestoneLevel(target, pos);
-                }
-            }
-            let bonus = target > level
-                ? hackOptimizer.bonus(target, pos)
-                : currBonus;
-            let time = hackOptimizer.time(level, target, pos);
-            let timePastLevel = hackOptimizer.time(level, level + 1, pos);
-            let timePastTarget = hackOptimizer.time(level, target + 1, pos) - hackOptimizer.time(level, target, pos);
-            let mschange = target > level
-                ? hackOptimizer.milestones(target, pos) - hackOptimizer.milestones(level, pos)
-                : 0;
-            let mschange_str = '+' + mschange;
-            const change = bonus / currBonus;
-
-            return {
-                pos,
-                name: hack[0],
-                reducer,
-                level,
-                currBonus,
-                target,
-                bonus,
-                time,
-                timePastLevel,
-                timePastTarget,
-                mschange,
-                mschange_str,
-                change,
-                projected_bonus: bonus
-            };
-        });
-        this._hackCache = {
-            hackstats,
-            itemdata: props.itemdata,
-            cubestats: props.cubestats,
-            basestats: props.basestats,
-            savedequip: props.savedequip,
-            offhand: props.offhand,
-            capstats: props.capstats,
-            data
-        };
-        return data;
-    }
-
     render() {
         if (!this.state.isReady) return <Loading />;
         ReactGA.pageview('/hacks/');
+        let hackOptimizer = new Hack(this.props);
         const hacktime = this.props.hackstats.hacktime;
         const options = [0, 1, 2];
         const option = this.props.hackstats.hackoption;
@@ -534,7 +464,48 @@ class HackComponent extends Component {
                                 {
                                     (() => {
                                         // Pre-calculate everything
-                                        let data = this._computeHackData();
+                                        let data = Hacks.map((hack, pos) => {
+                                            const reducer = this.props.hackstats.hacks[pos].reducer;
+                                            const level = this.props.hackstats.hacks[pos].level;
+                                            const currBonus = hackOptimizer.bonus(level, pos);
+                                            let target = 0;
+                                            if (option === '0' || option === 0) {
+                                                target = Math.max(this.props.hackstats.hacks[pos].goal, level);
+                                            } else {
+                                                target = hackOptimizer.reachable(level, hacktime, pos);
+                                                if (option === '2' || option === 2) {
+                                                    target = hackOptimizer.milestoneLevel(target, pos);
+                                                }
+                                            }
+                                            let bonus = target > level
+                                                ? hackOptimizer.bonus(target, pos)
+                                                : currBonus;
+                                            let time = hackOptimizer.time(level, target, pos);
+                                            let timePastLevel = hackOptimizer.time(level, level + 1, pos);
+                                            let timePastTarget = hackOptimizer.time(level, target + 1, pos) - hackOptimizer.time(level, target, pos);
+                                            let mschange = target > level
+                                                ? hackOptimizer.milestones(target, pos) - hackOptimizer.milestones(level, pos)
+                                                : 0;
+                                            let mschange_str = '+' + mschange;
+                                            const change = bonus / currBonus;
+
+                                            return {
+                                                pos,
+                                                name: hack[0],
+                                                reducer,
+                                                level,
+                                                currBonus,
+                                                target,
+                                                bonus,
+                                                time,
+                                                timePastLevel,
+                                                timePastTarget,
+                                                mschange,
+                                                mschange_str,
+                                                change,
+                                                projected_bonus: bonus
+                                            };
+                                        });
 
                                         // Calculate totals and find max change
                                         sumtime = 0;
