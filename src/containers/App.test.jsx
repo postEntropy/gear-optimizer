@@ -6,8 +6,6 @@ import { vi, it } from 'vitest';
 import App from './App';
 import AppReducer from '../reducers';
 
-vi.mock('react-ga');
-
 it('renders without crashing', () => {
     const store = configureStore({
         reducer: AppReducer,

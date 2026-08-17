@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import ReactGA from 'react-ga';
 import { HashRouter } from 'react-router-dom';
 
 import { default as AppLayout } from '../components/AppLayout/AppLayout';
@@ -36,8 +35,7 @@ import { MassDisable } from '../actions/MassDisable';
 
 import '../stylesheets/App.css';
 import { LOCALSTORAGE_NAME } from '../constants';
-
-ReactGA.initialize('UA-141463995-1');
+import { safeStorage } from '../utils/safeStorage';
 
 // Helper to debounce save operations
 function debounce(func, wait) {
@@ -160,7 +158,7 @@ const App = () => {
     // Debounced save
     const saveState = (currentState) => {
         if (currentState) {
-            window.localStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
+            safeStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
                 ...currentState,
                 loaded: false
             }));

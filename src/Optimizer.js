@@ -7,7 +7,8 @@ import {
     get_raw_vals,
     old2newequip,
     score_equip,
-    score_raw_equip
+    score_raw_equip,
+    score_equip_and_raw
 } from './util.js'
 
 export class Optimizer {
@@ -237,13 +238,16 @@ export class Optimizer {
         return accs;
     }
 
+    score_equip_and_raw(equip) {
+        return score_equip_and_raw(this.itemdata, equip, this.factors, this.offhand, this.capstats);
+    }
+
     replacement_score(layout, idx, alternative) {
         const tmp = layout.accessory[idx];
         layout.accessory[idx] = alternative;
-        const tmp_score = this.score_equip(layout);
-        const rawtmp_score = this.score_raw_equip(layout);
+        const scores = this.score_equip_and_raw(layout);
         layout.accessory[idx] = tmp;
-        return [tmp_score, rawtmp_score]
+        return scores;
     }
 
     /**
@@ -290,8 +294,7 @@ export class Optimizer {
                     while (accslots > 0 && filter_accs.length > 0) {
                         let riskidxes = [];
                         let other = [];
-                        let score = this.score_equip(candidate);
-                        let rawscore = this.score_raw_equip(candidate);
+                        let [score, rawscore] = this.score_equip_and_raw(candidate);
                         let riskscore = -1;
                         let rawriskscore = -1;
 
@@ -375,8 +378,7 @@ export class Optimizer {
 
         // Construct alternative candidates
         let alternatives = [...candidates];
-        let score = this.score_equip(candidates[0]);
-        let rawscore = this.score_raw_equip(candidates[0]);
+        let [score, rawscore] = this.score_equip_and_raw(candidates[0]);
 
         candidates.forEach(candidate => {
             const remainder = candidate.accs.filter(x => !candidate.accessory.includes(x));

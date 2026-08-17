@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactGA from 'react-ga';
 import {
     TextField, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel,
     FormControlLabel, Paper, Box, Grid, Button, IconButton, MenuItem, Typography, InputAdornment, Select, Switch
@@ -12,6 +11,7 @@ import { Hacks } from '../../assets/ItemAux';
 import { shorten, toTime } from '../../util';
 import ModifierForm from '../ModifierForm/ModifierForm';
 import Loading from '../Loading/Loading';
+import { safeStorage } from '../../utils/safeStorage';
 
 import Collapse from '@mui/material/Collapse';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -58,7 +58,7 @@ class HackComponent extends Component {
         super(props);
         let savedSortConfig = null;
         try {
-            const saved = localStorage.getItem('hacks-sort-config');
+            const saved = safeStorage.getItem('hacks-sort-config');
             if (saved) {
                 savedSortConfig = JSON.parse(saved);
             }
@@ -97,7 +97,7 @@ class HackComponent extends Component {
         }
         const sortConfig = { key, direction };
         this.setState({ sortConfig });
-        localStorage.setItem('hacks-sort-config', JSON.stringify(sortConfig));
+        safeStorage.setItem('hacks-sort-config', JSON.stringify(sortConfig));
     }
 
     handleFocus(event) {
@@ -274,7 +274,6 @@ class HackComponent extends Component {
 
     render() {
         if (!this.state.isReady) return <Loading />;
-        ReactGA.pageview('/hacks/');
         let hackOptimizer = new Hack(this.props);
         const hacktime = this.props.hackstats.hacktime;
         const options = [0, 1, 2];

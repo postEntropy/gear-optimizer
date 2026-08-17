@@ -1,4 +1,5 @@
 import { LOCALSTORAGE_NAME } from '../constants';
+import { safeStorage } from '../utils/safeStorage';
 import { ITEMLIST } from '../assets/Items'
 import {
     EmptySlot,

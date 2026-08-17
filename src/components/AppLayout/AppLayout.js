@@ -12,6 +12,7 @@ import getTheme from '../../theme';
 import { THEME_COLORS } from '../../themeColors';
 import Loading from '../Loading/Loading';
 import LiveSyncPill from '../LiveSyncPill/LiveSyncPill';
+import { safeStorage } from '../../utils/safeStorage';
 
 // Static Imports for Instant Navigation
 import Optimizer from '../Content/Optimizer';
@@ -270,7 +271,7 @@ const AppLayout = (props) => {
     }, [prefersDarkMode]);
 
     const [selectedColorKey, setSelectedColorKey] = React.useState(() => {
-        const saved = localStorage.getItem('theme-color-key');
+        const saved = safeStorage.getItem('theme-color-key');
         return saved && THEME_COLORS[saved] ? saved : 'NOVA';
     });
 
@@ -286,7 +287,7 @@ const AppLayout = (props) => {
 
     const changeColor = React.useCallback((key) => {
         setSelectedColorKey(key);
-        localStorage.setItem('theme-color-key', key);
+        safeStorage.setItem('theme-color-key', key);
     }, []);
 
     const theme = useMemo(() => getTheme(darkMode ? 'dark' : 'light', THEME_COLORS[selectedColorKey]), [darkMode, selectedColorKey]);

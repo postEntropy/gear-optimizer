@@ -10,6 +10,8 @@ import rootSaga from './sagas';
 
 import './stylesheets/index.css';
 
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+
 import App from './containers/App';
 
 import * as serviceWorker from './serviceWorker';
@@ -30,9 +32,11 @@ const container = document.getElementById('app');
 const root = createRoot(container);
 
 root.render(
-    <Provider store={store}>
-        <App />
-    </Provider>
+    <ErrorBoundary>
+        <Provider store={store}>
+            <App />
+        </Provider>
+    </ErrorBoundary>
 );
 
 // If you want your app to work offline and load faster, you can change

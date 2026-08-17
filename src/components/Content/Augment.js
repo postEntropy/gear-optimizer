@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactGA from 'react-ga';
 import {
     TextField, Button, Table, TableBody, TableCell, TableHead, TableRow, Paper, Box, Grid, Select, MenuItem, Typography
 } from '@mui/material';
@@ -178,7 +177,6 @@ class AugmentComponent extends Component {
     }
 
     render() {
-        ReactGA.pageview('/augment/');
         const augstats = this.props.augstats;
         return (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextField, Button, Box, Stack } from '@mui/material';
 import { LOCALSTORAGE_NAME } from '../../constants';
+import { safeStorage } from '../../utils/safeStorage';
 
 export default class PortForm extends React.Component {
     constructor(props) {
@@ -29,7 +30,7 @@ export default class PortForm extends React.Component {
                 return;
             }
         }
-        window.localStorage.setItem(LOCALSTORAGE_NAME, save);
+        safeStorage.setItem(LOCALSTORAGE_NAME, save);
         this.props.handleLoadStateLocalStorage();
 
     }
@@ -44,7 +45,8 @@ export default class PortForm extends React.Component {
     }
 
     render() {
-        const save = btoa(window.localStorage.getItem(LOCALSTORAGE_NAME));
+        const rawSave = safeStorage.getItem(LOCALSTORAGE_NAME);
+        const save = btoa(rawSave !== null ? rawSave : '');
         if (this.fresh) {
             //HACK: this sets the import field to the current value when opening the modal
             /* eslint-disable-next-line react/no-direct-mutation-state */

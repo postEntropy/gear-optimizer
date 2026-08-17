@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import { shorten } from '../../../util';
+import { safeStorage } from '../../../utils/safeStorage';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 const STAT_DEFS = [
@@ -44,12 +45,12 @@ export default function ExpCalculator() {
 
     // ── Persisted state ─────────────────────────────────────────────────────────
     const [expSpend, setExpSpend] = useState(() =>
-        localStorage.getItem('expCalc_expSpend') || '1000000'
+        safeStorage.getItem('expCalc_expSpend') || '1000000'
     );
 
     const [totals, setTotals] = useState(() => {
         try {
-            const saved = localStorage.getItem('expCalc_totals');
+            const saved = safeStorage.getItem('expCalc_totals');
             if (saved) return JSON.parse(saved);
         } catch {}
         return {
@@ -61,7 +62,7 @@ export default function ExpCalculator() {
 
     const [ratios, setRatios] = useState(() => {
         try {
-            const saved = localStorage.getItem('expCalc_ratios');
+            const saved = safeStorage.getItem('expCalc_ratios');
             if (saved) return JSON.parse(saved);
         } catch {}
         return {
@@ -73,18 +74,18 @@ export default function ExpCalculator() {
 
     const handleExpChange = val => {
         setExpSpend(val);
-        localStorage.setItem('expCalc_expSpend', val);
+        safeStorage.setItem('expCalc_expSpend', val);
     };
 
     const setTotal = (key, val) => setTotals(t => {
         const next = { ...t, [key]: val };
-        localStorage.setItem('expCalc_totals', JSON.stringify(next));
+        safeStorage.setItem('expCalc_totals', JSON.stringify(next));
         return next;
     });
 
     const setRatio = (res, stat, val) => setRatios(r => {
         const next = { ...r, [res]: { ...r[res], [stat]: val } };
-        localStorage.setItem('expCalc_ratios', JSON.stringify(next));
+        safeStorage.setItem('expCalc_ratios', JSON.stringify(next));
         return next;
     });
 

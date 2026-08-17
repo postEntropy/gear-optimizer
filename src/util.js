@@ -1,4 +1,4 @@
-import { Item, ItemNameContainer, SetName, Slot, Stat } from './assets/ItemAux'
+import { Equip, Item, ItemNameContainer, SetName, Slot, Stat } from './assets/ItemAux'
 import { LOOTIES, PENDANTS } from './assets/Items'
 
 export function getSlot(name, data) {
@@ -24,7 +24,36 @@ export function old2newequip(accslots, offhand, base_layout) {
 }
 
 export function clone(obj) {
-    return structuredClone(obj);
+    if (obj === null || typeof obj !== 'object') return obj;
+    if (obj instanceof Equip) {
+        const copy = new Equip();
+        copy.items = obj.items.slice();
+        copy.item_count = obj.item_count;
+        for (const k in obj.counts) {
+            copy.counts[k] = obj.counts[k];
+        }
+        for (let i = 0; i < obj.statnames.length; i++) {
+            const stat = obj.statnames[i];
+            copy[stat] = obj[stat];
+        }
+        return copy;
+    }
+    if (Array.isArray(obj)) {
+        const arr = new Array(obj.length);
+        for (let i = 0; i < obj.length; i++) {
+            const v = obj[i];
+            arr[i] = typeof v === 'object' && v !== null ? clone(v) : v;
+        }
+        return arr;
+    }
+    const copy = {};
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const v = obj[key];
+            copy[key] = typeof v === 'object' && v !== null ? clone(v) : v;
+        }
+    }
+    return copy;
 }
 
 export function get_limits(state) {
@@ -101,41 +130,33 @@ export function score_vals(vals, factors) {
     return vals.reduce((res, val) => res * val, 1);
 }
 
+const SLOT_NAMES = ['weapon', 'head', 'armor', 'pants', 'boots', 'accessory', 'other'];
+
 export function get_raw_vals(data, equip, factors, offhand) {
     const stats = factors[1];
-    const sorted = Object.getOwnPropertyNames(Slot).reduce((res, slot) => {
-        if (equip[Slot[slot][0]] !== undefined) {
-            return res.concat(equip[Slot[slot][0]]);
-        }
-        return res;
-    }, []);
-    let vals = [];
-    for (let idx in stats) {
+    const vals = new Array(stats.length);
+    for (let idx = 0; idx < stats.length; idx++) {
         const stat = stats[idx];
-        if (stat === 'Respawn' || stat === 'Power' || stat === 'Toughness') {
-            vals[idx] = 0;
-        } else {
-            vals[idx] = 100;
-        }
+        vals[idx] = (stat === 'Respawn' || stat === 'Power' || stat === 'Toughness') ? 0 : 100;
         let mainhand = true;
-        for (let jdx in sorted) {
-            const name = sorted[jdx];
-            if (data[name] === undefined) {
-                // console.log(name, data[name])
-                continue;
-            }
-            let val = data[name][stat];
-            if (data[name].slot[0] === 'weapon') {
-                if (mainhand) {
-                    mainhand = false;
-                } else {
-                    val *= offhand / 100
+        for (let s = 0; s < SLOT_NAMES.length; s++) {
+            const slotItems = equip[SLOT_NAMES[s]];
+            if (!slotItems) continue;
+            for (let j = 0; j < slotItems.length; j++) {
+                const name = slotItems[j];
+                const item = data[name];
+                if (!item) continue;
+                let val = item[stat];
+                if (val === undefined || isNaN(val)) continue;
+                if (item.slot[0] === 'weapon') {
+                    if (mainhand) {
+                        mainhand = false;
+                    } else {
+                        val *= offhand / 100;
+                    }
                 }
+                vals[idx] += val;
             }
-            if (val === undefined || isNaN(val)) {
-                continue;
-            }
-            vals[idx] += val;
         }
     }
     return vals;
@@ -162,6 +183,16 @@ export function get_vals(data, equip, factors, offhand, capstats) {
 
 export function score_raw_equip(data, equip, factors, offhand) {
     return score_vals(get_raw_vals(data, equip, factors, offhand), factors);
+}
+
+// Computes both the hardcapped and raw scores in one pass (shared get_raw_vals).
+// Used by the Optimizer's replacement_score to halve repeated stat aggregation.
+export function score_equip_and_raw(data, equip, factors, offhand, capstats) {
+    const raw = get_raw_vals(data, equip, factors, offhand);
+    return [
+        score_vals(hardcap(raw, factors, capstats), factors),
+        score_vals(raw, factors)
+    ];
 }
 
 export function score_equip(data, equip, factors, offhand, capstats) {

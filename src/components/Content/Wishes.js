@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactGA from 'react-ga';
 import {
     TextField, Table, TableBody, TableCell, TableHead, TableRow, Checkbox,
     FormControlLabel, Paper, Box, Grid, Typography, Divider, Button, InputAdornment, Select, MenuItem,
@@ -111,7 +110,6 @@ class WishComponent extends Component {
 
     render() {
         if (!this.state.isReady) return <Loading />;
-        ReactGA.pageview('/wishes/');
         let wishOptimizer = new Wish(this.props);
         const results = wishOptimizer.optimize();
         const score = toTime(Math.max(...results[0]));

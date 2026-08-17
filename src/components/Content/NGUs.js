@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactGA from 'react-ga';
 import {
     TextField, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Checkbox,
     FormControlLabel, Paper, Box, Grid, Typography, Select, MenuItem, Switch
@@ -11,6 +10,7 @@ import ModifierForm from '../ModifierForm/ModifierForm';
 
 
 import Loading from '../Loading/Loading';
+import { safeStorage } from '../../utils/safeStorage';
 import NGUTimeline from '../NGUGraph/NGUTimeline';
 import NGUGraph from '../NGUGraph/NGUGraph';
 import NGUComparisonGraph from '../NGUGraph/NGUComparisonGraph';
@@ -74,9 +74,7 @@ const formatValue = (val, isPercent = true) => {
 
     if (unitIndex < 0) return num.toLocaleString(undefined, { maximumFractionDigits: 0 }) + (isPercent ? '%' : '');
 
-    if (unitIndex >= units.length) return num.toExponential(3) + (isPercent ? '%' : '');
-
-    let suffix = units[unitIndex];
+    let suffix = units[unitIndex] || `e${order * 3}`;
     let scaled = num / Math.pow(10, order * 3);
 
     return `${scaled.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${suffix}${isPercent ? '%' : ''}`;
@@ -87,7 +85,7 @@ class NGUComponent extends Component {
         super(props);
         let savedSortConfig = null;
         try {
-            const saved = localStorage.getItem('ngus-sort-config');
+            const saved = safeStorage.getItem('ngus-sort-config');
             if (saved) {
                 savedSortConfig = JSON.parse(saved);
             }
@@ -117,7 +115,7 @@ class NGUComponent extends Component {
         }
         const sortConfig = { key, direction };
         this.setState({ sortConfig });
-        localStorage.setItem('ngus-sort-config', JSON.stringify(sortConfig));
+        safeStorage.setItem('ngus-sort-config', JSON.stringify(sortConfig));
     }
 
     handleFocus(event) {
@@ -203,7 +201,6 @@ class NGUComponent extends Component {
 
     render() {
         if (!this.state.isReady) return <Loading />;
-        ReactGA.pageview('/ngus/');
         let nguOptimizer = new NGU(this.props);
         const energy = this.props.ngustats.energy;
         const magic = this.props.ngustats.magic;

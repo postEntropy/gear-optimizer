@@ -21,6 +21,7 @@ coverage/
 # --- IDE / editor ---
 .idea/
 .vscode/
+.opencode/
 *.code-workspace
 
 # --- OS files ---

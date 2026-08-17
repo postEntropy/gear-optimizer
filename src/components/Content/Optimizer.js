@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import ReactGA from 'react-ga';
 import { Navigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -39,12 +38,7 @@ const Optimizer = (props) => {
         return () => clearTimeout(timer);
     }, []);
 
-    useEffect(() => {
-        if (isReady && props.loaded && props.loadLoadout === undefined && !gaFiredRef.current) {
-            ReactGA.pageview('/gear-optimizer/');
-            gaFiredRef.current = true;
-        }
-    }, [isReady, props.loaded, props.loadLoadout]);
+
 
     useEffect(() => {
         if (isReady && props.loaded && props.loadLoadout !== undefined && freshRef.current) {
