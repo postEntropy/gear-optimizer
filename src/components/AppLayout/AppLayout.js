@@ -3,7 +3,7 @@ import CookieBanner from 'react-cookie-banner';
 import { NavLink, useLocation, useMatch, useParams } from 'react-router-dom';
 
 import { alpha, Box, CssBaseline, ThemeProvider, Typography, IconButton, useMediaQuery, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Drawer, Tooltip, Divider, Avatar } from '@mui/material';
-import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Calculate, Settings as SettingsIcon, CloudSync as CloudSyncIcon } from '@mui/icons-material';
+import { Brightness4, Brightness7, Palette, GitHub, SettingsSuggest, TrendingUp, FlashOn, Code, Star, History, ChevronLeft, ChevronRight, CardGiftcard, AutoAwesome, Calculate, Settings as SettingsIcon, CloudSync as CloudSyncIcon, CleaningServices } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
 
 import { allowed_zone, get_limits } from '../../util';
@@ -25,6 +25,7 @@ import PerksComponent from '../Perks/Perks';
 import SettingsComponent from '../Content/Settings';
 import ExpCalculator from '../Content/ExpCalculator/ExpCalculator';
 import LiveSyncHistory from '../Content/LiveSyncHistory';
+import Cleaning from '../Content/Cleaning';
 
 // import AdvancedTrainingCalculator from '../Content/AdvancedTrainingCalculator';
 // import AboutComponent from '../About/About';
@@ -202,7 +203,7 @@ const ThemeSwitcher = React.memo(({ darkMode, toggleDarkMode, selectedColorKey, 
 });
 
 // IMPROVED Page Content: Unmount inactive pages for performance
-const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isLiveSyncHistory, isPerks, isSettings, isExpCalculator, props, loadoutParams, fadeAnimation }) => {
+const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWishes, isHistory, isLiveSyncHistory, isPerks, isSettings, isExpCalculator, isCleaning, props, loadoutParams, fadeAnimation }) => {
     return (
         <Box sx={{ maxWidth: 1600, width: '100%', mx: 'auto', ...fadeAnimation }}>
             {isOptimizer && <Optimizer {...props} loadLoadout={loadoutParams} className='app_body' />}
@@ -214,6 +215,7 @@ const PageContent = React.memo(({ isOptimizer, isAugment, isNGUs, isHacks, isWis
             {isLiveSyncHistory && <LiveSyncHistory {...props} className='app_body' />}
             {isPerks && <PerksComponent {...props} className='app_body' />}
             {isSettings && <SettingsComponent {...props} className='app_body' />}
+            {isCleaning && <Cleaning {...props} className='app_body' />}
             {/* {isAdvancedTraining && <AdvancedTrainingCalculator {...props} className='app_body' />} */}
             {isExpCalculator && <ExpCalculator {...props} className='app_body' />}
         </Box>
@@ -311,6 +313,7 @@ const AppLayout = (props) => {
     // const isAdvancedTraining = path.startsWith('/advanced-training-calculator');
     const isExpCalculator = path.startsWith('/exp-calculator');
     const isSettings = path.startsWith('/settings');
+    const isCleaning = path.startsWith('/cleaning');
 
 
 
@@ -498,6 +501,7 @@ const AppLayout = (props) => {
 
                         <Divider sx={{ mx: 3, opacity: 0.1 }} />
                         <List component="nav" sx={{ py: 1 }}>
+                            <NavItem open={open} to="/cleaning" label="Cleaning" icon={<CleaningServices />} isActive={location.pathname.startsWith('/cleaning')} />
                             <NavItem open={open} to="/settings" label="Settings" icon={<SettingsIcon />} isActive={location.pathname.startsWith('/settings')} />
                         </List>
                     </Drawer>
@@ -524,6 +528,7 @@ const AppLayout = (props) => {
                             // isAdvancedTraining={isAdvancedTraining}
                             isExpCalculator={isExpCalculator}
                             isSettings={isSettings}
+                            isCleaning={isCleaning}
                             props={props}
                             loadoutParams={loadoutParams}
                             fadeAnimation={fadeAnimation}

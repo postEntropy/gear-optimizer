@@ -1,6 +1,8 @@
-import { all, put, select, takeEvery } from 'redux-saga/effects'
+import { all, call, put, race, select, take, takeEvery } from 'redux-saga/effects'
+import { eventChannel, END } from 'redux-saga'
 
 import { AUGMENT, AUGMENT_ASYNC } from '../actions/Augment'
+import { CLEANING_PROGRESS, CLEANING_REPORT, CLEANING_REPORT_ASYNC } from '../actions/Cleaning'
 import { OPTIMIZE_GEAR, OPTIMIZE_GEAR_ASYNC } from '../actions/OptimizeGear'
 import { OPTIMIZE_SAVES, OPTIMIZE_SAVES_ASYNC } from '../actions/OptimizeSaves'
 import { OPTIMIZING_GEAR } from '../actions/OptimizingGear'
@@ -9,29 +11,75 @@ import { TERMINATE, TERMINATE_ASYNC } from '../actions/Terminate'
 /* eslint-disable-next-line */
 // import Worker from './optimize.worker'
 
-let worker;
+// A single long-lived worker is shared by every optimization request. The worker
+// loads the whole optimizer module graph once (items, scoring, reducer helpers),
+// so reusing it keeps that cost off the click path instead of paying it again
+// for every "Optimize Gear".
+let worker = null;
 
-const doOptimize = (command, result, state, worker) => new Promise(async function (resolve, reject) {
-    let output = await new Promise(function (resolve, reject) {
-        worker.onmessage = function (e) {
-            resolve(e.data);
-        };
-        worker.postMessage({ command: command, state: state });
-    });
-    await resolve(output[result]);
+const workerUrl = new URL('./optimize.worker.js', import.meta.url);
+
+export function getWorker() {
+    if (worker === null) {
+        worker = new Worker(workerUrl, { type: 'module' });
+    }
+    return worker;
+}
+
+export function disposeWorker() {
+    if (worker !== null) {
+        worker.terminate();
+        worker = null;
+    }
+}
+
+const doOptimize = (command, result, state) => new Promise(function (resolve, reject) {
+    const active = getWorker();
+    const settle = () => {
+        active.onmessage = null;
+        active.onerror = null;
+    };
+    active.onmessage = function (e) {
+        settle();
+        if (e.data && e.data.error) {
+            reject(new Error(e.data.error));
+            return;
+        }
+        resolve(e.data[result]);
+    };
+    active.onerror = function (e) {
+        settle();
+        reject(new Error(e.message || 'Optimizer worker error'));
+    };
+    active.postMessage({ command: command, state: state });
 })
 
+/**
+ * Runs a command on the shared worker and resets the UI if the worker fails,
+ * so a broken request can never leave the app stuck in a "running" state.
+ */
+function* runWorkerCommand(command, result, state) {
+    try {
+        return yield call(doOptimize, command, result, state);
+    } catch (err) {
+        console.error('Optimizer worker failed while running "' + command + '":', err);
+        yield put({ type: TERMINATE });
+        return undefined;
+    }
+}
+
 export function* optimizeAsync(action) {
-    worker = new Worker(new URL('./optimize.worker.js', import.meta.url), { type: 'module' });
+    const active = getWorker();
     yield put({
         type: OPTIMIZING_GEAR,
         payload: {
-            worker: worker
+            worker: active
         }
     });
     const store = yield select();
     const state = store.optimizer;
-    let equip = yield doOptimize('optimize', 'equip', state, worker);
+    const equip = yield call(runWorkerCommand, 'optimize', 'equip', state);
+    if (equip === undefined) return;
     yield put({
         type: OPTIMIZE_GEAR,
         payload: {
@@ -41,16 +89,17 @@ export function* optimizeAsync(action) {
 }
 
 export function* optimizeSavesAsync(action) {
-    worker = new Worker(new URL('./optimize.worker.js', import.meta.url), { type: 'module' });
+    const active = getWorker();
     yield put({
         type: OPTIMIZING_GEAR,
         payload: {
-            worker: worker
+            worker: active
         }
     });
     const store = yield select();
     const state = store.optimizer;
-    let savedequip = yield doOptimize('optimizeSaves', 'savedequip', state, worker);
+    const savedequip = yield call(runWorkerCommand, 'optimizeSaves', 'savedequip', state);
+    if (savedequip === undefined) return;
     yield put({
         type: OPTIMIZE_SAVES,
         payload: {
@@ -60,17 +109,76 @@ export function* optimizeSavesAsync(action) {
     });
 }
 
-export function* augmentAsync(action) {
-    worker = new Worker(new URL('./optimize.worker.js', import.meta.url), { type: 'module' });
+function cleaningChannel(active) {
+    return eventChannel((emit) => {
+        active.onmessage = (e) => {
+            if (e.data && e.data.progress) {
+                emit({ progress: e.data.progress });
+            } else if (e.data && e.data.report) {
+                emit({ report: e.data.report });
+            }
+        };
+        return () => { active.onmessage = null; };
+    });
+}
+
+function* consumeCleaningChannel(channel) {
+    while (true) {
+        const message = yield take(channel);
+        if (message === END) return;
+        if (message.progress) {
+            yield put({
+                type: CLEANING_PROGRESS,
+                payload: {
+                    progress: message.progress
+                }
+            });
+        } else if (message.report) {
+            yield put({
+                type: CLEANING_REPORT,
+                payload: {
+                    report: message.report
+                }
+            });
+            return;
+        }
+    }
+}
+
+export function* cleaningReportAsync(action) {
+    const active = getWorker();
     yield put({
         type: OPTIMIZING_GEAR,
         payload: {
-            worker: worker
+            worker: active
         }
     });
     const store = yield select();
     const state = store.optimizer;
-    let vals = yield doOptimize('augment', 'vals', state, worker);
+    const channel = yield call(cleaningChannel, active);
+    try {
+        active.postMessage({ command: 'scanUseless', state: state });
+        yield race({
+            done: call(consumeCleaningChannel, channel),
+            cancelled: take(TERMINATE)
+        });
+    } finally {
+        channel.close();
+    }
+}
+
+export function* augmentAsync(action) {
+    const active = getWorker();
+    yield put({
+        type: OPTIMIZING_GEAR,
+        payload: {
+            worker: active
+        }
+    });
+    const store = yield select();
+    const state = store.optimizer;
+    const vals = yield call(runWorkerCommand, 'augment', 'vals', state);
+    if (vals === undefined) return;
     yield put({
         type: AUGMENT,
         payload: {
@@ -83,9 +191,10 @@ export function* augmentAsync(action) {
 
 
 export function* terminate() {
-    if (worker) {
-        worker.terminate();
-    }
+    disposeWorker();
+    // Recreate right away so the next request starts from an already loaded
+    // module graph instead of paying the worker startup cost again.
+    getWorker();
     yield put({ type: TERMINATE });
 }
 
@@ -97,6 +206,10 @@ export function* watchOptimizeSavesAsync() {
     yield takeEvery(OPTIMIZE_SAVES_ASYNC, optimizeSavesAsync)
 }
 
+export function* watchCleaningReportAsync() {
+    yield takeEvery(CLEANING_REPORT_ASYNC, cleaningReportAsync)
+}
+
 export function* watchAugmentAsync() {
     yield takeEvery(AUGMENT_ASYNC, augmentAsync)
 }
@@ -105,9 +218,9 @@ export function* watchTerminate() {
     yield takeEvery(TERMINATE_ASYNC, terminate);
 }
 
-
-
-
 export default function* rootSaga() {
-    yield all([watchOptimizeAsync(), watchOptimizeSavesAsync(), watchAugmentAsync(), watchTerminate()]);
+    // Warm the shared worker as soon as the app boots so the module graph is
+    // already loaded by the time the user clicks Optimize.
+    yield call(getWorker);
+    yield all([watchOptimizeAsync(), watchOptimizeSavesAsync(), watchCleaningReportAsync(), watchAugmentAsync(), watchTerminate()]);
 }

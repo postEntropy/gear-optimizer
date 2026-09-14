@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Checkbox, FormControlLabel, TextField, Dialog, DialogContent, Box, Stack, Paper } from '@mui/material';
 
 import { default as OptimizeButton } from '../OptimizeButton/OptimizeButton';
@@ -104,4 +105,4 @@ class SaveButtons extends Component {
     };
 }
 
-export default SaveButtons;
+export default connect((state) => ({ running: state.optimizer.running }))(SaveButtons);

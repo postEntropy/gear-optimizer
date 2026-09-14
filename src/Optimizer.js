@@ -22,6 +22,8 @@ export class Optimizer {
         this.limits = get_limits(state);
         this.capstats = state.capstats;
         this.ignoreDisabled = !!state.ignoreDisabled;
+        this.rawvals_cache = new WeakMap();
+        this.statvals_cache = new WeakMap();
     }
 
     construct_base(locked, equip) {
@@ -187,7 +189,7 @@ export class Optimizer {
 
         // Generate combinations
         for (let i = 0; i < remaining.length; i++) {
-            let tmp = clone(layouts);
+            let tmp = layouts.slice();
             for (let j = 0; j < layouts.length; j++) {
                 for (let k = 0; k < remaining[i][0].length; k++) {
                     const item = remaining[i][0][k];
@@ -242,12 +244,104 @@ export class Optimizer {
         return score_equip_and_raw(this.itemdata, equip, this.factors, this.offhand, this.capstats);
     }
 
+    invalidate_rawvals(equip) {
+        this.rawvals_cache.delete(equip);
+    }
+
+    /**
+     * Per-factor-stat values of an item (or Equip), cached for the current
+     * factor. `present` marks whether the object rolls the stat at all and
+     * `pows` holds the exponent-applied value, so `dominates` can avoid repeated
+     * `statnames.indexOf` scans and `**` operations.
+     */
+    statvals(item) {
+        let entry = this.statvals_cache.get(item);
+        if (entry !== undefined && entry.factors === this.factors) {
+            return entry;
+        }
+        const stats = this.factors[1];
+        const exponents = this.factors.length > 2 ? this.factors[2] : null;
+        const l = stats.length;
+        const present = new Array(l);
+        const vals = new Array(l);
+        const pows = new Array(l);
+        const statnames = item.statnames;
+        for (let i = 0; i < l; i++) {
+            const stat = stats[i];
+            if (statnames.indexOf(stat) >= 0) {
+                const val = item[stat];
+                present[i] = true;
+                vals[i] = val;
+                pows[i] = val ** (exponents === null ? 1 : exponents[i]);
+            } else {
+                present[i] = false;
+                vals[i] = undefined;
+                pows[i] = undefined;
+            }
+        }
+        entry = { factors: this.factors, present, vals, pows };
+        this.statvals_cache.set(item, entry);
+        return entry;
+    }
+
+    /**
+     * Raw per-factor stat totals for a layout, cached until one of its slots is
+     * mutated. Accessory swaps during the search call this thousands of times
+     * with the same layout, so the full stat aggregation is only paid once per
+     * distinct layout state.
+     */
+    get_raw_vals_cached(equip) {
+        const cached = this.rawvals_cache.get(equip);
+        if (cached !== undefined && cached.factors === this.factors) {
+            return cached.vals;
+        }
+        const vals = get_raw_vals(this.itemdata, equip, this.factors, this.offhand);
+        this.rawvals_cache.set(equip, { factors: this.factors, vals });
+        return vals;
+    }
+
+    /**
+     * Scores a layout with accessory `idx` swapped for `alternative`, without
+     * mutating the layout. Only the swapped accessory's contribution changes, so
+     * the cached raw totals are adjusted in place instead of re-scanning every
+     * equipped item, and both scores are computed in the same pass.
+     */
     replacement_score(layout, idx, alternative) {
-        const tmp = layout.accessory[idx];
-        layout.accessory[idx] = alternative;
-        const scores = this.score_equip_and_raw(layout);
-        layout.accessory[idx] = tmp;
-        return scores;
+        const raw = this.get_raw_vals_cached(layout);
+        const exponents = this.factor_exponents;
+        const limits = this.factor_limits;
+        const current = this.itemdata[layout.accessory[idx]];
+        const candidate = this.itemdata[alternative];
+        const oldvals = current !== undefined ? this.statvals(current).vals : undefined;
+        const newvals = candidate !== undefined ? this.statvals(candidate).vals : undefined;
+        const l = limits.length;
+        let capped = 1;
+        let rawscore = 1;
+        for (let i = 0; i < l; i++) {
+            let val = raw[i];
+            if (oldvals !== undefined) {
+                const oldval = oldvals[i];
+                if (oldval !== undefined && !isNaN(oldval)) {
+                    val -= oldval;
+                }
+            }
+            if (newvals !== undefined) {
+                const newval = newvals[i];
+                if (newval !== undefined && !isNaN(newval)) {
+                    val += newval;
+                }
+            }
+            const exponent = exponents === null ? 1 : exponents[i];
+            const rawval = val / 100;
+            rawscore *= exponent === 1 ? rawval : rawval ** exponent;
+            const limit = limits[i];
+            if (val > limit) {
+                val = limit;
+            }
+            const cappedval = val / 100;
+            capped *= exponent === 1 ? cappedval : cappedval ** exponent;
+        }
+        return [capped, rawscore];
     }
 
     /**
@@ -256,6 +350,17 @@ export class Optimizer {
     compute_optimal(base_layouts, factoridx) {
         this.factors = Factors[this.factorslist[factoridx]];
         this.maxslots = this.maxslotslist[factoridx];
+        this.rawvals_cache = new WeakMap();
+        this.statvals_cache = new WeakMap();
+        this.factor_exponents = this.factors.length > 2 ? this.factors[2] : null;
+        this.factor_limits = this.factors[1].map((stat) => {
+            const hardcap = this.capstats[stat + ' Cap'];
+            if (hardcap === undefined) {
+                return Infinity;
+            }
+            const total = Math.max(1, this.capstats['Nude ' + stat]);
+            return 100 * Math.max(1, hardcap / total);
+        });
 
         if (this.factors[1].length === 0) {
             return base_layouts;
@@ -290,6 +395,7 @@ export class Optimizer {
                     for (let kdx = 0; kdx < accslots; kdx++) {
                         candidate.accessory[locked_accs + kdx] = acc_candidate[kdx];
                     }
+                    this.invalidate_rawvals(candidate);
                     let filter_accs = this.filter_accs(candidate, accslots, accs);
                     while (accslots > 0 && filter_accs.length > 0) {
                         let riskidxes = [];
@@ -349,6 +455,7 @@ export class Optimizer {
 
                             // If a winner is found replace the least contributing with the winner
                             candidate.accessory[riskidx] = winner;
+                            this.invalidate_rawvals(candidate);
                             filter_accs[filter_idx] = atrisk;
                             if (this.itemdata[winner].empty) {
                                 accslots--;
@@ -420,10 +527,12 @@ export class Optimizer {
                     if (this.itemdata[tmp].empty) continue;
 
                     candidate[slotname][idx] = EmptySlotId(slotname);
+                    this.invalidate_rawvals(candidate);
                     const tmp_score = this.score_equip(candidate);
                     if (tmp_score === score) {
                     } else {
                         candidate[slotname][idx] = tmp;
+                        this.invalidate_rawvals(candidate);
                     }
                 }
             });
@@ -470,34 +579,40 @@ export class Optimizer {
 
     // Set <equal> to <false> if equal results result in a dominate call
     dominates(major, minor, equal = true) {
-        let l = this.factors[1].length;
-        let major_stats = new Array(l).fill(0);
-        let minor_stats = new Array(l).fill(0);
+        return this.dominates_entries(
+            this.statvals(major), !!major.empty,
+            this.statvals(minor), !!minor.empty,
+            equal
+        );
+    }
+
+    // Same test as `dominates`, but on precomputed stat entries so the Pareto
+    // scan does no cache lookups or exponentiation in its inner loop.
+    dominates_entries(majorvals, majorempty, minorvals, minorempty, equal) {
+        const l = this.factors[1].length;
+        const exponents = this.factors.length > 2 ? this.factors[2] : undefined;
+        const majorpresent = majorvals.present;
+        const minorpresent = minorvals.present;
+        const majorstats = majorvals.pows;
+        const minorstats = minorvals.pows;
         for (let i = 0; i < l; i++) {
-            let stat = this.factors[1][i];
-            let idx = major.statnames.indexOf(stat);
-            const exponent = this.factors.length > 2
-                ? this.factors[2][i]
-                : 1;
-            if (idx >= 0) {
-                major_stats[i] = major[stat] ** exponent;
+            const exponent = exponents === undefined ? 1 : exponents[i];
+            let ms = 0;
+            let ns = 0;
+            if (majorpresent[i]) {
+                ms = majorstats[i];
             } else {
-                minor_stats[i] = exponent > 0 || minor.empty
-                    ? 0
-                    : 1;
+                ns = exponent > 0 || minorempty ? 0 : 1;
             }
-            idx = minor.statnames.indexOf(stat);
-            if (idx >= 0) {
-                minor_stats[i] = minor[stat] ** exponent;
+            if (minorpresent[i]) {
+                ns = minorstats[i];
             } else {
-                minor_stats[i] = exponent > 0 || major.empty
-                    ? 0
-                    : 1;
+                ns = exponent > 0 || majorempty ? 0 : 1;
             }
-            if (minor_stats[i] > major_stats[i]) {
+            if (ns > ms) {
                 return false;
             }
-            if (minor_stats[i] < major_stats[i]) {
+            if (ns < ms) {
                 equal = false;
             }
         }
@@ -505,22 +620,32 @@ export class Optimizer {
     }
 
     pareto(list, cutoff = 1) {
-        let dominated = new Array(list.length).fill(false);
-        let empty = list[0].slot === undefined
+        const size = list.length;
+        const empty = list[0].slot === undefined
             ? new Equip()
             : new EmptySlot(list[0].slot);
-        for (let i = list.length - 1; i > -1; i--) {
-            if (this.dominates(empty, list[i], !empty.empty)) {
+        const emptyvals = this.statvals(empty);
+        const emptyisempty = !!empty.empty;
+        // Precompute the per-stat entries once instead of on every pairwise test.
+        const entries = new Array(size);
+        const empties = new Array(size);
+        for (let idx = 0; idx < size; idx++) {
+            entries[idx] = this.statvals(list[idx]);
+            empties[idx] = !!list[idx].empty;
+        }
+        let dominated = new Array(size).fill(false);
+        for (let i = size - 1; i > -1; i--) {
+            if (this.dominates_entries(emptyvals, emptyisempty, entries[i], empties[i], !emptyisempty)) {
                 dominated[i] = cutoff;
             }
             if (dominated[i] === cutoff) {
                 continue;
             }
-            for (let j = list.length - 1; j > -1; j--) {
+            for (let j = size - 1; j > -1; j--) {
                 if (dominated[j] === cutoff) {
                     continue;
                 }
-                dominated[j] += this.dominates(list[i], list[j]);
+                dominated[j] += this.dominates_entries(entries[i], empties[i], entries[j], empties[j], true);
             }
         }
         let result = dominated.map((val, idx) => (

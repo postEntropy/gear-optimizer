@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useMemo } from 'react';
+import { useDispatch, useSelector, useStore, shallowEqual } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
 
 import { default as AppLayout } from '../components/AppLayout/AppLayout';
@@ -47,60 +47,66 @@ function debounce(func, wait) {
     };
 }
 
+// Selects everything the page tree needs, except `running`. Optimize buttons
+// subscribe to `running` on their own, so starting/stopping an optimization does
+// not re-render the whole app shell.
+const selectOptimizerProps = (state) => {
+    const s = state.optimizer;
+    return {
+        itemdata: s.itemdata,
+        items: s.items,
+        offhand: s.offhand,
+        equip: s.equip,
+        liveEquip: s.liveEquip,
+        locked: s.locked,
+        lastequip: s.lastequip,
+        savedequip: s.savedequip,
+        savedidx: s.savedidx,
+        maxsavedidx: s.maxsavedidx,
+        showsaved: s.showsaved,
+        showunused: s.showunused,
+        editItem: s.editItem,
+        ignoreDisabled: s.ignoreDisabled,
+        factors: s.factors,
+        maxslots: s.maxslots,
+        zone: s.zone,
+        titanversion: s.titanversion,
+        looty: s.looty,
+        pendant: s.pendant,
+        hidden: s.hidden,
+        hidenotmaxed: s.hidenotmaxed,
+        hidedisabled: s.hidedisabled,
+        compactbonus: s.compactbonus,
+        compactitemlist: s.compactitemlist,
+        augstats: s.augstats,
+        basestats: s.basestats,
+        capstats: s.capstats,
+        cubestats: s.cubestats,
+        ngustats: s.ngustats,
+        hackstats: s.hackstats,
+        wishstats: s.wishstats,
+        history: s.history,
+        highlightBest: s.highlightBest,
+        showR3History: s.showR3History,
+        historyChartMode: s.historyChartMode,
+        version: s.version,
+        loaded: s.loaded,
+        optimizedEquip: s.optimizedEquip,
+        playerName: s.playerName,
+        randomLogoFilterOwned: s.randomLogoFilterOwned,
+        highlightEquipped: s.highlightEquipped,
+        showGraphs: s.showGraphs,
+        liveSync: s.liveSync,
+        wishesLegacyMode: s.wishesLegacyMode,
+    };
+};
+
 const App = () => {
     const dispatch = useDispatch();
-    const state = useSelector(state => state.optimizer);
+    const store = useStore();
 
     // Map state to props-like structure for backward compatibility with AppLayout
-    const props = useMemo(() => ({
-        itemdata: state.itemdata,
-        items: state.items,
-        offhand: state.offhand,
-        equip: state.equip,
-        liveEquip: state.liveEquip,
-        locked: state.locked,
-        lastequip: state.lastequip,
-        savedequip: state.savedequip,
-        savedidx: state.savedidx,
-        maxsavedidx: state.maxsavedidx,
-        showsaved: state.showsaved,
-        showunused: state.showunused,
-        editItem: state.editItem,
-        ignoreDisabled: state.ignoreDisabled,
-        factors: state.factors,
-        maxslots: state.maxslots,
-        running: state.running,
-        zone: state.zone,
-        titanversion: state.titanversion,
-        looty: state.looty,
-        pendant: state.pendant,
-        hidden: state.hidden,
-        hidenotmaxed: state.hidenotmaxed,
-        hidedisabled: state.hidedisabled,
-        compactbonus: state.compactbonus,
-        compactitemlist: state.compactitemlist,
-        augstats: state.augstats,
-        basestats: state.basestats,
-        capstats: state.capstats,
-        cubestats: state.cubestats,
-        ngustats: state.ngustats,
-        hackstats: state.hackstats,
-        wishstats: state.wishstats,
-        history: state.history,
-        highlightBest: state.highlightBest,
-        showR3History: state.showR3History,
-        historyChartMode: state.historyChartMode,
-        version: state.version,
-        loaded: state.loaded,
-        optimizedEquip: state.optimizedEquip,
-        playerName: state.playerName,
-        randomLogoFilterOwned: state.randomLogoFilterOwned,
-        highlightEquipped: state.highlightEquipped,
-        showGraphs: state.showGraphs,
-        liveSync: state.liveSync,
-        wishesLegacyMode: state.wishesLegacyMode,
-
-    }), [state]);
+    const props = useSelector(selectOptimizerProps, shallowEqual);
 
     // Actions
     const handlers = useMemo(() => ({
@@ -150,28 +156,26 @@ const App = () => {
         window.appHandlers = handlers;
     }, [handlers]);
 
-    useEffect(() => {
-        window.appState = state;
-    }, [state]);
-
     // Debounced save
-    const saveState = (currentState) => {
-        if (currentState) {
+    const debouncedSave = useMemo(
+        () => debounce((currentState) => {
             safeStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify({
                 ...currentState,
                 loaded: false
             }));
-        }
-    };
-
-    const debouncedSave = useMemo(
-        () => debounce((currentState) => saveState(currentState), 1000),
+        }, 1000),
         []
     );
 
     useEffect(() => {
-        debouncedSave(state);
-    }, [state, debouncedSave]);
+        const sync = () => {
+            const state = store.getState().optimizer;
+            window.appState = state;
+            debouncedSave(state);
+        };
+        sync();
+        return store.subscribe(sync);
+    }, [store, debouncedSave]);
 
 
     return (

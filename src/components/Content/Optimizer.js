@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -22,6 +23,13 @@ import ImportSaveForm from '../ImportSaveForm/ImportSaveForm';
 import ResetItemsButton from '../ResetItemsButton/ResetItemsButton';
 import Paperdoll from '../Paperdoll/Paperdoll';
 import Loading from '../Loading/Loading';
+
+// Subscribes to `running` on its own so that starting/stopping an optimization
+// only re-renders this button instead of the whole optimizer page.
+const GearOptimizeButton = ({ abort, optimize }) => {
+    const running = useSelector((state) => state.optimizer.running);
+    return <OptimizeButton text={'Gear'} running={running} abort={abort} optimize={optimize} />;
+};
 
 const Optimizer = (props) => {
     const [isReady, setIsReady] = useState(false);
@@ -258,9 +266,10 @@ const Optimizer = (props) => {
                                             TACTICAL PROCESSOR
                                         </Typography>
                                         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                                            <OptimizeButton text={'Gear'} running={props.running}
+                                            <GearOptimizeButton
                                                 abort={props.handleTerminate}
-                                                optimize={props.handleOptimizeGear} />
+                                                optimize={props.handleOptimizeGear}
+                                            />
                                         </Box>
                                         <Grid container spacing={1}>
                                             {[...props.factors.keys()].map((idx) => (

@@ -27,6 +27,7 @@ import { HIDE_ZONE } from '../actions/HideZone';
 import { LOCK_ITEM } from '../actions/LockItem'
 import { OPTIMIZE_GEAR } from '../actions/OptimizeGear';
 import { OPTIMIZE_SAVES } from '../actions/OptimizeSaves';
+import { CLEANING_PROGRESS, CLEANING_REPORT } from '../actions/Cleaning';
 import { OPTIMIZING_GEAR } from '../actions/OptimizingGear';
 import { TERMINATE } from '../actions/Terminate'
 import { UNDO } from '../actions/Undo'
@@ -71,6 +72,8 @@ const INITIAL_STATE = {
     maxsavedidx: 0,
     showsaved: false,
     showunused: false,
+    cleaningReport: null,
+    cleaningProgress: null,
     factors: [
         'POWER', 'NONE'
     ],
@@ -678,8 +681,19 @@ const optimizerSlice = createSlice({
                 state.savedidx = action.payload.savedidx;
                 state.running = false;
             })
+            .addCase(CLEANING_REPORT, (state, action) => {
+                if (!state.running) return;
+                state.cleaningReport = action.payload.report;
+                state.cleaningProgress = null;
+                state.running = false;
+            })
+            .addCase(CLEANING_PROGRESS, (state, action) => {
+                if (!state.running) return;
+                state.cleaningProgress = action.payload.progress;
+            })
             .addCase(OPTIMIZING_GEAR, (state) => {
                 if (state.running) return;
+                state.cleaningProgress = null;
                 state.running = true;
             })
             .addCase(TERMINATE, (state) => {
