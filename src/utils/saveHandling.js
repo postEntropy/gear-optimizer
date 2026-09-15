@@ -130,7 +130,6 @@ const updateEquipped = (data, optimizerState, dispatch, targetEquip = "equip") =
     setItem('weapon', 0, inv.weapon);
     if (offhand) setItem('weapon', 1, inv.weapon2);
     inv.accs.forEach((acc, i) => { if (i < accSlots) setItem('accessory', i, acc); });
-    dispatch(Settings("offhand", offhand));
     dispatch(Settings(targetEquip, newEquip));
 }
 
