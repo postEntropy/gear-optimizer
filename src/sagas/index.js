@@ -17,11 +17,21 @@ import { TERMINATE, TERMINATE_ASYNC } from '../actions/Terminate'
 // for every "Optimize Gear".
 let worker = null;
 
-const workerUrl = new URL('./optimize.worker.js', import.meta.url);
-
 export function getWorker() {
     if (worker === null) {
-        worker = new Worker(workerUrl, { type: 'module' });
+        // The `new Worker(new URL(...))` shape has to stay inline: bundlers only
+        // recognize that exact pattern. Pulling the URL out into a variable makes
+        // them treat the file as a plain asset and ship the raw module, which then
+        // fails to resolve its imports in a production build.
+        const created = new Worker(new URL('./optimize.worker.js', import.meta.url), { type: 'module' });
+        created.addEventListener('error', (e) => {
+            console.error('Optimizer worker failed:', e.message || e.filename || e);
+            // Drop the broken worker so the next request builds a fresh one.
+            if (worker === created) {
+                worker = null;
+            }
+        });
+        worker = created;
     }
     return worker;
 }
