@@ -1,0 +1,16 @@
+# Taste
+- Communicates in Brazilian Portuguese and expects replies in Portuguese. Confidence: 0.85
+- Reports bugs by pasting the raw browser console/stack-trace output verbatim (no summary), expecting the agent to diagnose the root cause from it. Confidence: 0.5
+- Wants long-running operations (e.g., the inventory analysis) to surface visible progress feedback — a percentage/progress bar plus an estimate of how long it will take — rather than a silent single round-trip. Confidence: 0.55
+- Wants UI verdicts ("replaceable", "removable") to expose the underlying data that justifies them — show the item's strongest stats and let them be compared against the alternative — instead of leaving the user with a bare label. Confidence: 0.55
+- Wants item names in UI tables/headers accompanied by their small item image/icon so entries are identifiable at a glance, even in compact spaces. Confidence: 0.55
+- Prefers skipping unnecessary recompiles/rebuilds when the existing build artifact is already in sync with the source — just deploy/install the current artifact instead. Confidence: 0.6
+- Delegates deployment/install steps ("só instala pra mim") rather than doing them manually, expecting the agent to perform file operations and verify them (e.g., checksum match). Confidence: 0.6
+- Delegates git commit and push to the agent, often with terse commands in Portuguese ("da push"), expecting it to stage, commit and push the work on request rather than doing it manually. Confidence: 0.6
+- When asking for a recap, wants it boiled down to a few plain-language points ("em poucas palavras") rather than a long detailed write-up. Confidence: 0.5
+- Uses the app from its deployed GitHub Pages build (static hosting under a subpath) and reports bugs there, so a fix is only "done" once it is verified against a real production build served from that subpath — not just the dev server. Confidence: 0.55
+- Terse, informal bug reports ("ta carregando infinitamente") with no repro steps or expected behavior; expects the agent to reproduce, find the root cause and explain it. Confidence: 0.5
+- Prefers the agent to just go ahead and apply the fix rather than hand back a diagnosis and wait for a decision — when offered a repair they reply along the lines of "pode arrumar" and expect it done, even if they didn't fully follow the technical explanation. Confidence: 0.6
+- Expects manually-entered values to take precedence: automatic mechanisms (live sync, save import) must not silently overwrite settings the user typed in by hand. Confidence: 0.5
+- Expects analysis logic to respect the game's slot mechanics — e.g., when offhand is enabled two weapons can be worn at once, so an item is only redundant once more items beat it than there are slots to equip, instead of assuming one item per slot. Confidence: 0.55
+- Values evidence-driven proposals: asks for experiments to be run (using real project data as ground truth, benchmarked against a non-AI baseline) and wants change recommendations grounded in measured results rather than speculation. Confidence: 0.5
