@@ -1,9 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { dominates, categorizeItems, getOwnedIds, getSlotCapacities, buildCleaningReport } from './cleaning';
-import { ITEMLIST } from '../assets/Items';
+import { categorizeItems, getOwnedIds, getSlotCapacities, findSafeDominators, buildCleaningReport } from './cleaning';
+import { ITEMLIST, LOOTIES, PENDANTS } from '../assets/Items';
 import { ItemContainer, ItemNameContainer } from '../assets/ItemAux';
-
-const STATS = ['Power', 'Energy Cap'];
 
 const makeItem = (overrides) => ({
     id: 1,
@@ -12,7 +10,7 @@ const makeItem = (overrides) => ({
     zone: ['Forest', 4],
     level: 100,
     disable: false,
-    statnames: [...STATS],
+    statnames: ['Power', 'Energy Cap'],
     Power: 1,
     'Energy Cap': 1,
     ...overrides
@@ -23,37 +21,7 @@ const toItemData = (items) => items.reduce((acc, item) => {
     return acc;
 }, {});
 
-describe('dominates', () => {
-    it('returns true when b is at least equal everywhere and strictly better somewhere', () => {
-        const a = { Power: 10, 'Energy Cap': 5 };
-        const b = { Power: 12, 'Energy Cap': 5 };
-        expect(dominates(a, b, STATS)).toBe(true);
-    });
-
-    it('returns false when the items are identical', () => {
-        const a = { Power: 10, 'Energy Cap': 5 };
-        expect(dominates(a, { ...a }, STATS)).toBe(false);
-    });
-
-    it('returns false when b is worse on any single stat', () => {
-        const a = { Power: 10, 'Energy Cap': 5 };
-        const b = { Power: 12, 'Energy Cap': 4 };
-        expect(dominates(a, b, STATS)).toBe(false);
-    });
-
-    it('ignores stats missing or NaN on either side', () => {
-        const a = { Power: 10, 'Energy Cap': NaN };
-        const b = { Power: 10, 'Energy Cap': 99 };
-        expect(dominates(a, b, STATS)).toBe(false);
-        expect(dominates({ Power: 10 }, { Power: 20 }, STATS)).toBe(true);
-    });
-
-    it('handles negative stats without breaking', () => {
-        const a = { Power: -5 };
-        const b = { Power: -2 };
-        expect(dominates(a, b, ['Power'])).toBe(true);
-    });
-});
+const withDominators = (entries) => new Map(entries);
 
 describe('getOwnedIds', () => {
     it('drops empty slots, internal ids and ids missing from itemdata', () => {
@@ -75,21 +43,19 @@ describe('categorizeItems', () => {
             ownedIds: [1],
             usedSet: new Set([1]),
             itemdata: toItemData([item]),
-            zone: 4,
-            stats: STATS
+            zone: 4
         });
         expect(result.unused).toHaveLength(0);
         expect(result.replaceable).toHaveLength(0);
     });
 
     it('marks a never optimal item as unused with no dominator', () => {
-        const item = makeItem({ id: 1, Power: 5 });
+        const item = makeItem({ id: 1 });
         const result = categorizeItems({
             ownedIds: [1],
             usedSet: new Set(),
             itemdata: toItemData([item]),
-            zone: 4,
-            stats: STATS
+            zone: 4
         });
         expect(result.unused).toEqual([
             expect.objectContaining({ id: 1, slot: 'head', dominatedBy: null, outdatedZone: false })
@@ -102,49 +68,35 @@ describe('categorizeItems', () => {
             ownedIds: [1],
             usedSet: new Set(),
             itemdata: toItemData([item]),
-            zone: 24,
-            stats: STATS
+            zone: 24
         });
         expect(result.unused[0].outdatedZone).toBe(true);
     });
 
-    it('points dominatedBy at the best owned item in the same slot, preferring a used one', () => {
-        const weak = makeItem({ id: 1, Power: 1 });
-        const weakUnused = makeItem({ id: 2, Power: 2 });
-        const strongUsed = makeItem({ id: 3, Power: 3 });
+    it('points dominatedBy at the safe dominator, preferring one that is in use', () => {
+        const weak = makeItem({ id: 1 });
+        const weakUnused = makeItem({ id: 2 });
+        const strongUsed = makeItem({ id: 3 });
         const result = categorizeItems({
             ownedIds: [1, 2, 3],
             usedSet: new Set([3]),
             itemdata: toItemData([weak, weakUnused, strongUsed]),
             zone: 4,
-            stats: STATS
+            dominators: withDominators([[1, [2, 3]], [2, [3]], [3, []]])
         });
         const dominated = result.unused.find((entry) => entry.id === 1);
         expect(dominated.dominatedBy).toBe(3);
     });
 
-    it('never compares items across different slots', () => {
-        const accessory = makeItem({ id: 1, slot: ['accessory', 5], Power: 1 });
-        const helmet = makeItem({ id: 2, slot: ['head', 1], Power: 99 });
-        const result = categorizeItems({
-            ownedIds: [1, 2],
-            usedSet: new Set([2]),
-            itemdata: toItemData([accessory, helmet]),
-            zone: 4,
-            stats: STATS
-        });
-        expect(result.unused[0].dominatedBy).toBe(null);
-    });
-
-    it('reports used items that a strictly better owned item could replace', () => {
-        const used = makeItem({ id: 1, Power: 1 });
-        const better = makeItem({ id: 2, Power: 5 });
+    it('reports used items with enough better owned items as replaceable', () => {
+        const used = makeItem({ id: 1 });
+        const better = makeItem({ id: 2 });
         const result = categorizeItems({
             ownedIds: [1, 2],
             usedSet: new Set([1]),
             itemdata: toItemData([used, better]),
             zone: 4,
-            stats: STATS
+            dominators: withDominators([[1, [2]], [2, []]])
         });
         expect(result.unused).toEqual([
             expect.objectContaining({ id: 2 })
@@ -155,17 +107,35 @@ describe('categorizeItems', () => {
     });
 });
 
-describe('buildCleaningReport', () => {
-    it('asks for a save when no items are owned', () => {
-        const report = buildCleaningReport({ ownedItemIds: [], itemdata: {}, zone: 4 });
-        expect(report.needsSave).toBe(true);
-        expect(report.unused).toEqual([]);
+describe('categorizeItems with dual wield', () => {
+    const itemdata = toItemData([
+        makeItem({ id: 1, slot: ['weapon', 0] }),
+        makeItem({ id: 2, slot: ['weapon', 0] })
+    ]);
+    const dominators = withDominators([[1, [2]], [2, []]]);
+
+    it('flags the worse weapon when only one weapon can be worn', () => {
+        const result = categorizeItems({
+            ownedIds: [1, 2],
+            usedSet: new Set([2]),
+            itemdata,
+            zone: 4,
+            dominators,
+            capacities: { weapon: 1 }
+        });
+        expect(result.unused[0]).toEqual(expect.objectContaining({ id: 1, dominatedBy: 2 }));
     });
 
-    it('does not mutate the owned ids it receives', () => {
-        const ownedItemIds = [];
-        buildCleaningReport({ ownedItemIds, itemdata: {}, zone: 4 });
-        expect(ownedItemIds).toEqual([]);
+    it('keeps the worse weapon when a second weapon slot is available', () => {
+        const result = categorizeItems({
+            ownedIds: [1, 2],
+            usedSet: new Set([2]),
+            itemdata,
+            zone: 4,
+            dominators,
+            capacities: { weapon: 2 }
+        });
+        expect(result.unused[0]).toEqual(expect.objectContaining({ id: 1, dominatedBy: null }));
     });
 });
 
@@ -180,60 +150,64 @@ describe('getSlotCapacities', () => {
     });
 });
 
-describe('categorizeItems with dual wield', () => {
-    const weak = makeItem({ id: 1, slot: ['weapon', 0], Power: 1, 'Energy Cap': 1 });
-    const strong = makeItem({ id: 2, slot: ['weapon', 0], Power: 5, 'Energy Cap': 5 });
-    const itemdata = toItemData([weak, strong]);
+const itemdata = new ItemContainer(ITEMLIST.map((item) => [item.id, item]));
+const allIds = ITEMLIST.filter((item) => !item.empty && item.id < 10000).map((item) => item.id);
+const byName = (name) => ITEMLIST.find((item) => item.name === name);
 
-    it('flags the worse weapon when only one weapon can be worn', () => {
-        const result = categorizeItems({
-            ownedIds: [1, 2],
-            usedSet: new Set([2]),
-            itemdata,
-            zone: 4,
-            stats: STATS,
-            capacities: { weapon: 1 }
-        });
-        expect(result.unused[0]).toEqual(expect.objectContaining({ id: 1, dominatedBy: 2 }));
+const buildState = (ownedItemIds = allIds, overrides = {}) => ({
+    itemdata,
+    items: allIds,
+    ownedItemIds,
+    equip: ItemNameContainer(2, 0),
+    savedequip: [ItemNameContainer(2, 0)],
+    locked: {},
+    factors: ['POWER', 'NONE'],
+    maxslots: [Infinity, Infinity],
+    cubestats: { tier: 0, power: 0, toughness: 0 },
+    basestats: {},
+    capstats: {},
+    zone: 40,
+    titanversion: 4,
+    looty: LOOTIES.length - 1,
+    pendant: PENDANTS.length - 1,
+    offhand: 0,
+    ignoreDisabled: false,
+    ...overrides
+});
+
+describe('findSafeDominators', () => {
+    it('never compares items across different slots', () => {
+        const helmet = byName('Magitech Helmet');
+        const accessory = byName('Magitech Amulet');
+        const owned = [helmet.id, accessory.id];
+        const dominators = findSafeDominators(buildState(owned), owned);
+        expect(dominators.get(helmet.id)).not.toContain(accessory.id);
+        expect(dominators.get(accessory.id)).not.toContain(helmet.id);
     });
 
-    it('keeps the worse weapon when a second weapon slot is available', () => {
-        const result = categorizeItems({
-            ownedIds: [1, 2],
-            usedSet: new Set([2]),
-            itemdata,
-            zone: 4,
-            stats: STATS,
-            capacities: { weapon: 2 }
+    it('never lets an item that lacks a stat beat the only item that rolls it', () => {
+        // Crappy Boots rolls Energy Speed; Limburger Boots does not.
+        const crappy = byName('Crappy Boots');
+        const limburger = byName('Limburger Boots');
+        const owned = [crappy.id, limburger.id];
+        const dominators = findSafeDominators(buildState(owned), owned);
+        expect(dominators.get(crappy.id)).not.toContain(limburger.id);
+    });
+
+    it('only names same-slot, strictly better items for real pairs', () => {
+        const owned = allIds.slice(0, 200);
+        const dominators = findSafeDominators(buildState(owned), owned);
+        owned.forEach((id) => {
+            const safe = dominators.get(id) || [];
+            safe.forEach((peerId) => {
+                expect(itemdata[peerId].slot[0]).toBe(itemdata[id].slot[0]);
+                expect(peerId).not.toBe(id);
+            });
         });
-        expect(result.unused[0]).toEqual(expect.objectContaining({ id: 1, dominatedBy: null }));
     });
 });
 
 describe('buildCleaningReport against the real item catalog', () => {
-    const itemdata = new ItemContainer(ITEMLIST.map((item) => [item.id, item]));
-    const allIds = ITEMLIST.filter((item) => !item.empty && item.id < 10000).map((item) => item.id);
-
-    const buildState = (ownedItemIds) => ({
-        itemdata,
-        items: allIds,
-        ownedItemIds,
-        equip: ItemNameContainer(2, 0),
-        savedequip: [ItemNameContainer(2, 0)],
-        locked: {},
-        factors: ['POWER', 'NONE'],
-        maxslots: [Infinity, Infinity],
-        cubestats: { tier: 0, power: 0, toughness: 0 },
-        basestats: {},
-        capstats: {},
-        zone: 40,
-        titanversion: 4,
-        looty: 10,
-        pendant: 10,
-        offhand: 0,
-        ignoreDisabled: false
-    });
-
     it('runs the optimizer against every priority and keeps the counts consistent', () => {
         const ownedItemIds = allIds.slice(0, 400);
         const report = buildCleaningReport(buildState(ownedItemIds));
@@ -282,9 +256,34 @@ describe('buildCleaningReport against the real item catalog', () => {
         )));
 
         const single = usedWeapons(buildCleaningReport(buildState(ownedItemIds)));
-        const dual = usedWeapons(buildCleaningReport({ ...buildState(ownedItemIds), offhand: 25 }));
+        const dual = usedWeapons(buildCleaningReport(buildState(ownedItemIds, { offhand: 25 })));
 
         expect(dual.size).toBeGreaterThan(single.size);
         single.forEach((id) => expect(dual.has(id)).toBe(true));
+    });
+
+    it('does not let the zone, titan version, looty or pendant settings decide what is unused', () => {
+        const ownedItemIds = allIds.slice(0, 400);
+        const base = buildCleaningReport(buildState(ownedItemIds));
+        const narrowed = buildCleaningReport(buildState(ownedItemIds, {
+            zone: 10,
+            titanversion: 1,
+            looty: 0,
+            pendant: 0
+        }));
+
+        const ids = (report) => report.unused.map((entry) => entry.id).sort((a, b) => a - b);
+        expect(ids(narrowed)).toEqual(ids(base));
+    });
+
+    it('never names a replacement that is missing a stat the item rolls', () => {
+        const ownedItemIds = allIds.slice(0, 400);
+        const report = buildCleaningReport(buildState(ownedItemIds));
+        report.unused.forEach((entry) => {
+            if (entry.dominatedBy == null) return;
+            const itemStats = new Set(itemdata[entry.id].statnames || []);
+            const dominatorStats = new Set(itemdata[entry.dominatedBy].statnames || []);
+            itemStats.forEach((stat) => expect(dominatorStats.has(stat)).toBe(true));
+        });
     });
 });

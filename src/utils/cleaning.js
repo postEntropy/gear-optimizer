@@ -1,6 +1,5 @@
 import { Factors, Slot } from '../assets/ItemAux';
 import { Optimizer } from '../Optimizer';
-import { allowed_zone, get_limits } from '../util';
 
 const EXCLUDED_FACTORS = ['NONE', 'DELETE', 'INSERT'];
 
@@ -34,32 +33,12 @@ export function getSlotCapacities(state) {
     return capacities;
 }
 
-export const RELEVANT_STATS = (() => {
-    const stats = new Set();
-    Object.keys(Factors).forEach((key) => {
-        if (EXCLUDED_FACTORS.includes(key)) return;
-        const factor = Factors[key];
-        if (!factor || !Array.isArray(factor[1])) return;
-        factor[1].forEach((stat) => stats.add(stat));
+function relevantFactorNames() {
+    return Object.keys(Factors).filter((name) => {
+        if (EXCLUDED_FACTORS.includes(name)) return false;
+        const factor = Factors[name];
+        return factor && Array.isArray(factor[1]) && factor[1].length > 0;
     });
-    return Array.from(stats);
-})();
-
-/**
- * @return {boolean} true when item `b` is at least as good as item `a` on every
- * relevant stat and strictly better on at least one. Stats missing or NaN on
- * either side are ignored so items that do not roll a stat are still comparable.
- */
-export function dominates(a, b, stats = RELEVANT_STATS) {
-    let strictlyBetter = false;
-    for (let i = 0; i < stats.length; i++) {
-        const av = a[stats[i]];
-        const bv = b[stats[i]];
-        if (av === undefined || bv === undefined || Number.isNaN(av) || Number.isNaN(bv)) continue;
-        if (bv < av) return false;
-        if (bv > av) strictlyBetter = true;
-    }
-    return strictlyBetter;
 }
 
 /**
@@ -78,6 +57,12 @@ export function getOwnedIds(state) {
  * Every id that is worth keeping: equipped items, items stored in saved
  * loadouts, and every owned item sitting on the Pareto frontier of any
  * priority in the game.
+ *
+ * Owned items are ranked on their own merits, regardless of the current zone,
+ * titan version, looty or pendant settings. Those settings decide which items
+ * the optimizer would equip right now, not which items are worth keeping, and
+ * letting them narrow this scan made the report call powerful gear redundant
+ * just because it was filtered out of the current optimization.
  */
 export function computeUsedSet(state, ownedIds, onProgress) {
     const itemdata = state.itemdata || {};
@@ -102,15 +87,9 @@ export function computeUsedSet(state, ownedIds, onProgress) {
     });
 
     const optimizer = new Optimizer(state);
-    const limits = get_limits(state);
     const ownedSet = new Set(ownedIds);
     const capacities = getSlotCapacities(state);
-
-    const factorNames = Object.keys(Factors).filter((factorName) => {
-        if (EXCLUDED_FACTORS.includes(factorName)) return false;
-        const factor = Factors[factorName];
-        return factor && Array.isArray(factor[1]) && factor[1].length > 0;
-    });
+    const factorNames = relevantFactorNames();
 
     if (onProgress) onProgress(0, factorNames.length, null);
 
@@ -125,8 +104,7 @@ export function computeUsedSet(state, ownedIds, onProgress) {
                 .filter((id) => itemdata[id]
                     && !itemdata[id].disable
                     && itemdata[id].slot[0] === slotName
-                    && Array.isArray(itemdata[id].zone)
-                    && allowed_zone(itemdata, limits, id))
+                    && Array.isArray(itemdata[id].zone))
                 .map((id) => itemdata[id]);
 
             if (itemsInSlot.length === 0) return;
@@ -144,18 +122,60 @@ export function computeUsedSet(state, ownedIds, onProgress) {
 }
 
 /**
- * Pure categorization of owned items against an already computed `usedSet`.
- * Returns the items that never show up anywhere (`unused`) and the items that
- * do show up but are strictly worse than enough other owned items in the same
- * slot to run out of slots for them (`replaceable`).
- *
- * `capacities` maps a slot name to how many of that slot can be worn at once
- * (weapons get a second slot with offhand, accessories scale with accslots).
- * An item with one better alternative in a two-slot category is still usable
- * alongside it, so it is not flagged.
+ * Value of one stat of an item under the optimizer's current priority, in the
+ * direction that priority rewards. Missing stats use the same zero/baseline
+ * convention as the optimizer's Pareto test, so an item that rolls a stat is
+ * never beaten by one that does not roll it at all.
  */
-export function categorizeItems({ ownedIds, usedSet, itemdata, zone, stats = RELEVANT_STATS, capacities = {} }) {
+const statValue = (entry, index, exponents) => {
+    if (entry.present[index]) return entry.pows[index];
+    return exponents === null || exponents[index] > 0 ? 0 : 1;
+};
+
+/**
+ * Compares two items under the optimizer's current priority: `1` when `major`
+ * is at least as good on every stat and strictly better on one, `0` when they
+ * are indistinguishable, `-1` when `major` loses on some stat.
+ */
+const compareUnderPriority = (optimizer, major, minor) => {
+    const a = optimizer.statvals(major);
+    const b = optimizer.statvals(minor);
+    const exponents = optimizer.factors.length > 2 ? optimizer.factors[2] : null;
+    let better = false;
+    for (let i = 0; i < a.present.length; i++) {
+        const av = statValue(a, i, exponents);
+        const bv = statValue(b, i, exponents);
+        if (av < bv) return -1;
+        if (av > bv) better = true;
+    }
+    return better ? 1 : 0;
+};
+
+const beatsEveryPriority = (optimizer, major, minor, factorNames) => {
+    let strictlyBetter = false;
+    for (let i = 0; i < factorNames.length; i++) {
+        optimizer.factors = Factors[factorNames[i]];
+        const result = compareUnderPriority(optimizer, major, minor);
+        if (result < 0) return false;
+        if (result > 0) strictlyBetter = true;
+    }
+    return strictlyBetter;
+};
+
+/**
+ * For every owned item, the ids of same-slot items that are strictly better for
+ * **every** priority at once. Because those replacements never lose on any
+ * stat that any priority rewards, they are safe to recommend: unlike a plain
+ * total-stat comparison, an item that is the only source of a stat (or that is
+ * optimal for a negative-weight priority such as cap speed) is never called
+ * replaceable by something that is worse for that purpose.
+ */
+export function findSafeDominators(state, ownedIds) {
+    const itemdata = state.itemdata || {};
+    const factorNames = relevantFactorNames();
+    const optimizer = new Optimizer(state);
     const bySlot = new Map();
+
     ownedIds.forEach((id) => {
         const item = itemdata[id];
         if (!item) return;
@@ -164,49 +184,68 @@ export function categorizeItems({ ownedIds, usedSet, itemdata, zone, stats = REL
         bySlot.get(slotName).push(item);
     });
 
-    const findDominators = (item) => {
+    const dominators = new Map();
+    ownedIds.forEach((id) => {
+        const item = itemdata[id];
+        if (!item) {
+            dominators.set(id, []);
+            return;
+        }
+        const safe = [];
         const peers = bySlot.get(item.slot[0]) || [];
-        const dominators = [];
         for (let i = 0; i < peers.length; i++) {
             const peer = peers[i];
-            if (peer.id === item.id) continue;
-            if (dominates(item, peer, stats)) dominators.push(peer.id);
+            if (peer.id === id) continue;
+            if (beatsEveryPriority(optimizer, peer, item, factorNames)) safe.push(peer.id);
         }
-        return dominators;
-    };
+        dominators.set(id, safe);
+    });
 
+    return dominators;
+}
+
+/**
+ * Pure categorization of owned items against an already computed `usedSet` and
+ * the safe-domination map. Returns the items that never show up anywhere
+ * (`unused`) and the items that do show up but can be replaced by enough other
+ * owned items in the same slot to run out of slots for them (`replaceable`).
+ *
+ * `capacities` maps a slot name to how many of that slot can be worn at once.
+ * `dominators` maps an item id to the same-slot items that beat it for every
+ * priority, so a replacement is only ever named when it is genuinely better.
+ */
+export function categorizeItems({ ownedIds, usedSet, itemdata, zone, capacities = {}, dominators = new Map() }) {
     const unused = [];
     const replaceable = [];
 
     ownedIds.forEach((id) => {
         const item = itemdata[id];
         if (!item) return;
-        const zoneId = item.zone ? item.zone[1] : null;
+        const safe = dominators.get(id) || [];
         const capacity = Math.max(1, capacities[item.slot[0]] || 1);
-        const dominators = findDominators(item);
-        const redundant = dominators.length >= capacity;
-        const dominatedBy = redundant
-            ? (dominators.find((peerId) => usedSet.has(peerId)) ?? dominators[0])
+        const redundant = safe.length >= capacity;
+        const replacement = redundant
+            ? (safe.find((peerId) => usedSet.has(peerId)) ?? safe[0])
             : null;
         const base = {
             id,
             slot: item.slot[0],
             level: item.level,
-            zone: zoneId,
+            zone: item.zone ? item.zone[1] : null,
             disabled: !!item.disable
         };
 
         if (usedSet.has(id)) {
-            if (dominatedBy !== null) {
-                replaceable.push({ ...base, bestOwnedId: dominatedBy });
+            if (redundant) {
+                replaceable.push({ ...base, bestOwnedId: replacement });
             }
             return;
         }
 
         unused.push({
             ...base,
-            dominatedBy,
-            outdatedZone: typeof zoneId === 'number' && typeof zone === 'number' && zoneId < zone
+            dominatedBy: replacement,
+            outdatedZone: typeof base.zone === 'number' && typeof zone === 'number' && base.zone < zone
         });
     });
 
@@ -236,7 +275,8 @@ export function buildCleaningReport(state, onProgress) {
     const ownedIds = getOwnedIds(state);
     const capacities = getSlotCapacities(state);
     const usedSet = computeUsedSet(state, ownedIds, onProgress);
-    const { unused, replaceable } = categorizeItems({ ownedIds, usedSet, itemdata, zone: state.zone, capacities });
+    const dominators = findSafeDominators(state, ownedIds);
+    const { unused, replaceable } = categorizeItems({ ownedIds, usedSet, itemdata, zone: state.zone, capacities, dominators });
 
     report.ownedCount = ownedIds.length;
     report.usedCount = ownedIds.reduce((count, id) => (usedSet.has(id) ? count + 1 : count), 0);
