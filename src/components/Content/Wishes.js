@@ -3,7 +3,6 @@ import {
     TextField, Table, TableBody, TableCell, TableHead, TableRow, Checkbox,
     FormControlLabel, Paper, Box, Grid, Typography, Divider, Button, InputAdornment, Select, MenuItem,
 } from '@mui/material';
-import { Wish } from '../../Wish';
 import { Wishes } from '../../assets/ItemAux';
 import ResourcePriorityForm from '../ResourcePriorityForm/ResourcePriorityForm';
 import WishForm from '../WishForm/WishForm';
@@ -25,7 +24,32 @@ class WishComponent extends Component {
     }
 
     componentDidMount() {
-        setTimeout(() => this.setState({ isReady: true }), 300);
+        this.readyTimer = setTimeout(() => {
+            this.setState({ isReady: true });
+            this.scheduleOptimization(0);
+        }, 300);
+    }
+
+    scheduleOptimization(delay = 200) {
+        clearTimeout(this.optimizationTimer);
+        this.optimizationTimer = setTimeout(() => this.props.handleWishAsync(), delay);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!this.state.isReady) return;
+        const inputsChanged = prevProps.wishstats !== this.props.wishstats
+            || prevProps.savedequip !== this.props.savedequip
+            || prevProps.itemdata !== this.props.itemdata
+            || prevProps.cubestats !== this.props.cubestats
+            || prevProps.basestats !== this.props.basestats
+            || prevProps.capstats !== this.props.capstats
+            || prevProps.offhand !== this.props.offhand;
+        if (inputsChanged) this.scheduleOptimization();
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.readyTimer);
+        clearTimeout(this.optimizationTimer);
     }
 
     handleFocus(event) {
@@ -110,8 +134,12 @@ class WishComponent extends Component {
 
     render() {
         if (!this.state.isReady) return <Loading />;
-        let wishOptimizer = new Wish(this.props);
-        const results = wishOptimizer.optimize();
+        const results = this.props.wishResults;
+        if (!results) {
+            return this.props.wishError
+                ? <Typography color="error" align="center">Could not calculate wishes: {this.props.wishError}</Typography>
+                : <Loading />;
+        }
         const score = toTime(Math.max(...results[0]));
         const scores = results[0];
         const assignments = results[1];

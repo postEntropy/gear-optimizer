@@ -15,7 +15,7 @@ import {
 
 import { AUGMENT, AUGMENT_SETTINGS } from '../actions/Augment';
 import { HACK } from '../actions/Hack';
-import { WISH } from '../actions/Wish';
+import { WISH, WISH_ASYNC, WISH_FAILED } from '../actions/Wish';
 import { SETTINGS, TITAN } from '../actions/Settings';
 import { CREMENT } from '../actions/Crement'
 import { DISABLE_ITEM, DISABLE_ZONE } from '../actions/DisableItem';
@@ -162,6 +162,8 @@ const INITIAL_STATE = {
         rcBetaPot: false,
         rcDeltaPot: false
     },
+    wishResults: null,
+    wishError: null,
     hackstats: {
         rbeta: 0,
         rdelta: 0,
@@ -332,8 +334,18 @@ const optimizerSlice = createSlice({
                 if (!state.running) return;
                 state.running = false;
             })
-            .addCase(WISH, (state) => {
+            .addCase(WISH_ASYNC, (state) => {
+                state.wishResults = null;
+                state.wishError = null;
+            })
+            .addCase(WISH, (state, action) => {
                 if (!state.running) return;
+                state.wishResults = action.payload.vals;
+                state.wishError = null;
+                state.running = false;
+            })
+            .addCase(WISH_FAILED, (state, action) => {
+                state.wishError = action.payload.error;
                 state.running = false;
             })
             .addCase(SETTINGS, (state, action) => {

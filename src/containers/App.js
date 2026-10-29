@@ -85,6 +85,8 @@ const selectOptimizerProps = (state) => {
         ngustats: s.ngustats,
         hackstats: s.hackstats,
         wishstats: s.wishstats,
+        wishResults: s.wishResults,
+        wishError: s.wishError,
         history: s.history,
         highlightBest: s.highlightBest,
         showR3History: s.showR3History,

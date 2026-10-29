@@ -9,6 +9,7 @@ import { buildCleaningReport } from '../utils/cleaning'
 self.addEventListener("message", choose);
 
 function choose(e) {
+    const requestId = e.data.requestId;
     try {
         if (e.data.command === 'optimize') {
             optimize.call(this, e);
@@ -17,16 +18,16 @@ function choose(e) {
         } else if (e.data.command === 'augment') {
             augment.call(this, e);
         } else if (e.data.command === 'wishes') {
-            augment.call(this, e);
+            wish.call(this, e);
         } else if (e.data.command === 'scanUseless') {
             scanUseless.call(this, e);
         } else {
-            console.log('Error: invalid web worker command: ' + e.data.command + '.')
+            this.postMessage({ requestId, error: 'Invalid worker command: ' + e.data.command });
         }
     } catch (err) {
         // The worker is reused across requests, so surface the failure to the
         // caller instead of leaving the request without a reply.
-        this.postMessage({ error: err && err.message ? err.message : String(err) });
+        this.postMessage({ requestId, error: err && err.message ? err.message : String(err) });
     }
 }
 
@@ -43,7 +44,7 @@ function optimize(e) {
     // select random remaining layout
     base_layout = base_layout[Math.floor(Math.random() * base_layout.length)];
     let equip = optimizer.sort_locks(state.locked, state.equip, base_layout);
-    this.postMessage({ equip: equip });
+    this.postMessage({ requestId: e.data.requestId, equip: equip });
 }
 
 function optimizeSaves(e) {
@@ -93,27 +94,27 @@ function optimizeSaves(e) {
         });
         return save;
     });
-    this.postMessage({ savedequip: savedequip });
+    this.postMessage({ requestId: e.data.requestId, savedequip: savedequip });
 }
 
 function augment(e) {
     const state = e.data.state;
     const augment = new Augment(state.augment.lsc, state.augment.time);
     let vals = augment.optimize();
-    this.postMessage({ vals: vals });
+    this.postMessage({ requestId: e.data.requestId, vals: vals });
 }
 
 function wish(e) {
     const state = e.data.state;
     const wish = new Wish(state);
     let vals = wish.optimize();
-    this.postMessage({ vals: vals });
+    this.postMessage({ requestId: e.data.requestId, vals: vals });
 }
 
 function scanUseless(e) {
     const report = buildCleaningReport(e.data.state, (completed, total, label) => {
-        this.postMessage({ progress: { completed, total, label } });
+        this.postMessage({ requestId: e.data.requestId, progress: { completed, total, label } });
     });
-    this.postMessage({ report });
+    this.postMessage({ requestId: e.data.requestId, report });
 }
 

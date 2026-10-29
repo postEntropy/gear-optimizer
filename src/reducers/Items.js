@@ -136,7 +136,7 @@ export function cleanState(state, skipSaving = false) {
 }
 
 export function loadState(state) {
-    const lc = window.localStorage.getItem(LOCALSTORAGE_NAME);
+    const lc = safeStorage.getItem(LOCALSTORAGE_NAME);
     let localStorageState;
     try {
         localStorageState = JSON.parse(lc);
